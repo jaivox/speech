@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<project name="Jaivox" default="build" basedir=".">
+	<property environment="env" />
+	<target name="clean">
+		<delete dir="bin"/>
+	</target>
+	<target name="build">
+		<mkdir dir="bin"/>
+        <javac includeantruntime="false" srcdir="src" destdir="bin">
+			<compilerarg value="-classpath" />
+			<compilerarg value="myclasspath" />
+		</javac>
+	</target>
+	<target name="jarfile" description="Create jaivox.jar" depends="build">
+		<jar jarfile="jaivox.jar" 
+           	manifest="src/com/jaivox/jaivox.Manifest"
+           	compress="true"
+	 		basedir="bin/">
+	 		<include name="com/**"/>
+	 	</jar>
+  	</target>
+</project>
+

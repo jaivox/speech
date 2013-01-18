@@ -1,0 +1,36 @@
+CC	Coordinating conjunction	and or
+CD	Cardinal number		(five three 13%)
+DT	Determiner	the
+EX	Existential there
+FW	Foreign word
+IN	Preposition or subordinating conjunction	in on of than with
+JJ	Adjective	(nice easy)
+JJR	Adjective, comparative	(nicer easier)
+JJS	Adjective, superlative	(nicest easiest)
+LS	List item marker
+MD	Modal	may should
+NN	Noun, singular or mass
+NNS	Noun, plural
+NNP	Proper noun, singular
+NNPS	Proper noun, plural
+PDT	Predeterminer	all half many this
+POS	Possessive ending
+PRP	Personal pronoun	hers herself him himself it itself me myself one oneself ours ourselves ownself self she theirs them themselves they us
+PRP$	Possessive pronoun	her his mine my our ours their your
+RB	Adverb
+RBR	Adverb, comparative
+RBS	Adverb, superlative
+RP	Particle	about across along apart around aside at away back before behind by ever for from up with you
+SYM	Symbol
+TO	to
+UH	Interjection	Goodbye Goody Gosh Wow Jeepers Hey Oops amen huh howdy uh dammit whammo shucks heck anyways honey golly man baby diddle hush
+VB	Verb, base form	(ask assemble assess assign)
+VBD	Verb, past tense	(dipped pleaded swiped)
+VBG	Verb, gerund or present participle	(telegraphing stirring focusing angering)
+VBN	Verb, past participle	(multihulled dilapidated aerosolized)
+VBP	Verb, non-3rd person singular present	(brush terminate appear)
+VBZ	Verb, 3rd person singular present	(bases reconstructs marks)
+WDT	Wh-determiner	that what whatever which whichever
+WP	Wh-pronoun	what which who whom
+WP$	Possessive wh-pronoun	whose
+WRB	Wh-adverb	how however whenever where whereby whereever why

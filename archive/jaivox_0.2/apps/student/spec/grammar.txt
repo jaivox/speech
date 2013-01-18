@@ -1,0 +1,49 @@
+are the NNS-C about the NNS JJ-P
+are the NNS-C about the NNS JJ-N
+is the NN-C about the NNS JJ-P
+is the NN-C about the NNS JJ-N
+are there JJ-P NNS-C about the NNS
+are there JJ-N NNS-C about the NNS
+are there DT NNS-C about the NNS
+are there PH-P NNS-C about the NNS
+are there PH-N NNS-C about the NNS
+are there any JJ-P comments about the NNS
+do the NNS have JJ-P NNS-C
+do the NNS have JJR-P NNS-C
+are there just JJ-N NNS-C about the NNS	
+are there just JJR-N NNS-C about the NNS
+are there just PH-N NNS-C about the NNS
+are there only JJ-N NNS-C about the NNS
+are there only PH-N NNS-C about the NNS
+WP is the NN with JJR-P NNS-C
+WP is the NN with the JJS-P NNS-C
+which NNS have JJR-P NNS-C
+which NNS have the JJS-P NNS-C
+which NNS have only JJR-N NNS-C
+which NN has more NNS-C than NNP
+which NN's NNS-C are JJ-P
+which NN's NNS-C are JJ-N
+which NN's NNS-C are only JJ-N
+which NN's NNS-C are just JJ-N
+which NN's NNS-C are RB JJ-P
+which NN's NNS-C are RB JJ-N
+which NN's NNS-C are only RB JJ-N
+which NN's NNS-C are just RB JJ-N
+is NNP the student with the JJS-P NNS-C
+is NNP the student with the JJS-N NNS-C
+WP IN-E NNP
+WP RB-E
+PRO RB-E
+is there any NN with JJR-P NNS-C than NNP
+is there any NN with JJR-N NNS-C than NNP
+how about NNP
+which JJ-E NNS
+which JJ-E NNS have JJ-P NNS-C
+which JJ-E NN
+what JJ-E NNS
+what JJ-E NN
+any JJ-E NNS
+any JJ-E NN with JJ-P NNS-C
+any JJ-E NNS with JJ-P NNS-C
+any JJ-E NN with JJR-P NNS-C than NNP
+any JJ-E NNS with JJR-P NNS-C than NNP

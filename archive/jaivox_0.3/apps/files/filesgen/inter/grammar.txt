@@ -1,0 +1,25 @@
+ WP is the JJ-S NNP	what is the most recent topic?
+ are NNS JJ-N	are topics big?
+ are NNS JJ-N at this time	are topics recent at this time?
+ do you think the NNS are JJ-N	are the topics brief?
+ do you think NNP is JJ-N	do you think Java is recent?
+ do you think NNP is JJ-P	do you think C is big?
+ are the NNS JJ-N	are the topics small?
+ are the NNS RBS	are the topics very recent?
+ is NNP DT NN	is Shell a topic?
+ is NNP JJR-P	is Java bigger?
+ is NNP JJR-N	is C smaller?
+ WP NN is JJ-P	what topic is big?
+ WP NNS are JJ-P	what topics are big?
+ WP is a JJ-P NN	what is a fast road?
+ WP are the JJ-P NNS	what are the big topics?
+ are there any JJ-P NNS	are there any big topics?
+ WP NN is JJR-P than NNP	what topic is bigger than C?
+ WP NN is JJR-N than NNP	what topic is smaller than Java?
+ is there anything JJR-P than NNP	Is there anything bigger than Java?
+ is there anything JJR-N than NNP	Is there anything smaller than Java?
+ how about NNP	How about Perl?
+ WP ELS NNS	What other topics?
+ any ELS NNS	Any other topics?
+ any ELS JJ-P NNS	Any other big topics?
+ any ELS JJR-P NNS	Any other bigger topics?

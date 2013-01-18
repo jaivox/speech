@@ -1,0 +1,38 @@
+ do the NNS get JJ-N at this time	do the roads get busy at this time?
+ do the NNS get JJ-N at this time	do the roads get congested at this time?
+ do the NNS get JJ-N	do the roads get congested?
+ are NNS JJ-N	are roads congested?
+ are NNS JJ-N at this time	are roads busy at this time?
+ do you think the NNS are JJ-N	do you think the roads are congested?
+ do you think NNP is JJ-N	do you think Brigham Road is congested?
+ do you think NNP is JJ-P	do you think Brigham road is fast?
+ is NNP a JJ-P NN	is Adams Street an alternate route?
+ is NNP the JJS-P NN	is Adams Street the best option?
+ are the NNS JJ-N	are the highways slow?
+ are the NNS RBS	are the highways very slow?
+ is NNP DT NN	is Adams Street a highway?
+ is NNP JJR-P	is Adams Street faster?
+ is NNP JJR-N	is Adams Stree slower?
+ WP NN JJ-P	what road is fast?
+ WP NNS JJ-P	what roads are fast?
+ WP is a JJ-P NN	what is a fast road?
+ WP are the JJ-P NNS	what are the fast roads?
+ are there any JJ-P NNS are there any fast roads?
+ which NN is JJR-P than NNP	which road is faster than McLauren Highway?
+ which NN is JJR-N than NNP	which highway is slower than Kenworth?
+ which NN is JJ-P	which road is easiest?
+ which NN is JJR-P than NNP	which road is smoother than McLauren Highway?
+ WP is DT JJS-P NN	what is the fastest route?
+ WP is JJR-P than NNP	what is faster than Kenworth?
+ is NNP one of the JJ-P NN	Is Elmwood one of fast roads?
+ is that the JJS-P	Is that the fastest?
+ how JJ-P is NNP	How fast is Elmwood Avenue?
+ WP ELS NNP	What besides Elmwood?
+ is there anything JJR-P than NNP	Is there anything faster than Elmwood?
+ is there anything JJR-N than NNP	Is there anything slower than Elmwood?
+ how about NNP	How about Skidmore?
+ WP ELS NNS	Which other roads?
+ WP ELS NNS	Which other roads?
+ any ELS NNS	Any other roads?
+ any ELS JJ-P NNS	Any other fast roads?
+ any ELS JJR-P NNS	Any other faster roads?
