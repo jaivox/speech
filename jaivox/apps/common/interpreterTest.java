@@ -21,6 +21,7 @@ public class PATinterpreterTest extends Thread {
 		Properties kv = new Properties ();
 		kv.setProperty ("data_file", "PATdata_file");
 		kv.setProperty ("common_words", "PATcommon_words");
+		kv.setProperty ("answer_forms", "PATanswer_forms");
 		kv.setProperty ("specs_file", "PATspecs_file");
 		kv.setProperty ("questions_file", "PATquestions_file");
 		kv.setProperty ("recognizer", "PATrecognizer");

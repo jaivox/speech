@@ -1,0 +1,69 @@
+{
+intro:
+	I guess
+	It looks like
+	It seems like
+	Apparently
+
+yesanswers:
+	that is the case
+	the answer is yes
+	that is true
+
+noanswers:
+	that is not the case
+	the answer is no
+	that is false
+
+confused:
+	I cannot understand your question
+	I am unable to figure it out
+	Sorry about being so dense
+	Well, may be I am not figuring it out right,
+	Really sorry about this,
+
+followup:
+	can you ask a different question
+	can you ask this another way
+	is there another way to ask what you need
+	perhaps you can reformulate the question
+
+topics:
+	I recall we were talking about
+	may be there is something related to
+	is your question about
+	could it be that you are asking about
+
+oneitem:
+	that could be
+	that one is,
+
+twoitems:
+	there are two such,
+	there are exactly two answers,
+	two answers may fit,
+	two solutions,
+	there are two matches,
+
+manyitems:
+	there are several solutions,
+	there are many answers,
+	many ways to answer this,
+	there are quite a few solutions,
+	there are several matches,
+
+forinstance:
+	for example
+	for instance
+	such as
+	as an example
+	one of them is
+	one such is
+	one such example is
+	
+askanother:
+	can you ask another question
+	can you ask in a different way
+	is there another way to ask your question
+	
+}

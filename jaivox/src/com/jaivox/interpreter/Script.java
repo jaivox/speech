@@ -24,47 +24,29 @@ public class Script {
 	Vector <Qapair> qa;
 	TreeMap <String, String> qspecs;
 
-	static String intro [] = {
-		"I guess ",
-		"It looks like ",
-		"It seems like ",
-		"Apparently ",
-	};
+	Answer adata;
 
-	String yesanswers [] = {"that is the case", "the answer is yes", "that is true"};
-	String noanswers [] = {"that is not the case", "the answer is no", "that is false"};
+	String intro [];
 
-	String confused [] = {"I cannot understand your question ",
-		"I am unable to figure it out ",
-		"Sorry about being so dense ",
-		"Well, may be I am not figuring it out right, ",
-		"Really sorry about this, "
-	};
+	String yesanswers [];
 
-	String followup [] = {"can you ask a different question ",
-		"can you ask this another way ",
-		"is there another way to ask what you need ",
-		"perhaps you can reformulate the question "
-	};
+	String noanswers [];
 
-	String topics [] = {"I recall we were talking about ",
-		"may be there is something related to ",
-		"is your question about ",
-		"could it be that you are asking about "
-	};
+	String confused [];
 
-	String oneitem [] = {"that could be ", "that one is, " };
+	String followup [];
 
-	String twoitems [] = {"there are two such, ", "there are exactly two answers, ",
-		"two answers may fit, ", "two solutions, ", "there are two matches, " };
+	String topics [];
 
-	String manyitems [] = {"there are several solutions, ", "there are many answers, ",
-		"many ways to answer this, ", "there are quite a few solutions, ",
-		"there are several matches, "};
+	String oneitem [];
 
-	String forinstance [] = {"for example ", "for instance ", "such as ", "as an example ",
-		"one of them is ", "one such is ", "one such example is "};
+	String twoitems [];
 
+	String manyitems [];
+
+	String forinstance [];
+	
+	String askanother [];
 
 	TreeMap <String, Point> quants;
 	TreeMap <String, String []> qwords;
@@ -77,10 +59,22 @@ public class Script {
 @param inter
 @param inf
  */
-	public Script (Interact inter, Info inf) {
+	public Script (Interact inter, Info inf, String answerdata) {
 		Act = inter;
 		Info = inf;
 		initializeQuants ();
+		adata = new Answer (answerdata);
+		intro = adata.intro;
+		yesanswers = adata.yesanswers;
+		noanswers = adata.noanswers;
+		confused = adata.confused;
+		followup = adata.followup;
+		topics = adata.topics;
+		oneitem = adata.oneitem;
+		twoitems = adata.twoitems;
+		manyitems = adata.manyitems;
+		forinstance = adata.forinstance;
+		askanother = adata.askanother;
 	}
 
 /**
@@ -192,7 +186,8 @@ public class Script {
 		if (lastfull == -1) {
 			Log.info ("Should have some some nouns specified after stage "+lastfull);
 			state = "notSpecified";
-			answer =  "I can't figure out the answer, can you ask a new question?";
+			answer = selectPhrase (confused) + " " + selectPhrase (askanother);
+			// answer =  "I can't figure out the answer, can you ask a new question?";
 			return answer;
 		}
 
@@ -208,7 +203,8 @@ public class Script {
 			// can't figure out
 			Log.info ("Can't figure out anything: "+p.question);
 			state = "internalError";
-			answer = "I am confused, could you ask the question a different way?";
+			answer = selectPhrase (confused) + " " + selectPhrase (askanother);
+			// answer = "I am confused, could you ask the question a different way?";
 			return answer;
 		}
 
@@ -221,7 +217,8 @@ public class Script {
 			}
 			else {
 				String temp = generateSimple (p);
-				answer = "Do not know what else. However, " + temp;
+				answer = selectPhrase (topics) + " " + temp;
+				// answer = "Do not know what else. However, " + temp;
 			}
 		}
 		else if (nNouns == 1) {
@@ -344,10 +341,10 @@ public class Script {
 
 			if (p.command.equals ("ask")) {
 				if (count == 0) {
-					result = selectPhrase (intro) + selectPhrase (noanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 				}
 				else {
-					result = selectPhrase (intro) + selectPhrase (yesanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
 				}
 				return result;
 			}
@@ -356,13 +353,14 @@ public class Script {
 				result ="I cannot determine the answer.";
 			}
 			else if (count == 1) {
-				result = selectPhrase (oneitem) + selection [0] +stop;
+				result = selectPhrase (oneitem) + " " + selection [0] +stop;
 			}
 			else if (count == 2) {
-				result = selectPhrase (twoitems)  + selection [0] + " and "+ selection [1] +stop;
+				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] +stop;
 			}
 			else {
-				result = selectPhrase (manyitems) + selectPhrase (forinstance) + selection [0] +stop;
+				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance)
+				+ " " + selection [0] +stop;
 			}
 			return result;
 		}
@@ -388,7 +386,7 @@ public class Script {
 
 			String selection [] = selectComparative (f, up, p.nnp);
 			if (selection == null) {
-				String problem = selectPhrase (intro) + selectPhrase (noanswers) + stop;
+				String problem = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 				return problem;
 			}
 
@@ -397,10 +395,10 @@ public class Script {
 
 			if (p.command.equals ("ask")) {
 				if (count == 0) {
-					result = selectPhrase (intro) + selectPhrase (noanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 				}
 				else {
-					result = selectPhrase (intro) + selectPhrase (yesanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
 				}
 				return result;
 			}
@@ -415,13 +413,14 @@ public class Script {
 				result ="I cannot seem to come up with the answer.";
 			}
 			else if (count == 1) {
-				result = selectPhrase (oneitem) + selection [0] +stop;
+				result = selectPhrase (oneitem) + " " + selection [0] +stop;
 			}
 			else if (count == 2) {
-				result = selectPhrase (twoitems)  + selection [0] + " and "+ selection [1] +stop;
+				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] +stop;
 			}
 			else {
-				result = selectPhrase (manyitems) + selectPhrase (forinstance) + selection [0] +stop;
+				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance) 
+				+ " " + selection [0] +stop;
 			}
 			return result;
 		}
@@ -449,7 +448,7 @@ public class Script {
 			// String orig [] = selectOrdering (f, plow, phigh);
 			String orig [] = selectComparative (f, up, p.nnp);
 			if (orig == null) {
-				String problem = selectPhrase (intro) + selectPhrase (noanswers) + stop;
+				String problem = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 				return problem;
 			}
 
@@ -470,10 +469,10 @@ public class Script {
 
 			if (p.command.equals ("ask")) {
 				if (count == 0) {
-					result = selectPhrase (intro) + selectPhrase (noanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 				}
 				else {
-					result = selectPhrase (intro) + selectPhrase (yesanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
 				}
 				return result;
 			}
@@ -488,13 +487,14 @@ public class Script {
 				result ="Seems like I cannot figure out the answer.";
 			}
 			else if (count == 1) {
-				result = selectPhrase (oneitem) + selection [0] +stop;
+				result = selectPhrase (oneitem) + " " + selection [0] +stop;
 			}
 			else if (count == 2) {
-				result = selectPhrase (twoitems)  + selection [0] + " and "+ selection [1] + stop;
+				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] + stop;
 			}
 			else {
-				result = selectPhrase (manyitems) + selectPhrase (forinstance) + selection [0] +stop;
+				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance)
+				+ " " + selection [0] +stop;
 			}
 			return result;
 		}
@@ -523,7 +523,7 @@ public class Script {
 			String nnp = nnps.elementAt (0);
 			String orig [] = selectComparative (f, up, nnp);
 			if (orig == null) {
-				String problem = selectPhrase (intro) + selectPhrase (noanswers) + stop;
+				String problem = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 				return problem;
 			}
 
@@ -548,10 +548,10 @@ public class Script {
 
 			if (p.command.equals ("ask")) {
 				if (count == 0) {
-					result = selectPhrase (intro) + selectPhrase (noanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 				}
 				else {
-					result = selectPhrase (intro) + selectPhrase (yesanswers) + stop;
+					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
 				}
 				return result;
 			}
@@ -566,13 +566,14 @@ public class Script {
 				result ="The answer is not clear.";
 			}
 			else if (count == 1) {
-				result = selectPhrase (oneitem) + selection [0] +stop;
+				result = selectPhrase (oneitem) + " " + selection [0] +stop;
 			}
 			else if (count == 2) {
-				result = selectPhrase (twoitems)  + selection [0] + " and "+ selection [1] + stop;
+				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] + stop;
 			}
 			else {
-				result = selectPhrase (manyitems) + selectPhrase (forinstance) + selection [0] +stop;
+				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance)
+				+ " " + selection [0] +stop;
 			}
 			return result;
 		}
@@ -680,10 +681,10 @@ public class Script {
 	}
 
 	String selectPhrase (String [] phrases) {
-		int n = phrases.length;
-		int selected = (int)(Math.random ()*(double)n);
-		if (selected >= n) selected = n-1;
-		return phrases [selected];
+			int n = phrases.length;
+			int selected = (int)(Math.random ()*(double)n);
+			if (selected >= n) selected = n-1;
+			return phrases [selected];
 	}
 
 	String confusedAnswer (Semnet net) {
@@ -691,7 +692,7 @@ public class Script {
 		String follow = selectPhrase (followup);
 		String topic = selectPhrase (topics);
 		String suggest = net.picktopic (2);
-		String result = start + follow + topic + suggest;
+		String result = start  + " "+ follow + " " + topic + " " + suggest;
 		return result;
 	}
 

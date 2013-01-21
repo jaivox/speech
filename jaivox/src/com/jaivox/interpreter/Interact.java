@@ -41,6 +41,7 @@ public class Interact {
 	String basedir = "./";
 	String specfile = "spec.txt";
 	String common = "common.txt";
+	String answer = "answer.txt";
 
 /**
  * Interact initialize all other classes used in the conversation.
@@ -89,7 +90,8 @@ public class Interact {
 		if (temp != null) stub = temp;
 		Record = new Recorder (stub);
 		data = new Info (basedir, specfile);
-		if (data.Valid) gen = new Script (this, data);
+		answer = basedir + kv.getProperty ("answer_forms");
+		if (data.Valid) gen = new Script (this, data, answer);
 		else Log.warning ("Invalid data for Info");
 		net = new Semnet (basedir, data, kv);
 		// net.shownodes ();
@@ -115,7 +117,8 @@ public class Interact {
 		U = new Utils ();
 		Record = new Recorder ("interpreter");
 		data = new Info (basedir, specfile);
-		if (data.Valid) gen = new Script (this, data);
+		answer = basedir + kv.getProperty ("answer_forms");
+		if (data.Valid) gen = new Script (this, data, answer);
 		else Log.warning ("Invalid data for Info");
 		net = new Semnet (basedir, data, kv);
 		// net.shownodes ();

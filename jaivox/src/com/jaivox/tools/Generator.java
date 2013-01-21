@@ -142,6 +142,11 @@ public class Generator {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
+			String answers = kv.getProperty ("answer_forms");
+			if (!copyFile (common, dir_interpreter, answers)) {
+				Log.severe ("Could not copy answer forms file");
+				return;
+			}
 			String specs = kv.getProperty ("specs_file");
 			if (!specs.equals ("null") && !copyFile (source, dir_interpreter, specs)) {
 				Log.severe ("Could not copy specifications file");

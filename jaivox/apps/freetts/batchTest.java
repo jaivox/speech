@@ -73,7 +73,7 @@ public class batchTest extends Thread {
 	void initializeInterpreter () {
 		Properties kv = new Properties ();
 		kv.setProperty ("data_file", "road.txt");
-		kv.setProperty ("common_words", "common.txt");
+		kv.setProperty ("common_words", "lang/en/common.txt");
 		kv.setProperty ("specs_file", "road.spec");
 		kv.setProperty ("questions_file", "road.quest");
 		inter = new Interact (basedir, kv);
