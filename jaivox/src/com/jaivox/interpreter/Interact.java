@@ -280,7 +280,8 @@ public class Interact {
 		String lq = query.toLowerCase ();
 		qstack.push (lq);
 
-		String result = "hmm, I don't know ...";
+		// String result = "hmm, I don't know ...";
+		String result = gen.selectPhrase (gen.dontknow);
 
 		// state machine
 		if (qstate.equals ("initial")) {

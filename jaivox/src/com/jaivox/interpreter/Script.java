@@ -47,6 +47,8 @@ public class Script {
 	String forinstance [];
 	
 	String askanother [];
+	
+	String dontknow [];
 
 	TreeMap <String, Point> quants;
 	TreeMap <String, String []> qwords;
@@ -75,6 +77,7 @@ public class Script {
 		manyitems = adata.manyitems;
 		forinstance = adata.forinstance;
 		askanother = adata.askanother;
+		dontknow = adata.dontknow;
 	}
 
 /**
@@ -350,7 +353,7 @@ public class Script {
 			}
 
 			if (count == 0) {
-				result ="I cannot determine the answer.";
+				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 			}
 			else if (count == 1) {
 				result = selectPhrase (oneitem) + " " + selection [0] +stop;
@@ -410,7 +413,7 @@ public class Script {
 			}
 
 			if (count == 0) {
-				result ="I cannot seem to come up with the answer.";
+				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 			}
 			else if (count == 1) {
 				result = selectPhrase (oneitem) + " " + selection [0] +stop;
@@ -484,7 +487,7 @@ public class Script {
 			}
 
 			if (count == 0) {
-				result ="Seems like I cannot figure out the answer.";
+				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 			}
 			else if (count == 1) {
 				result = selectPhrase (oneitem) + " " + selection [0] +stop;
@@ -563,7 +566,7 @@ public class Script {
 			}
 
 			if (count == 0) {
-				result ="The answer is not clear.";
+				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
 			}
 			else if (count == 1) {
 				result = selectPhrase (oneitem) + " " + selection [0] +stop;
@@ -704,7 +707,7 @@ public class Script {
 		String command = p.command;
 		if (command.equals ("back") || command.equals ("clear") || command.equals ("reset")) {
 			Act.clearhistory ();
-			return "Memory cleared, please ask another question.";
+			return selectPhrase (askanother);
 		}
 		else if (command.equals ("end")) {
 			Act.qstack.push ("terminate");

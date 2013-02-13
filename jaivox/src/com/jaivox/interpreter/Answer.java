@@ -29,6 +29,8 @@ public class Answer {
 	
 	String askanother [];
 	
+	String dontknow [];
+	
 	/**
 	 * Answer holds the options for putting together a response in script.
 	 * This is language independent, the answer forms are obtained from
@@ -110,6 +112,8 @@ public class Answer {
 		else if (tag.equals ("manyitems")) manyitems = (String [])data.clone ();
 		else if (tag.equals ("forinstance")) forinstance = (String [])data.clone ();
 		else if (tag.equals ("askanother")) askanother = (String [])data.clone ();
+
+		else if (tag.equals ("dontknow")) dontknow = (String [])data.clone ();
 		else Log.warning ("Invalid tag "+tag);
 	}
 

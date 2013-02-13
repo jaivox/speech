@@ -38,10 +38,10 @@ public class Questgen {
 	TreeMap <String, String []> gtags;
 	Vector <String> questions;
 
-	static String yesno [] = {"is", "are", "was", "were", "do", "does", "how",
-		"would", "will", "could", "can"};
+	// static String yesno [] = {"is", "are", "was", "were", "do", "does", "how",
+		// "would", "will", "could", "can"};
 
-	Vector <String> yesnospecs;
+	// Vector <String> yesnospecs;
 
 /**
  * Generate questions from a set of properties in the configuration file.
@@ -74,10 +74,10 @@ public class Questgen {
 		tagsfile = srcdir + penntags;
 		Tags t = new Tags (tagsfile);
 		gtags = t.gtags;
-		yesnospecs = new Vector <String> ();
-		for (int i=0; i<yesno.length; i++) {
-			yesnospecs.add (yesno [i]);
-		}
+		// yesnospecs = new Vector <String> ();
+		// for (int i=0; i<yesno.length; i++) {
+		// 	yesnospecs.add (yesno [i]);
+		// }
 		Adj = new Adjective ();
 		infos = new TreeMap <String, Infonode> ();
 		String specs = kv.getProperty ("specs_file");
@@ -141,7 +141,7 @@ public class Questgen {
 		}
 	}
 
-	void generate () {
+	public void generate () {
 		questions = new Vector <String> ();
 		for (int i=0; i<fields.length; i++) {
 			String field = fields [i];
@@ -260,8 +260,19 @@ public class Questgen {
 		// just find the adjective
 		int n = pat.length;
 		String action = "(find, ";
-		if (yesnospecs.indexOf (pat [0]) != -1)
-			action = "(ask, ";
+		if (!pat [0].startsWith ("W")) {
+			boolean foundelse = false;
+			for (int i=0; i<n; i++) {
+				String p = pat [i];
+				if (p.startsWith ("ELS")) {
+					foundelse = true;
+					break;
+				}
+			}
+			if (!foundelse) action = "(ask, ";
+		}
+		// if (yesnospecs.indexOf (pat [0]) != -1)
+		// 	action = "(ask, ";
 		boolean foundField = false;
 		for (int i=0; i<n; i++) {
 			String p = pat [i];
@@ -368,7 +379,7 @@ public class Questgen {
 		}
 	}
 
-	void saveQuestions () {
+	public void saveQuestions () {
 		try {
 			
 			PrintWriter out = new PrintWriter (new FileWriter (resultfile));

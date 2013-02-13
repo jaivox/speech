@@ -66,4 +66,9 @@ askanother:
 	can you ask in a different way
 	is there another way to ask your question
 	
+dontknow:
+	well, I dont know
+	looks like I dont know
+	what do I know
+	
 }

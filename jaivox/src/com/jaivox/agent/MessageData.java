@@ -39,7 +39,7 @@ public class MessageData {
  * Creates the key-value pairs from a message in a simple
  * Json-like format. Note we allow _ in keys. Also, : is not a marker.
  * This is due to the fact that : is used to indicate keys. There 
- * is a way to allow : tobe a separator of tokens and still recognize
+ * is a way to allow : to be a separator of tokens and still recognize
  * keys, but that makes the parsing a bit too messy.
 @param message string in a simple Json format
  */
