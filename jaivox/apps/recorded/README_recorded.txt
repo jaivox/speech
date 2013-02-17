@@ -18,6 +18,15 @@ results even with non-native speakers.)
 
 This demo requires running three "agents" in separate windows: one for
 speech recognition, one for interpreting questions, and another for
-synthesizing answers into speech. There is another demo involving only
-one Java file, using the Freetts Java-based synthesizer. Details of that
-demo can be found at http://www.jaivox.com/freetts.html.
+synthesizing answers into speech. 
+
+The description in recordeddemo.html assumes that the C/C++ festival
+program is used for synthesizing speech. This may not work very well in all
+Linux distributions (and in Windows, we have not been able to find a working
+festival implementation for Windows.) Instead you can use synthesizerTest
+in the freetts directory.  To do so, you need to download and install
+freetts as described in http://www.jaivox.com/freetts.html. Here, invoke
+synthesizerTest the same way you would invoke batchTest in the freetts
+directory. This should be invoked at the same point in the demo as festival.
+If you are using freetts, do not start festival. Please remember to set
+classpath correctly for freetts as described in freetts.html.
