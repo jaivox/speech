@@ -1,0 +1,82 @@
+
+#include errors.dlg
+
+{
+[def_iic]
+	def ;
+	there is a fire ;
+	is it contained? ;
+	iic ;
+}
+
+{
+[def_iic_dyh]
+	iic ;
+	yes ;
+	do you have an extinguisher? ;
+	dyh ;
+}
+
+{
+[def_iic_dyh_def]
+	dyh ;
+	yes ;
+	well use it ;
+	def ;
+}
+
+{
+[def_iic_iii]
+	iic ;
+	no ;
+	is it in a pan? ;
+	iii ;
+}
+
+{
+[def_iic_iii_cyt]
+	iii ;
+	yes ;
+	can you turn off the heat? ;
+	cyt ;
+}
+
+{
+[def_iic_iii_cyt_iae]
+	cyt ;
+	yes ;
+	is anything else on fire? ;
+	iae ;
+}
+
+{
+[def_iic_iii_cyt_iae_wii]
+	iae ;
+	yes ;
+	what is it? ;
+	wii ;
+}
+
+{
+[def_iic_iii_cyt_iae_wii_def]
+	wii ;
+	some paper ;
+	can you put a wet towel over it? ;
+	def ;
+}
+
+{
+[def_iic_iii_wri]
+	iii ;
+	no ;
+	what room is it in? ;
+	wri ;
+}
+
+{
+[def_iic_iii_wri_def]
+	wri ;
+	in the kitchen ;
+	call nine one one ;
+	def ;
+}

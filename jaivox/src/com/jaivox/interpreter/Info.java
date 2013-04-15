@@ -1,10 +1,31 @@
+/*
+   Jaivox version 0.4 April 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 
 package com.jaivox.interpreter;
 
-import java.io.*;
-import java.util.*;
-
 import com.jaivox.util.Log;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Vector;
 
 /**
  * The Info class holds all the data associated with a particular
@@ -14,18 +35,13 @@ import com.jaivox.util.Log;
  * in this implementation, the data is in text files.
  */
 
-
 public class Info {
 
-	public boolean Valid;
+	boolean Valid;
 
-	static String datadir;
+	String datadir;
 	TreeMap <String, Infonode> specs;
-	Adjective Adj;
-
-	String data [][];
-	String fields [];
-	int nr, nf;
+	TreeMap <String, Datanode> data;
 
 /**
  * Create an info class. All the required data is assumed to be present
@@ -38,12 +54,19 @@ public class Info {
 
 	public Info (String dir, String specfile) {
 		datadir = dir;
-		Adj = new Adjective ();
 		if (!loadSpecs (specfile)) return;
 		if (!loadData ()) return;
 		Valid = true;
 	}
 
+/**
+ * The specifications for data include information about various fields and their
+ * attributes, along with alternate ways of asking about these. The data is loaded
+ * as a set of Infonodes.
+ * @param specfile
+ * @return
+ */
+	
 	boolean loadSpecs (String specfile) {
 		try {
 			String filename = datadir + specfile;
@@ -60,7 +83,6 @@ public class Info {
 						line = line.toLowerCase ();
 						if (line.trim ().startsWith ("}")) {
 							Infonode node = new Infonode (datadir, hold);
-							node.buildAdjectives (Adj);
 							specs.put (node.name, node);
 							break;
 						}
@@ -81,10 +103,22 @@ public class Info {
 			return false;
 		}
 	}
+	
+/**
+ * Use information in the specifications to locate data files that may
+ * contain details about some fields and their attributes. A data file
+ * is generally indicated in the specifications with "type table". It does
+ * not have to be present, since any data processing to answer questions
+ * will have to be created by the programmer. But if the file is present
+ * it is loaded by this function.
+ * @return
+ */
 
 	boolean loadData () {
 		// find a table specification
 		Set <String> keys = specs.keySet ();
+		data = new TreeMap <String, Datanode> ();
+		boolean found = false;
 		for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
 			String key = it.next ();
 			Infonode node = specs.get (key);
@@ -93,82 +127,84 @@ public class Info {
 			// Log.fine ("loadData, node:"+node.name+" type:"+type);
 			if (type.equals ("table")) {
 				String filename = datadir + key;
-				return loadFile (node, filename);
+				// is there a data file present? If so, it will be used
+				// in recognizing words in the file
+				File F = new File (filename);
+				if (F.exists ()) {
+					Datanode detail = new Datanode (this, node, filename);
+					data.put (key, detail);
+					found = true;
+				}
+				else {
+					Log.info ("Data file "+filename+" not found, not loaded");
+					return true;
+				}
 			}
 		}
-		Log.severe ("Data not loaded");
-		return false;
+		return found;
+	}
+	
+/**
+ * Show all the specifications that are loaded by printing them to the
+ * screen. This is just a function that can quickly check if the information
+ * in the specification is correctly parsed and loaded.
+ */
+	
+	public void showspecs () {
+		Set <String> keys = specs.keySet ();
+		for (Iterator <String> it = keys.iterator (); it.hasNext (); ) {
+			String key = it.next ();
+			Infonode node = specs.get (key);
+			node.showdetails ();
+		}
+		
+	}
+		
+	// getters and setters
+	
+/**
+ * Get a node described in the specifications and identified by the unique
+ * tag. The tag here is the first word in the specifications for that
+ * infonode.
+ * @param tag
+ * @return
+ */
+	public Infonode getInfonode (String tag) {
+		Infonode node = specs.get (tag);
+		return node;
 	}
 
-	boolean loadFile (Infonode node, String filename) {
-		try {
-			// get nf, fields
-			// Log.fine ("Loading data for "+node.name+" from "+filename);
-			fields = node.tagvalarray ("columns");
-			nf = fields.length;
-			for (int i=0; i<nf; i++) {
-				String col = fields [i];
-				Infonode sub = specs.get (col);
-				if (sub == null) {
-					Log.severe ("No information for column "+col);
-					return false;
-				}
-			}
 
-			BufferedReader in = new BufferedReader (new FileReader (filename));
-			String line;
-			Vector <String []> hold = new Vector <String []> ();
-			while ((line = in.readLine ()) != null) {
-				if (line.trim ().length () == 0) continue;
-				line = line.toLowerCase ();
-				StringTokenizer st = new StringTokenizer (line, ",\r\n");
-				if (st.countTokens () != nf) {
-					Log.severe ("Expected "+nf+" fields in "+line);
-					return false;
-				}
-				String words [] = new String [nf];
-				for (int i=0; i<nf; i++) {
-					words [i] = st.nextToken ().trim ();
-				}
-				hold.add (words);
-			}
-			in.close ();
-
-			nr = hold.size ();
-			data = new String [nr][nf];
-			for (int i=0; i<nr; i++) {
-				String words [] = hold.elementAt (i);
-				for (int j=0; j<nf; j++) {
-					data [i][j] = words [j];
-				}
-			}
-			return true;
-		}
-		catch (Exception e) {
-			Log.severe ("Info:loadFile "+e.toString ());
-			e.printStackTrace ();
-			return false;
-		}
+	public boolean isValid () {
+		return Valid;
 	}
 
-	void showData () {
-		StringBuffer sb = new StringBuffer ();
-		sb.append ("nf = "+nf+"\n");
-		for (int i=0; i<nf; i++) {
-			sb.append (fields [i]);
-			sb.append ("\n");
-		}
+	public void setValid (boolean Valid) {
+		this.Valid = Valid;
+	}
 
-		sb.append ("nr = "+nr+"\n");
-		for (int i=0; i<nr; i++) {
-			for (int j=0; j<nf; j++) {
-				sb.append (data [i][j]);
-				if (j < nf-1) sb.append ("\t");
-				else sb.append ("\n");
-			}
-		}
-		String all = new String (sb);
-		System.out.println (all);
+	public String getDatadir () {
+		return datadir;
+	}
+
+	public void setDatadir (String datadir) {
+		this.datadir = datadir;
+	}
+
+	public TreeMap<String, Infonode> getSpecs () {
+		return specs;
+	}
+
+	public void setSpecs (TreeMap<String, Infonode> specs) {
+		this.specs = specs;
+	}
+
+	public TreeMap<String, Datanode> getData () {
+		return data;
+	}
+
+	public void setData (TreeMap<String, Datanode> data) {
+		this.data = data;
 	}
 
 };

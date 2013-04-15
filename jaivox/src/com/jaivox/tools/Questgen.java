@@ -1,10 +1,34 @@
+/*
+   Jaivox version 0.4 April 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 
 package com.jaivox.tools;
 
-import java.io.*;
-import java.util.*;
-import com.jaivox.interpreter.Adjective;
 import com.jaivox.util.Log;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Vector;
+
 
 /**
  * Generates questions along with their semantic specifications. We generate
@@ -19,41 +43,37 @@ public class Questgen {
 	Properties kv;
 
 	String grammarfile;
-	String redirectfile;
 	String tagsfile;
 	String infosfile;
 	String resultfile;
 	String srcdir;
 	String datadir;
 
-	Adjective Adj;
+	Grammar Gram;
 
 	TreeMap <String, Infonode> infos;
 	String fields [];
 	Vector <String []> patterns;
 	Vector <String> patorig;
-	Vector <String []> redirpats;
-	Vector <String> redirorig;
-	Hashtable <String, String> redirspecs;
 	TreeMap <String, String []> gtags;
 	Vector <String> questions;
-
-	// static String yesno [] = {"is", "are", "was", "were", "do", "does", "how",
-		// "would", "will", "could", "can"};
-
-	// Vector <String> yesnospecs;
+	
+	public static String nosemantics = "(_,_,_,_,_,_,_)";
 
 /**
  * Generate questions from a set of properties in the configuration file.
+ * Questions are generated for each field and associated attributes.
+ * Geneated questions are saved in a specified "questions_file".
 @param keyval
  */
 	public Questgen (Properties keyval) {
 		kv = keyval;
-		String specdir = kv.getProperty ("source");
-		srcdir = kv.getProperty ("common");
+		String base = kv.getProperty ("Base");
+		String specdir = base + kv.getProperty ("source");
+		srcdir = base + kv.getProperty ("common");
 		String useonedir = kv.getProperty ("onedirectory");
-		String dest = kv.getProperty ("destination");
-		if (useonedir.equals ("true")) {
+		String dest = base + kv.getProperty ("destination");
+		if (useonedir.equals ("yes")) {
 			datadir = dest;
 		}
 		else {
@@ -61,30 +81,20 @@ public class Questgen {
 		}
 		String gram = kv.getProperty ("grammar_file");
 		grammarfile = specdir + gram;
-		Grammar g = new Grammar (grammarfile);
-		patterns = g.patterns;
-		patorig = g.patorig;
-		String redir = kv.getProperty ("redirects_file");
-		redirectfile = srcdir + redir;
-		Grammar r = new Grammar (redirectfile);
-		redirpats = r.patterns;
-		redirorig = r.patorig;
-		redirspecs = r.specs;
-		String penntags = kv.getProperty ("penn_tags");
-		tagsfile = srcdir + penntags;
+		Gram = new Grammar (grammarfile);
+		patterns = Gram.patterns;
+		patorig = Gram.allpaths;
+		tagsfile = srcdir + kv.getProperty ("penn_tags");
 		Tags t = new Tags (tagsfile);
 		gtags = t.gtags;
-		// yesnospecs = new Vector <String> ();
-		// for (int i=0; i<yesno.length; i++) {
-		// 	yesnospecs.add (yesno [i]);
-		// }
-		Adj = new Adjective ();
 		infos = new TreeMap <String, Infonode> ();
 		String specs = kv.getProperty ("specs_file");
-		infosfile = specdir + specs;
-		loadinfos (specdir, infosfile);
-		Check c = new Check (this);
-		c.checkAll ();
+		if (specs != null) {
+			infosfile = specdir + specs;
+			loadinfos (specdir, infosfile);
+			Check c = new Check (this);
+			c.checkAll ();
+		}
 		questions = new Vector <String> ();
 		String qq = kv.getProperty ("questions_file");
 		resultfile = datadir + qq;
@@ -108,7 +118,6 @@ public class Questgen {
 						hold.add (rest);
 						if (rest.endsWith ("}")) {
 							Infonode node = new Infonode (specdir, hold);
-							node.buildAdjectives (Adj);
 							infos.put (node.name, node);
 							String [] types = node.tagval.get ("type");
 							if (types == null) {
@@ -141,8 +150,20 @@ public class Questgen {
 		}
 	}
 
+/**
+ * Generate all questions based on the grammar and details in the
+ * specification file. Questions are generated for each field. There
+ * is no provision for generating questions involving multiple nouns
+ * since this creates a very large set of questions. Generated questions
+ * are saved in a specified "questions_file".
+ */
+	
 	public void generate () {
 		questions = new Vector <String> ();
+		if (kv.getProperty ("specs_file") == null) {
+			generateSimple ();
+			return;
+		}
 		for (int i=0; i<fields.length; i++) {
 			String field = fields [i];
 			generatefield (field);
@@ -150,6 +171,7 @@ public class Questgen {
 	}
 
 	void generatefield (String field) {
+		Log.info ("Getting field "+field);
 		Infonode finfo = infos.get (field);
 		String [] attrs = finfo.tagval.get ("attributes");
 		for (int i=0; i<attrs.length; i++) {
@@ -159,42 +181,42 @@ public class Questgen {
 	}
 
 	void generatefieldattribute (String field, String attribute) {
+		Log.info ("Getting field "+field+" attribute "+attribute);
 		Infonode finfo = infos.get (field);
 		Infonode ainfo = infos.get (attribute);
 		for (int i=0; i<patterns.size (); i++) {
 			String pat [] = patterns.elementAt (i);
 			String pato = patorig.elementAt (i);
 			Log.fine (finfo.name+"."+ainfo.name+" "+pato);
-			generatepattern (finfo, ainfo, pat);
-		}
-		for (int i=0; i<redirpats.size (); i++) {
-			String pat [] = redirpats.elementAt (i);
-			String pato = redirorig.elementAt (i);
-			Log.fine (finfo.name+"."+ainfo.name+" "+pato);
-			generateredirect (finfo, ainfo, pat, pato);
+			generatepattern (finfo, ainfo, pat, pato);
 		}
 	}
 
-	void generatepattern (Infonode finfo, Infonode ainfo, String pat []) {
+	void generatepattern (Infonode finfo, Infonode ainfo,
+						  String pat [], String pato) {
 		int n = pat.length;
 		String q [] = new String [n];
-		gt (finfo, ainfo, 0, pat, q);
+		gt (finfo, ainfo, 0, pat, pato, q);
 	}
 
-	void gt (Infonode finfo, Infonode ainfo, int stage, String pat [], String q []) {
+	void gt (Infonode finfo, Infonode ainfo, int stage,
+			 String pat [], String pato, String q []) {
 		int n = pat.length;
 		StringBuffer sb = new StringBuffer ();
 		for (int i=0; i<stage; i++) {
 			sb.append (q [i]);
-			// blanks are also tokens
-			// if (i < n-1) sb.append (' ');
+			if (i < n-1) sb.append (' ');
 		}
 		String quest = new String (sb);
 		Log.finest ("gt:"+stage+" "+quest);
 		if (stage >= n) {	// done
+			if (quest == null || pato == null) return;
+			if (q.length == 0) return;
 			String selection = getselection (finfo, ainfo, pat, q);
-			String out = quest + "\t" + selection;
-			if (questions.indexOf (out) == -1) questions.add (out);
+			String out = quest + "\t" + pato + "\t" + selection;
+			String trimmed = out.trim ();
+			if (trimmed.length () == 0) return;
+			if (questions.indexOf (trimmed) == -1) questions.add (trimmed);
 			return;
 		}
 		// consider the current pat
@@ -203,27 +225,7 @@ public class Questgen {
 		// any lower case pattern is passed through
 		if (gtag.equals (gtag.toLowerCase ())) {
 			q [stage] = gtag;
-			gt (finfo, ainfo, stage+1, pat, q);
-		}
-		/*
-		else if (gtag.startsWith ("W")) {
-			String whquestions [] = finfo.tagval.get ("wh");
-			if (whquestions != null) {
-				for (int i=0; i<whquestions.length; i++) {
-					String whquestion = whquestions [i];
-					q [stage] = whquestion;
-					gt (finfo, ainfo, stage+1, pat, q);
-				}
-			}
-			else return;
-		}*/
-		else if (gtag.equals ("VBZ")) {
-			q [stage] = "is";
-			gt (finfo, ainfo, stage+1, pat, q);
-		}
-		else if (gtag.equals ("VBP")) {
-			q [stage] = "are";
-			gt (finfo, ainfo, stage+1, pat, q);
+			gt (finfo, ainfo, stage+1, pat, pato, q);
 		}
 		else if (finfo.tagval.get (gtag) != null || ainfo.tagval.get (gtag) != null) {
 		// else if (gtag.startsWith ("N") || gtag.startsWith ("J") || gtag.startsWith ("R")) {
@@ -233,7 +235,7 @@ public class Questgen {
 				for (int i=0; i<words.length; i++) {
 					String word = words [i];
 					q [stage] = word;
-					gt (finfo, ainfo, stage+1, pat, q);
+					gt (finfo, ainfo, stage+1, pat, pato, q);
 				}
 			}
 			else return;
@@ -247,20 +249,45 @@ public class Questgen {
 			int m = options.length;
 			for (int j=0; j<m; j++) {
 				q [stage] = options [j];
-				gt (finfo, ainfo, stage+1, pat, q);
+				gt (finfo, ainfo, stage+1, pat, pato, q);
 			}
 		}
 	}
 
-	String getselection (Infonode finfo, Infonode ainfo, String pat [], String q []) {
+/**
+ * This function creates a semantic specification for user inputs. This is
+ * based on some heuristics, especially in terms of determining whether the
+ * input is a WH (who, what, when, which, where) question. However this is
+ * quite necessary to know the semantics, i.e. meaning, of a generated
+ * user input since it identifies the field and attribute used in the question.
+ * 
+ * The string produced here is not used in recognizing a question, or in the
+ * finite state machine operations. For new applications, the user may find
+ * it necessary to generate a different type of semantic representation, or
+ * to create one by hand. This is needed for example if an anticipated user
+ * input involves more than one field and associated quantifiers and
+ * attributes.
+ * @param finfo
+ * @param ainfo
+ * @param pat
+ * @param q
+ * @return
+ */
+	
+	public String getselection (Infonode finfo, Infonode ainfo, String pat [], String q []) {
 		String field = finfo.name;
 		String attr = ainfo.name;
-		// to see if it is a followup see if field or attribute is unspecified
+		// to see if it is a followup see if field or attribute is unspecified'
 		String quant = "_";
 		// just find the adjective
 		int n = pat.length;
+		if (n == 0) return nosemantics; 
 		String action = "(find, ";
-		if (!pat [0].startsWith ("W")) {
+		String els = "_";
+		String first = pat [0].substring (0, 1).toLowerCase ();
+		// note the grammar tag will be W if we have a wh question regardless
+		// of language, otherwise you have to fix up whether it is ask or find
+		if (!first.equals ("w")) {
 			boolean foundelse = false;
 			for (int i=0; i<n; i++) {
 				String p = pat [i];
@@ -270,6 +297,7 @@ public class Questgen {
 				}
 			}
 			if (!foundelse) action = "(ask, ";
+			else els = "els";
 		}
 		// if (yesnospecs.indexOf (pat [0]) != -1)
 		// 	action = "(ask, ";
@@ -294,94 +322,53 @@ public class Questgen {
 		String adverb = "";
 		for (int i=0; i<n; i++) {
 			String p = pat [i];
-			if (p.startsWith ("RB")) adverb = adverb+", "+p;
+			if (p.startsWith ("adverb")) {
+				if (adverb.equals ("")) adverb = q[i];
+				else adverb = adverb+"-"+q [i];
+			}
 		}
+		if (adverb.equals ("")) adverb = "_";
 		// proper names
 		String nnp = "";
 		for (int i=0; i<n; i++) {
 			String p = pat [i];
-			if (p.startsWith ("NNP")) nnp = nnp+", NNP: "+q [i];
+			if (p.startsWith ("NNP")) {
+				if (nnp.equals ("")) nnp = q[i];
+				else nnp = nnp+"-"+q [i];
+			}
 		}
-		// else
-		String els = "";
-		for (int i=0; i<n; i++) {
-			String p = pat [i];
-			if (p.startsWith ("ELS")) els = els+", ELS: "+q[i];
-		}
-		if (quant.equals ("_")) attr = "_";
+		if (nnp.equals ("")) nnp = "_";
+		// if (quant.equals ("_")) attr = "_";
 		// note nnp will contain a space if it contains anything
-		String s = action+field+", "+attr+", "+quant+adverb+nnp+els+")";
+		String s = action+field+", "+attr+", "+quant+", "+nnp+", "+els+", "+adverb+")";
 		return s;
 	}
-
-	void generateredirect (Infonode finfo, Infonode ainfo, String pat [], String orig) {
-		int n = pat.length;
-		String q [] = new String [n];
-		gtr (finfo, ainfo, 0, pat, q, orig);
-	}
-
-	void gtr (Infonode finfo, Infonode ainfo, int stage, String pat [], String q [], String orig) {
-		int n = pat.length;
-		StringBuffer sb = new StringBuffer ();
-		for (int i=0; i<stage; i++) {
-			sb.append (q [i]);
-			if (i < n-1) sb.append (' ');
-		}
-		String quest = new String (sb);
-		Log.finest ("gtr:"+stage+" "+quest);
-		if (stage >= n) {	// done
-			String selection = redirspecs.get (orig);
-			if (selection != null) {
-				String out = quest + "\t" + selection;
-				if (questions.indexOf (out) == -1) questions.add (out);
-			}
-			return;
-		}
-		// consider the current pat
-
-		String gtag = pat [stage];
-		// any lower case pattern is passed through
-		if (gtag.equals (gtag.toLowerCase ())) {
-			q [stage] = gtag;
-			gtr (finfo, ainfo, stage+1, pat, q, orig);
-		}
-		else if (gtag.equals ("VBZ")) {
-			q [stage] = "is";
-			gtr (finfo, ainfo, stage+1, pat, q, orig);
-		}
-		else if (gtag.equals ("VBP")) {
-			q [stage] = "are";
-			gtr (finfo, ainfo, stage+1, pat, q, orig);
-		}
-		else if (finfo.tagval.get (gtag) != null || ainfo.tagval.get (gtag) != null) {
-			String [] words = finfo.tagval.get (gtag);
-			if (words == null) words = ainfo.tagval.get (gtag);
-			if (words != null) {
-				for (int i=0; i<words.length; i++) {
-					String word = words [i];
-					q [stage] = word;
-					gtr (finfo, ainfo, stage+1, pat, q, orig);
-				}
-			}
-			else return;
-		}
-		else {
-			String options [] = gtags.get (gtag);
-			if (options == null) {
-				Log.severe ("No options for Grammar tag "+gtag);
-				return;
-			}
-			int m = options.length;
-			for (int j=0; j<m; j++) {
-				q [stage] = options [j];
-				gtr (finfo, ainfo, stage+1, pat, q, orig);
-			}
+	
+/**
+ * Generate simple questions that do not involve expanding grammar tags
+ */
+	
+	void generateSimple () {
+		TreeMap <String, String> test = new TreeMap <String, String> ();
+		String yes = "yes";
+		for (int i=0; i<patorig.size (); i++) {
+			String quest = patorig.elementAt (i);
+			String q = quest.trim ();
+			if (q.length () == 0) continue;
+			String seen = test.get (q);
+			if (seen != null) continue;
+			else test.put (q, yes);
+			questions.add (new String (q+"\t"+q+"\t"+nosemantics));
 		}
 	}
+	
+/**
+ * Save the generated question in the specified "questions_file"
+ */
 
 	public void saveQuestions () {
 		try {
-			
+
 			PrintWriter out = new PrintWriter (new FileWriter (resultfile));
 
 			for (int i=0; i<questions.size (); i++) {

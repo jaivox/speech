@@ -10,7 +10,7 @@
 	</target>
 	<target name="build">
 		<mkdir dir="bin"/>
-        <javac includeantruntime="true" srcdir="src" destdir="bin"/>
+        <javac debug="true" includeantruntime="true" srcdir="src" destdir="bin"/>
 	</target>
 	<target name="jarfile" description="Create jaivox.jar" depends="build">
 		<jar jarfile="jaivox.jar" 

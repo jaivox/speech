@@ -1,0 +1,11 @@
+Old Mill Road, 67.45, 64.61
+Paerdegat 7th Street, 34.97, 7.36
+Mc Guinness Boulevard, 51.65, 92.2
+Elmwood Avenue, 31.44, 96.9
+Skidmore Place, 63.11, 43.64
+Aster Court, 25.73, 94.13
+15th Avenue, 46.47, 78.98
+Avenue O, 91.28, 63.66
+Dearborn Court, 26.01, 9.28
+Brighton 4th Lane, 46.69, 2.52
+

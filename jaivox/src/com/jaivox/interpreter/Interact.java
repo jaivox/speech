@@ -1,11 +1,36 @@
+/*
+   Jaivox version 0.4 April 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 
 package com.jaivox.interpreter;
 
-import java.io.*;
-import java.util.*;
-import java.awt.Point;
+import com.jaivox.util.Log;
+import com.jaivox.util.Recorder;
 
-import com.jaivox.util.*;
+import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.Vector;
+
 
 /**
  * Each Interact manages a conversation. In a typical application, Interact is asked
@@ -19,29 +44,23 @@ public class Interact {
 
 	Properties kv;
 	Command command;
-
-	Utils U;
 	Recorder Record;
-	TreeMap <String, String> lookup;
-	TreeMap <String, Vector<String>> multiword;
-	String lexicon [];
-	int nl;
-
-	TreeMap <String, String> qspecs;
-	String questions [];
-
-	Semnet net;
 	Info data;
 	Script gen;
-
-	Stack <String> qstack;
-	String qstate;
-	Vector <Qapair> qa;
 	
 	String basedir = "./";
 	String specfile = "spec.txt";
 	String common = "common.txt";
 	String answer = "answer.txt";
+	String grammarfile = "gram.dlg";
+
+	TreeMap <String, String> lookup;
+	TreeMap <String, Vector<String>> multiword;
+	String questions [];
+	String lexicon [];
+	int nl;
+	
+	public static int MaxMatch = 5;
 
 /**
  * Interact initialize all other classes used in the conversation.
@@ -51,6 +70,7 @@ public class Interact {
 @param spec	specifications file, in the base directory
  */
 	public Interact (String base, Properties pp) {
+		if (!base.endsWith (File.separator)) base = base + File.separator;
 		basedir = base;
 		kv = pp;
 		command = new Command ();
@@ -63,14 +83,15 @@ public class Interact {
 @param pp
 @param cmd
  */
-	
+
 	public Interact (String base, Properties pp, Command cmd) {
+		if (!base.endsWith (File.separator)) base = base + File.separator;
 		basedir = base;
 		kv = pp;
 		command = cmd;
 		initialize ();
 	}
-	
+
 /**
  * Initialize data used by the interpreter. Also start a recorder to
  * record the questions recognized by the recognizer in combination with
@@ -82,27 +103,20 @@ public class Interact {
  * recognizer is not doing too well.
  */
 	void initialize () {
-		specfile = kv.getProperty ("specs_file");
-		common = basedir + kv.getProperty ("common_words");
-		U = new Utils ();
 		String stub = "Interact";
 		String temp = kv.getProperty ("recorder_name");
 		if (temp != null) stub = temp;
 		Record = new Recorder (stub);
-		data = new Info (basedir, specfile);
-		answer = basedir + kv.getProperty ("answer_forms");
-		if (data.Valid) gen = new Script (this, data, answer);
-		else Log.warning ("Invalid data for Info");
-		net = new Semnet (basedir, data, kv);
-		// net.shownodes ();
+		specfile = kv.getProperty ("specs_file");
+		grammarfile = basedir + kv.getProperty ("grammar_file");
 		lookup = new TreeMap <String, String> ();
 		multiword = new TreeMap <String, Vector<String>> ();
+		common = basedir + kv.getProperty ("common_words");
+		if (specfile != null) data = new Info (basedir, specfile);
+		gen = new Script (this);
 		addcommon ();
-		addnetnodes ();
-		loadfiles (); // to load any .dat files
+		loadquestions ();
 		updateLexicon ();
-		updatequestions ();
-		clearhistory ();
 	}
 
 /**
@@ -114,28 +128,8 @@ public class Interact {
  */
 	
 	public Interact () {
-		U = new Utils ();
 		Record = new Recorder ("interpreter");
-		data = new Info (basedir, specfile);
-		answer = basedir + kv.getProperty ("answer_forms");
-		if (data.Valid) gen = new Script (this, data, answer);
-		else Log.warning ("Invalid data for Info");
-		net = new Semnet (basedir, data, kv);
-		// net.shownodes ();
-		lookup = new TreeMap <String, String> ();
-		multiword = new TreeMap <String, Vector<String>> ();
-		addcommon ();
-		addnetnodes ();
-		loadfiles (); // to load any .dat files
-		updateLexicon ();
-		updatequestions ();
-		clearhistory ();
-	}
-
-	void clearhistory () {
-		qstate = "initial";
-		qstack = new Stack <String> ();
-		qa = new Vector <Qapair> ();
+		gen = new Script (this);
 	}
 
 /**
@@ -145,31 +139,6 @@ public class Interact {
 	public void terminate () {
 		Recorder.endRecord ();
 		System.exit (1);
-	}
-
-	void addnetnodes () {
-		TreeMap <String, Snode> nodes = net.nodes;
-		Set <String> keys = nodes.keySet ();
-		for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
-			String key = it.next ();
-			Snode node = nodes.get (key);
-			if (node.t.equals ("data")) {
-				// see if it has spaces in it
-				StringTokenizer st = new StringTokenizer (key);
-				if (st.countTokens () > 1) {
-					while (st.hasMoreTokens ()) {
-						String token = st.nextToken ();
-						Vector<String> vals = multiword.get (token);
-						if (vals == null) vals = new Vector <String> ();
-						vals.add (key);
-						multiword.put (token, vals);
-						lookup.put (token, "multi");
-					}
-				}
-				lookup.put (key, "data");
-			}
-			else lookup.put (key, "net");
-		}
 	}
 
 	void addcommon () {
@@ -191,53 +160,29 @@ public class Interact {
 		}
 	}
 
-	void loadfiles () {
-		try {
-			qspecs = new TreeMap <String, String> ();
-			String questions = kv.getProperty ("questions_file");
-			loadfile (basedir + questions);
-			updateLexicon ();
-		}
-		catch (Exception e) {
-			e.printStackTrace ();
-		}
-	}
-
-	void loadfile (String filename) {
-		try {
-			Log.fine ("Reading "+filename);
-			BufferedReader in = new BufferedReader (new FileReader (filename));
-			int pos = filename.lastIndexOf (".");
-			if (pos == -1) pos = filename.length ();
-			String stub = filename.substring (0, pos);
-			String line;
-			while ((line = in.readLine ()) != null) {
-				String lower = line.toLowerCase ();
-				pos = line.indexOf ("(");
-				if (pos == -1) continue;
-				String head = lower.substring (0, pos).trim ();
-				String spec = line.substring (pos).trim ();
-				StringTokenizer st = new StringTokenizer (spec, "(), \t\r\n");
-				String first = st.nextToken ();
-				if (!first.equals ("command")) {
-					spec = lower.substring (pos).trim ();
-				}
-				qspecs.put (head, spec);
-				String tokens [] = U.splitTokens (head);
-				int n = tokens.length;
-				if (n > 0) {
-					for (int i=0; i<n; i++) {
-						lookup.put (tokens [i], stub);
-					}
+	void loadquestions () {
+		String indicator = "qspecs";
+		Vector <String> hold = new Vector <String> ();
+		TreeMap<String, String> qspecs = gen.questspecs;
+		Set<String> keys = qspecs.keySet ();
+		for (Iterator<String> it = keys.iterator (); it.hasNext ();) {
+			String key = it.next ();
+			if (Script.isState (key)) {
+				continue;
+			}
+			hold.add (key);
+			String tokens[] = Utils.splitTokens (key);
+			int n = tokens.length;
+			if (n>0) {
+				for (int i = 0; i<n; i++) {
+					lookup.put (tokens[i], indicator);
 				}
 			}
-			in.close ();
 		}
-		catch (Exception e) {
-			e.printStackTrace ();
-		}
+		int n = hold.size ();
+		questions = hold.toArray (new String [n]);
 	}
-
+	
 	void updateLexicon () {
 		try {
 			nl = lookup.size ();
@@ -254,17 +199,6 @@ public class Interact {
 		}
 	}
 
-	void updatequestions () {
-		Set <String> keys = qspecs.keySet ();
-		int n = qspecs.size ();
-		questions = new String [n];
-		int i = 0;
-		for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
-			String key = it.next ();
-			questions [i++] = key;
-		}
-	}
-
 /**
  * the main way to interpret something. After creating the class and
  * initializing the related classes, the execute function processes a
@@ -278,142 +212,27 @@ public class Interact {
 	public String execute (String query) {
 		Recorder.record ("Q: "+query);
 		String lq = query.toLowerCase ();
-		qstack.push (lq);
-
-		// String result = "hmm, I don't know ...";
-		String result = gen.selectPhrase (gen.dontknow);
-
-		// state machine
-		if (qstate.equals ("initial")) {
-			qstate = handleInitialQuery ();
-			// Log.fine ("after handleInitialQuery: "+qstack.toString ());
-			if (qstate.equals ("question_unrecognized")) {
-				result = qstack.pop ();
-				qstate = "initial";
-			}
-			else if (qstate.equals ("confirm_question")) {
-				result = qstack.pop ();
-				qstate = "asking_confirmation";
-			}
-			else if (qstate.equals ("recognized")) {
-				qstate = handleRecognizedQuery ();
-				// Log.fine ("after handleRecognizedQuery: "+qstack.toString ());
-				if (qstate.equals ("terminate")) {
-					// Log.fine ("Terminate requested");
-					return ("Please enter quit interactively.");
-				}
-				result = qstack.pop ();
-			}
+		// get the match list
+		String in [] = Utils.splitTokens (lq);
+		double n = (double)(in.length);
+		Point pp [] = findBestMatches (in);
+		// standardize goodness
+		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
+		for (int i=0; i<pp.length && i<MaxMatch; i++) {
+			Point p = pp [i];
+			double d = (double)(p.y);
+			int percentage = (int)((n-d)*100.0/n);
+			Integer I = new Integer (-percentage);
+			String s = questions [p.x];
+			matches.put (I, s);
 		}
-		else if (qstate.equals ("asking_confirmation")) {
-			qstate = handleConfirmation ();
-			// Log.fine ("after handleConfirmation: "+qstack.toString ());
-			if (qstate.equals ("notconfirmed")) {
-				qstate = "initial";
-				result = qstack.pop ();
-			}
-			else if (qstate.equals ("confirmed")) {
-				qstate = handleRecognizedQuery ();
-				// Log.fine ("after handleRecognizedQuery: "+qstack.toString ());
-				qstate = "initial";
-				result = qstack.pop ();
-			}
-			else if (qstate.equals ("terminate")) {
-				// Log.fine ("Terminate requested");
-				return ("Please enter quit interactively.");
-			}
-		}
-		else if (qstate.equals ("terminate")) {
-			// Log.fine ("Terminate requested");
-			return ("Please enter quit interactively.");
-		}
-		Recorder.record ("R: "+result);
-		// net.execute (result);
-		// netprocess (result);
+		Log.info (matches.toString ());
+		String result = gen.handleInputValue (matches);
+		Recorder.record ("A: "+result);
 		return result;
 	}
 
-
-	String handleInitialQuery () {
-		Log.fine ("handleInitialQuery: "+qstack.toString ());
-		String lq = qstack.pop ();
-		String qq [] = U.splitTokens (lq);
-		Point match = findBestMatch (qq);
-		if (match.x == -1) {
-			String state = "question_unrecognized";
-			// String response = "I can not understand your question, please try asking another way";
-			String response = gen.confusedAnswer (net);
-			qstack.push (lq);
-			qstack.push (response);
-			return state;
-		}
-		String matchedQuery = questions [match.x];
-		int error = match.y;
-		if (error < 3) {
-			String state = "recognized";
-			qstack.push (matchedQuery);
-			return state;
-		}
-		else {
-			String state = "confirm_question";
-			String response = "Was your question "+matchedQuery;
-			qstack.push (matchedQuery);
-			qstack.push (response);
-			return state;
-		}
-	}
-
-	String handleRecognizedQuery () {
-		Log.fine ("handleRecognizedQuery: "+qstack.toString ());
-		String lq = qstack.pop ();
-		// queries.add (lq);
-		// add the question when we have an answer
-		String answer = gen.makeAnswer (lq);
-		if (answer.equals ("terminate")) {
-			qstate = answer;
-			return answer; // that will be the next state
-		}
-		Qapair qap = new Qapair (this, qa.size (), lq, answer);
-		qa.add (qap);
-		String state = "initial";
-		net.execute (answer);
-		net.updatepasts ();
-		qstack.push (answer);
-		return state;
-	}
-
-	String handleConfirmation () {
-		Log.fine ("handleConfirmation: "+qstack.toString ());
-		String lq = qstack.pop ();
-		Qapair qap = new Qapair (this, qa.size (), lq, "");
-		if (qap.command.equals ("command")) {
-			if (qap.arg.equals ("yes")) {
-				String state = "confirmed";
-				return state;
-			}
-			else if (qap.arg.equals ("no")) {
-				String state = "notconfirmed";
-				String response = gen.confusedAnswer (net);
-				qstack.push (lq);
-				qstack.push (response);
-				return state;
-			}
-		}
-		if (lq.indexOf ("yes") != -1 || lq.indexOf ("yeah") != -1) {
-			String state = "confirmed";
-			return state;
-		}
-		else {
-			String state = "notconfirmed";
-			// String response = "Ok, perhaps you can ask the question another way";
-			String response = gen.confusedAnswer (net);
-			qstack.push (lq);
-			qstack.push (response);
-			return state;
-		}
-	}
-
-	Point findBestMatch (String in []) {
+	Point [] findBestMatches (String in []) {
 		int n = in.length;
 		StringBuffer sb = new StringBuffer ();
 		for (int i=0; i<n; i++) {
@@ -422,7 +241,7 @@ public class Interact {
 			int bestval = Integer.MAX_VALUE;
 			for (int j=0; j<nl; j++) {
 				String lex = lexicon [j];
-				int d = U.editDistance (word, lex);
+				int d = Utils.editDistance (word, lex);
 				if (d < bestval && checkfit (word, lex, d)) {
 					best = j;
 					bestval = d;
@@ -434,17 +253,22 @@ public class Interact {
 			}
 		}
 		String result = new String (sb);
+		Log.info ("Bestmatch words: "+result);
+		int N = questions.length;
+		int bestdist = Integer.MAX_VALUE;
 		int bestq = -1;
-		int bestqd = Integer.MAX_VALUE;
-		for (int i=0; i<questions.length; i++) {
-			int d = U.approxMatch (questions [i], result);
-			if (d < bestqd) {
+		Point pp [] = new Point [N];
+		for (int i=0; i<N; i++) {
+			int d = Utils.approxMatch (questions [i], result);
+			if (d < bestdist) {
+				bestdist = d;
 				bestq = i;
-				bestqd = d;
 			}
+			pp [i] = new Point (i, d-1);
 		}
-		Point p = new Point (bestq, bestqd);
-		return p;
+		Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
+		Utils.quicksortpointy (pp, 0, N-1);
+		return pp;
 	}
 
 	boolean checkfit (String a, String b, int d) {
@@ -454,4 +278,13 @@ public class Interact {
 		if (d > x/2) return false;
 		return true;
 	}
+	
+/**
+ * Get the Script associated wit this interpreter
+ * @return
+ */
+	public Script getScript () {
+		return gen;
+	}
+
 };

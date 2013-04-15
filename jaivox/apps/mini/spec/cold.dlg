@@ -1,0 +1,186 @@
+
+#include errors.dlg
+
+{
+[def_dyf]
+	def ;
+	i am feeling sick ;
+	do you feel hot ;
+	dyf ;
+}
+
+{
+[def_dyf_iyn]
+	dyf ;
+	a little ;
+	is your nose runny ;
+	iyn ;
+}
+
+{
+[def_dyf_iyn_hiy]
+	iyn ;
+	yes ;
+	how is your throat ;
+	hiy ;
+}
+
+{
+[def_dyf_iyn_hiy_def]
+	hiy ;
+	itchy ;
+	it is probably just a cold ;
+	def ;
+}
+
+{
+[def_dyf_iyn_hiy_cba]
+	hiy ;
+	hurts ;
+	could be an infection. are you coughing ;
+	cba ;
+}
+
+{
+[def_dyf_iyn_hiy_cba_def]
+	cba ;
+	a lot ;
+	go to a doctor ;
+	def ;
+}
+
+{
+[def_dyf_iyn_hiy_cba_def]
+	cba ;
+	a little ;
+	may be best to go to a doctor ;
+	def ;
+}
+
+{
+[def_dyf_iyn_hiy_cba_def]
+	cba ;
+	no ;
+	try drinking some fluids ;
+	def ;
+}
+
+{
+[def_dyf_iyn_hiy_ayw]
+	hiy ;
+	fine ;
+	are you wheezing ;
+	ayw ;
+}
+
+{
+[def_dyf_iyn_hiy_ayw_alo]
+	ayw ;
+	yes ;
+	a lot or just a little ;
+	alo ;
+}
+
+{
+[def_dyf_iyn_hiy_ayw_alo_def]
+	alo ;
+	a lot ;
+	could be asthma ;
+	def ;
+}
+
+{
+[def_dyf_iyn_hiy_ayw_alo_def]
+	alo ;
+	a little ;
+	could be allergies ;
+	def ;
+}
+
+{
+[def_dyf_iyn_dyf]
+	iyn ;
+	no ;
+	do you feel congested ;
+	dyf ;
+}
+
+{
+[def_dyf_iyn_dyf_dyh]
+	dyf ;
+	yes ;
+	did you have a cold earlier ;
+	dyh ;
+}
+
+{
+[def_dyf_iyn_dyf_dyh_def]
+	dyh ;
+	yes ;
+	well give it some time ;
+	def ;
+}
+
+{
+[def_dyf_iyn_dyf_aya]
+	dyf ;
+	no ;
+	are you allergic to anything ;
+	aya ;
+}
+
+{
+[def_dyf_iyn_dyf_aya_wxx]
+	aya ;
+	yes ;
+	what ;
+	wxx ;
+}
+
+{
+[def_dyf_iyn_dyf_aya_wxx_def]
+	wxx ;
+	pollen ;
+	well it is the season ;
+	def ;
+}
+
+{
+[def_dyf_iyn_dyf_aya_wxx_def]
+	wxx ;
+	dust ;
+	try cleaning your house ;
+	def ;
+}
+
+{
+[def_dyf_iyn_dyf_aya_wxx_dyh]
+	wxx ;
+	dogs ;
+	do you have a dog ;
+	dyh ;
+}
+
+{
+[def_dyf_iyn_dyf_aya_wxx_dyh_dyv]
+	dyh ;
+	no ;
+	did you visit somebody who has a dog ;
+	dyv ;
+}
+
+{
+[def_dyf_iyn_dyf_aya_wxx_dyh_dyv_def]
+	dyv ;
+	no ;
+	well come in for an evaluation ;
+	def ;
+}
+
+{
+[def_dyf_iyn_dyf_aya_wxx_dyh_dyv_def]
+	dyv ;
+	yes ;
+	that could be it ;
+	def ;
+}

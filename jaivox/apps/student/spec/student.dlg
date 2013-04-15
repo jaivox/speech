@@ -1,0 +1,197 @@
+
+#include errors.dlg
+
+{
+[are_nn_jj]
+	def ;
+	are.NN.JJ ;
+	(ask) ;
+	asked ;
+}
+
+{
+[which_nn_jj]
+	def ;
+	which.NN.JJ ;
+	(find) ;
+	def ;
+}
+
+{
+[what_else]
+	def ;
+	WP.ELS ;
+	(find ELS) ;
+	def ;
+}
+
+{
+start
+	fully.specified.question ;
+	not.fully.specified.question ;
+	confirmation ;
+	command system ;
+}
+
+{
+not.fully.specified.question
+	any ELS ask.ELS ;
+	WP.ELS find.ELS ;
+	yes.continue yes.more ;
+	no.continue no.more ;
+}
+
+
+
+{
+fully.specified.question
+	are.NN.JJ ;
+	which.NN.JJ ;
+}
+
+{
+are.NN.JJ
+	are there just JJ-N notes about the NNS	;
+	are there just JJR-N notes about the NNS ;
+	do the NNS have JJ-P notes ;
+	do the NNS have JJR-P notes ;
+	is NNP the student with the JJS-P notes ;
+	is NNP the student with the JJS-N notes ;
+	is there any NN with JJR-P notes than NNP ;
+	is there any NN with JJR-N notes than NNP ;
+}
+
+{
+which.NN.JJ
+	WP is the NN with JJR-P notes ;
+	which NNS have JJR-P notes ;
+	which NNS have only JJR-N notes ;
+	which NNS are mentioned JJR-N ;
+	which NN has more notes than NNP ;
+	which NN notes are RBR ;
+}
+
+{
+WP.ELS
+	WP ELS NNP ;
+	how about NNP ;
+	WP ELS NNS ;
+	WP ELS NN ;
+	any ELS NNS ;
+	any ELS NN with JJ-P notes ;
+	any ELS NNS JJR-P notes ;
+}
+
+{
+ask.ELS
+	(ask ELS) ;
+}
+
+{
+find.ELS
+	(find ELS) ;
+}
+
+{
+(ask)
+	(V0=0) intro noanswers ;
+	(V0>0) intro yesanswers ;
+}
+
+{
+(find)
+	(V0=0) cantfind ;
+	(V0=1) oneitem V1 ;
+	(V0=2) twoitems V1 and V2 ;
+	(V0>2) manyitems forinstance V1 ;
+}
+
+{
+(ask ELS)
+	(V0=0) intro noanswers ;
+	(V0>0) intro yesanswers ;
+}
+
+{
+(find ELS)
+	(V0=0) cantfind ;
+	(V0=1) oneitem V1 ;
+	(V0=2) twoitems V1 and V2 ;
+	(V0>2) manyitems forinstance V1 ;
+}
+
+{
+intro
+	i guess ;
+	It looks like ;
+	It seems like ;
+	Apparently ;
+}
+
+{
+yesanswers
+	that is the case ;
+	the answer is yes ;
+	that is true ;
+}
+
+{
+noanswers
+	that is not the case ;
+	the answer is no ;
+	that is false ;
+}
+
+{
+cantfind
+	i cannot find an answer ;
+	Seems that i could not find any ;
+	Well it looks like nothing matched ;
+}
+
+{
+oneitem
+	that could be ;
+	that one is, ;
+}
+
+{
+twoitems
+	there are two such, ;
+	there are exactly two answers, ;
+	two answers may fit, ;
+	two solutions, ;
+	there are two matches, ;
+}
+
+{
+manyitems
+	there are several solutions, ;
+	there are many answers, ;
+	many ways to answer this, ;
+	there are quite a few solutions, ;
+	there are several matches, ;
+}
+
+{
+forinstance
+	for example ;
+	for instance ;
+	such as ;
+	as an example ;
+	one of them is ;
+	one such is ;
+	one such example is ;
+}
+
+{
+command
+	list ;
+	cat ;
+}
+
+{
+system
+	pc ;
+	linux ;
+}

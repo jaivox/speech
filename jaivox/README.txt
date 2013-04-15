@@ -1,6 +1,5 @@
 
-Jaivox library and applications (In development)
-
+Jaivox library and applications (Version 0.4, April 2013)
 
 See http://www.jaivox.com for detailed documentation and requirements.
 
@@ -50,14 +49,7 @@ Files here
 build.xml is the ant build file
 src/ contains com.jaivox Java source files
 apps/ contains several applications and supporting data.
-	apps/audio contains recorded audio for some tests without a microphone.
-	apps/common  contains various templates used for generating applications.
-	apps/db is a database integration application.
-	apps/files illustrates integration of speech with a command shell.
-	apps/freetts uses freetts instead of festival for speech synthesis.
-	apps/recorded contains a demo using recorded audio.
-	apps/student illustrates how the grammar can be expanded.
-	apps/test is a tutorial program described in tutorial.html.
+	Please see apps/README_apps.txt for details
 
 Installation
 ============
@@ -79,8 +71,11 @@ Requirements
 5. Sphinx 4 from Carnegie Mellon University
 6. Sphinx requires JSAPI from various implementations of the JSAPI.
 7. Festival from the University of Edinburgh. You will need the development
-   version, if you are installing it as a package, please install both 
+   version, if you are installing it as a package, please install both
    festival and festival-dev.
+8. A recommended alternative to Festival is Free TTS. Please see
+   apps/README_freetts.txt for information on obtaining and installing
+   this package.
 
 The Java Development Kit and Ant are installed using instructions at the
 respective websites.
@@ -152,7 +147,7 @@ See http://www.jaivox.com/recordeddemo.html for a demo where you can hear
 one of us asking questions and the Jaivox interpreter creating anwswers
 which are spoken through festival.
 
-The simplest test involves using the Java-based Freetts instead of
-festival. This can be found in apps/freetts, for instructions please see
-README_freetts.txt in that directory or http://www.jaivox.com/freetts.html.
+The simplest test involves the files in apps/1st. This is a complete program
+that uses Sphinx and Free TTS. See apps/1st/README_1st.txt for details
+on running this program.
 

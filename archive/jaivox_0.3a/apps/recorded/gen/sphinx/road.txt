@@ -1,0 +1,33 @@
+001	do the roads get slow at this time
+002	do the roads get congested at this time
+003	are roads busy
+004	do you think the roads are slow
+005	do you think elmwood avenue is slow
+006	do you think old mill road is fast
+007	do you think old mill road is quick
+008	is elmwood avenue a fast highway
+009	is avenue o the quickest route
+010	is avenue o the quickest highway
+011	is dearborn court the quickest highway
+012	are the freeways congested
+013	are the freeways busy
+014	what are the fast roads
+015	what freeway is faster than avenue o
+016	which freeway is quicker than old mill road
+017	what freeway is busier than elmwood avenue
+018	which highway is slowwer than dearborn court
+019	which freeway is more congested than elmwood avenue
+020	which freeway is busier than avenue o
+021	what is the fastest highway
+022	what is faster than avenue o
+023	how fast is 15th avenue
+024	what besides aster court
+025	is there anything faster than elmwood avenue
+026	is there anything busier than dearborn court
+027	how about old mill road
+028	any other fast roads
+029	any other fast routes
+030	do the roads get busy at this time
+031	are highways stop and go
+032	do you think elmwood avenue is stop and go
+033	is elmwood avenue a smooth road

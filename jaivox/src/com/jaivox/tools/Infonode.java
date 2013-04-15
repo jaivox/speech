@@ -1,11 +1,29 @@
+/*
+   Jaivox version 0.4 April 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 
 package com.jaivox.tools;
 
-import java.io.*;
-
-import java.util.*;
-import com.jaivox.interpreter.Adjective;
 import com.jaivox.util.Log;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.LinkedHashMap;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 
 /**
  * Information about a specific field or attribute
@@ -99,44 +117,6 @@ public class Infonode {
 			return null;
 		}
 	}
-
-	void buildAdjectives (Adjective Adj) {
-		String [] pos = tagval.get ("JJ-P");
-		if (pos == null) return;
-		int n = pos.length;
-		String [] pcomp = new String [n];
-		String [] psup = new String [n];
-		for (int i=0; i<pos.length; i++) {
-			String a = pos [i];
-			String s = Adj.analyze (a);
-			StringTokenizer st = new StringTokenizer (s, ",\r\n");
-			st.nextToken ();
-			String comp = st.nextToken ().trim ();
-			pcomp [i] = comp;
-			String sup = st.nextToken ().trim ();
-			psup [i] = sup;
-		}
-		tagval.put ("JJR-P", pcomp);
-		tagval.put ("JJS-P", psup);
-		String [] neg = tagval.get ("JJ-N");
-		if (neg == null) return;
-		n = neg.length;
-		String [] ncomp = new String [n];
-		String [] nsup = new String [n];
-		for (int i=0; i<n; i++) {
-			String a = neg [i];
-			String s = Adj.analyze (a);
-			StringTokenizer st = new StringTokenizer (s, ",\r\n");
-			st.nextToken ();
-			String comp = st.nextToken ().trim ();
-			ncomp [i] = comp;
-			String sup = st.nextToken ().trim ();
-			nsup [i] = sup;
-		}
-		tagval.put ("JJR-N", ncomp);
-		tagval.put ("JJS-N", nsup);
-	}
-
 
 	String tagvals (String tag) {
 		String [] vals = tagval.get (tag);

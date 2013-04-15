@@ -1,0 +1,171 @@
+
+#include errors.dlg
+
+{
+[def_wdy]
+	def ;
+	my tomatoes are not growing ;
+	when did you plant them ;
+	wdy ;
+}
+
+{
+[def_wdy_ihb]
+	wdy ;
+	in may ;
+	it has been only a few months give it another two months ;
+	ihb ;
+}
+
+{
+[def_wdy_ihb_def]
+	ihb ;
+	but it will get hot ;
+	that is a problem but you could try shading ;
+	def ;
+}
+
+{
+[def_wdy_ihb_def]
+	ihb ;
+	that is too bad ;
+	well i am sorry ;
+	def ;
+}
+
+{
+[def_wdy_eao]
+	wdy ;
+	in april ;
+	early april or late april ;
+	eao ;
+}
+
+{
+[def_wdy_eao_wta]
+	eao ;
+	early april ;
+	was there a freeze ;
+	wta ;
+}
+
+{
+[def_wdy_eao_wta_tch]
+	wta ;
+	yes ;
+	that could have affected your plants, are they vigorous ;
+	tch ;
+}
+
+{
+[def_wdy_eao_wta_tch_atp]
+	tch ;
+	yes ;
+	are the plants very big ;
+	atp ;
+}
+
+{
+[def_wdy_eao_wta_tch_atp_def]
+	atp ;
+	yes ;
+	cut them back a bit ;
+	def ;
+}
+
+{
+[def_wdy_eao_wta_tch_atg]
+	tch ;
+	no ;
+	are they getting enough water ;
+	atg ;
+}
+
+{
+[def_wdy_eao_wta_tch_atg_atg]
+	atg ;
+	yes ;
+	are they getting enough sun ;
+	atg ;
+}
+
+{
+[def_wdy_eao_wta_tch_atg_atg_def]
+	atg ;
+	yes ;
+	i think you should give it another month ;
+	def ;
+}
+
+{
+[def_wdy_eao_wta_tch_atg_atg_def]
+	atg ;
+	no ;
+	cut some of the trees shading them ;
+	def ;
+}
+
+{
+[def_wdy_eao_wta_dyf]
+	wta ;
+	no ;
+	did you fertilize recently ;
+	dyf ;
+}
+
+{
+[def_wdy_eao_wta_dyf_atp]
+	dyf ;
+	yes ;
+	are the plants looking burned ;
+	atp ;
+}
+
+{
+[def_wdy_eao_wta_dyf_atp_def]
+	atp ;
+	yes ;
+	you probably over fertilized ;
+	def ;
+}
+
+{
+[def_wdy_eao_wta_dyf_atp_atg]
+	atp ;
+	no ;
+	are they growing well ;
+	atg ;
+}
+
+{
+[def_wdy_eao_wta_dyf_atp_atg_def]
+	atg ;
+	yes ;
+	prune them a bit ;
+	def ;
+}
+
+{
+[def_wdy_eao_wta_dyf_atp_atg_atg]
+	atg ;
+	no ;
+	are they getting plenty of sun and water ;
+	atg ;
+}
+
+{
+[def_wdy_eao_wta_dyf_atp_atg_atg_def]
+	atg ;
+	yes ;
+	give it another two weeks ;
+	def ;
+}
+
+{
+[def_wdy_eao_wta_dyf_atp_atg_atg_def]
+	atg ;
+	no ;
+	try to remove some of the shade ;
+	def ;
+}
+

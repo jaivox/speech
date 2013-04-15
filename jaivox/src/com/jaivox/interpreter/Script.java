@@ -1,724 +1,1213 @@
+/*
+   Jaivox version 0.4 April 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 
 package com.jaivox.interpreter;
 
-import java.util.*;
-import java.awt.Point;
-
+import com.jaivox.tools.QaList;
+import com.jaivox.tools.QaNode;
 import com.jaivox.util.Log;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+import java.util.Vector;
+
 /**
- * The Script class is used to generate responses to questions. The
- * interpretation of the questions is done in Interact, while Script is
- * mainly for generating the responses in natural language.
+ * Script handles the interpreter's behavior. A script (which may include
+ * other scripts) is interpreted based on various conditions. Conditions are
+ * described by states. Two states are defined in the code below "initial"
+ * is meant to be an initial state and "def" is the default state.
+ * @author jaivox
  */
 
 public class Script {
 
-	Interact Act;
-	Info Info;
+	Interact I;
+	Properties kv;
+	Command F;
+	Vector <HistNode> history;
+	static int quad = 4;
+	int nfsm;
+	String fsm [][];
 
-	String data [][];
-	String fields [];
-	int nr, nf;
+	boolean isMatch [];
 
-	Vector <Qapair> qa;
-	TreeMap <String, String> qspecs;
-
-	Answer adata;
-
-	String intro [];
-
-	String yesanswers [];
-
-	String noanswers [];
-
-	String confused [];
-
-	String followup [];
-
-	String topics [];
-
-	String oneitem [];
-
-	String twoitems [];
-
-	String manyitems [];
-
-	String forinstance [];
-	
-	String askanother [];
-	
-	String dontknow [];
-
-	TreeMap <String, Point> quants;
-	TreeMap <String, String []> qwords;
-
-
-	static int nSpecials = 2;		// top values to show
-
-/**
- * Create a script
-@param inter
-@param inf
- */
-	public Script (Interact inter, Info inf, String answerdata) {
-		Act = inter;
-		Info = inf;
-		initializeQuants ();
-		adata = new Answer (answerdata);
-		intro = adata.intro;
-		yesanswers = adata.yesanswers;
-		noanswers = adata.noanswers;
-		confused = adata.confused;
-		followup = adata.followup;
-		topics = adata.topics;
-		oneitem = adata.oneitem;
-		twoitems = adata.twoitems;
-		manyitems = adata.manyitems;
-		forinstance = adata.forinstance;
-		askanother = adata.askanother;
-		dontknow = adata.dontknow;
-	}
-
-/**
- * Determine the range of values that correspond to various adjectives.
- */
-	void initializeQuants () {
-		quants = new TreeMap <String, Point> ();
-
-		/*
-		quants.put ("jjs-n", new Point ( 0, 10));
-		quants.put ("jjr-n", new Point (10, 30));
-		quants.put ("jj-n",  new Point (30, 50));
-		quants.put ("jj-p",  new Point (50, 70));
-		quants.put ("jjr-p", new Point (70, 90));
-		quants.put ("jjs-p", new Point (90, 99));
-		*/
-
-		// ranges extended since a superlative is a comparative and
-		// both superlative and comparative apply to the adjective
-
-		quants.put ("jjs-n", new Point (0, 10));
-		quants.put ("jjr-n", new Point (0, 30));
-		quants.put ("jj-n",  new Point (0, 50));
-		quants.put ("jj-p",  new Point (50, 99));
-		quants.put ("jjr-p", new Point (70, 99));
-		quants.put ("jjs-p", new Point (90, 99));
-
-		refreshData ();
-	}
-
-	void refreshData () {
-		data = Info.data;
-		fields = Info.fields;
-		nr = Info.nr;
-		nf = Info.nf;
-	}
-
-	void loadhistory () {
-		qspecs = Act.qspecs;
-		qa = Act.qa;
-	}
+	TreeMap <String, String> questspecs;
 	
 /**
- * Create an answer to a question. Usually called from Inter.
-@param question
-@return
+ * When an interpreter encounters an error, it tries to produce an error
+ * message, generally this is spoken. Since thelanguage of the application is
+ * unknown, the string Error is just "?". A synthesizer will say something like
+ * "question mark" if this is not replaced, see @errorResult. The Error string
+ * is spoken only if there is no value for errorTag in the script.
  */
 
-	String makeAnswer (String question) {
-		Log.fine ("makeAnswer: question = "+question);
-		loadhistory ();
-		String dummyAnswer = "dummy";
-		Qapair p = new Qapair (Act, -1, question, dummyAnswer);
+	public static String Error = "???";
+	
+/**
+ * If the system is not able to handle some situation, it looks for a node
+ * with tag errorTag. The system uses this node to produce an error message
+ * (in the appropriate language of the script) saying something like "I cannot
+ * process your request".
+ */
+	public static String errorTag = "errorTag";
+	
+/**
+ * The initial state is used to create something in the history. This way if
+ * an action is supposed to happen initially, it can be defined as having the
+ * precondition "initial". If some other state has to be the initial state, then
+ * it can be created in the grammar by providing a finite state node with
+ * tag "initial" and ending state whatever the user wishes to use as the real
+ * starting state.
+ */
+	public static String initialState = "initial";
+	
+/**
+ * The default state may be used to do actions in most situations not involving
+ * the state of the conversation. For example, it may be necessary to evaluate
+ * some user-defined function that does not consider the current state, then the
+ * state machine can go into the default state and match a state transition
+ * that is based on the default state.
+ */
+	public static String defaultState = "def";
+	
+/**
+ * anystate is to be matched only if nothing else matches. This is used to
+ * handle bad matches and desparation statements, where the recognizer is not
+ * producing anything useful.
+ */
+	
+	public static String anyState = "zzzzstate";
+	
+	static String emptyTokens [] = {""};
 
-		String state = currentState (p);
-		Log.fine ("currentState = "+state);
+	QaList List;
+	TreeMap <String,QaNode> lookup;
 
-		String answer = null;
-
-		// situations with fully specified question
-
-		if (state.equals ("command")) {
-			answer = handleCommand (p);
-		}
-
-		else if (state.equals ("specified")) {
-			answer = generateSimple (p);
-		}
-
-		else if (state.equals ("nnpSpecified")) {
-			answer = generateSpecific (p);
-		}
-
-		else if (state.equals ("elseSpecified")) {
-			// answer = generateSimpleElse (p);
-			answer = makeWithHistory (state, p);
-		}
-
-		else if (state.equals ("elseNnp")) {
-			answer = generateSpecificElse (p);
-		}
-
-		// situations where specifications have to be inferred from history
-		else {
-			answer = makeWithHistory (state, p);
-
-		}
-		return answer;
-
+/**
+ * Create a new Script handler. Data for this handler is obtained from
+ * the Interact class.
+ * @param dataholder
+ */
+	
+	public Script (Interact dataholder) {
+		I = dataholder;
+		F = I.command;
+		kv = I.kv;
+		history = new Vector <HistNode> ();
+		List = new QaList (I.grammarfile);
+		lookup = List.getLookup ();
+		createFsm ();
+		createDefaultHistoryNode ();
+		String questions_file = I.basedir + kv.getProperty ("questions_file");
+		loadQuestions (questions_file);
 	}
 
 /**
- * Determine the type of question we have, using information from the
- * history of the conversation so far.
-@param state
-@param p
-@return
+ * Create the finite state machine based on the "grammarfile" variable
+ * in the interact class. The finite state machine is stored in an array
+ * with four columns and as many rows as there are state transitions.
  */
-	String makeWithHistory (String state, Qapair p) {
-
-		Log.fine ("makeWithHistory: state="+state+", Qapair="+p.details ());
-		String answer = null;
-
-		// since the main fields are not specified we have to go back to the history
-		// find the last fully specified
-		int lastfull = getLastSpecified ();
-		// if no such thing, this is a query with wildcards that does not have any
-		// data available to fill the wildcards
-		if (lastfull == -1) {
-			Log.info ("Should have some some nouns specified after stage "+lastfull);
-			state = "notSpecified";
-			answer = selectPhrase (confused) + " " + selectPhrase (askanother);
-			// answer =  "I can't figure out the answer, can you ask a new question?";
-			return answer;
-		}
-
-		Qapair qap = qa.elementAt (lastfull);
-		if (!p.updateFAQ (qap)) {
-			Log.warning ("Not able to update FAQ from query at position "+lastfull);
-			state = "internalError";
-		}
-
-		// resolve the nnp's mentioned since lastfull
-		Vector <String> nnps = getUsedNouns (lastfull);
-		if (nnps == null) {
-			// can't figure out
-			Log.info ("Can't figure out anything: "+p.question);
-			state = "internalError";
-			answer = selectPhrase (confused) + " " + selectPhrase (askanother);
-			// answer = "I am confused, could you ask the question a different way?";
-			return answer;
-		}
-
-		// since FAQ are updated, we can answer some questions
-		int nNouns = nnps.size ();
-
-		if (nNouns == 0) {
-			if (p.els.equals ("")) {
-				answer = generateSimple (p);
-			}
-			else {
-				String temp = generateSimple (p);
-				answer = selectPhrase (topics) + " " + temp;
-				// answer = "Do not know what else. However, " + temp;
+	void createFsm () {
+		Vector <String []> hold = new Vector <String []> ();
+		Set <String> keys = lookup.keySet ();
+		for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
+			String key = it.next ();
+			if (isState (key)) {
+				QaNode node = lookup.get (key);
+				String tail [] = node.getTail ();
+				// check that size is right
+				if (tail.length != quad) {
+					Log.severe ("State node "+key+" should have exactly four elements");
+					continue;
+				}
+				hold.add (tail);
 			}
 		}
-		else if (nNouns == 1) {
-			String nnp = nnps.elementAt (0);
-			p.nnp = nnp;
-			if (p.els.equals ("")) {
-				answer = generateSpecific (p);
+		nfsm = hold.size ();
+		// fsm = hold.toArray (new String [n][quad]);
+		fsm = new String [nfsm][quad];
+		for (int i=0; i<nfsm; i++) {
+			String f [] = hold.elementAt (i);
+			for (int j=0; j<quad; j++) {
+				fsm [i][j] = f [j];
 			}
-			else {
-				answer = generateSpecificElse (p);
-			}
-		}
-		else { // more than one noun mentioned
-			answer = generateElse (p, nnps);
 		}
 
-		return answer;
+		markMatch ();
 	}
 
-	String currentState (Qapair p) {
-		if (p.command.equals ("command"))
-			return "command";
-		if (p.FAQspecified ()) {
-			if (p.els.equals ("")) {
-				if (p.nnp.equals ("")) {
-					return "specified";
-				}
-				else {
-					return "nnpSpecified";
-				}
-			}
-			else {
-				if (p.nnp.equals ("")) {
-					return "elseSpecified";
-				}
-				else {
-					return "elseNnp";
-				}
-			}
+/**
+ * mark the isMatch for fsm's that contain a match predicate
+ */
+	
+	void markMatch () {
+		isMatch = new boolean [nfsm];
+		for (int i=0; i<nfsm; i++) {
+			String input = fsm [i][1];
+			String expanded = expandText (input);
+			if (hasMatch (expanded)) isMatch [i] = true;
+		}
+	}
+
+/**
+ * create an initial history node. Several methods look at the history to
+ * determine details of some questions, it helps to have a non-empty history.
+ */
+	
+	void createDefaultHistoryNode () {
+		QaNode initNode = lookup.get (initialState);
+		if (initNode == null) {
+			createSimpleDefaultNode ();
 		}
 		else {
-			return "useHistory";
+			String tail [] = initNode.getTail ();
+			// check that size is right
+			if (tail.length != quad) {
+				Log.severe ("initialSttae node should have exactly four elements");
+				createSimpleDefaultNode ();
+				return;
+			}
+			HistNode node = new HistNode (tail, initialState, tail [2]);
+			history.add (node);
 		}
 	}
-
-	int getLastSpecified () {
-		int n = qa.size ();
-		int lastfull = -1;
-		for (int i=n-1; i>=0; i--) {
-			Qapair qap = qa.elementAt (i);
-			Log.fine ("qa:"+i+" "+qap.toString ());
-			String olds = qap.spec;
-			// ignore commands
-			if (qap.command.equals ("command")) continue;
-			int loc = olds.indexOf ("_");
-			if (loc == -1) {
-				lastfull = i;
-				break;
-			}
-		}
-		return lastfull;
+	
+	void createSimpleDefaultNode () {
+		String f [] = new String [quad];
+		f [0] = f [3] = defaultState;
+		f [1] = f [2] = initialState;
+		HistNode node = new HistNode (f, initialState, initialState);
+		history.add (node);
 	}
 
-	Vector <String> getUsedNouns (int lastfull) {
-		int n = qa.size ();
-		if (lastfull >= n) {
-			Log.warning ("No full specification available to determine unknown variables.");
-			return null;
-		}
-		Vector <String> nnps = new Vector <String> ();
-		for (int i=lastfull; i<n; i++) {
-			Qapair qap = qa.elementAt (i);
-			// get any nnp from the question specs
-			String nnp = qap.nnp;
-			if (!nnp.equals ("") && !nnp.equals ("_")) {
-				Log.fine ("At step "+n+" adding nnp from question: "+nnp);
-				nnps.add (nnp);
-			}
-			// get all nnp's in answers
-			String ans = qap.answer;
-			for (int j=0; j<nr; j++) {
-				if (ans.indexOf (data [j][0]) != -1) {
-					nnps.add (data [j][0]);
-					Log.fine ("At step "+n+" adding nnp from answer: "+data [j][0]);
-				}
-			}
-		}
-		return nnps;
-	}
-
-	String generateSimple (Qapair p) {
-		try {
-			Log.fine ("generateSimple: "+ p.field+" "+p.attribute+" "+p.quant);
-			Point pt = quants.get (p.quant);
-			int plow = pt.x;
-			int phigh = pt.y;
-			int f = findColumn (p.attribute);
-			if (f == -1) {
-				Log.warning ("Could not find atrribute "+p.attribute);
-				return "error";
-			}
-			// String stop = ".";
-			String stop = " ";
-
-			// select the relevant data
-			String selection [] = selectOrdering (f, plow, phigh);
-			if (selection == null) {
-				String problem = selectPhrase (intro) + selectPhrase (noanswers) + stop;
-				return problem;
-			}
-
-			int count = selection.length;
-			String result = "";
-
-			if (count > 0) {
-				for (int i=0; i<count; i++) {
-					Log.finest ("selection:"+i+" "+selection [i]);
-				}
-			}
-
-			if (p.command.equals ("ask")) {
-				if (count == 0) {
-					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-				}
-				else {
-					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
-				}
-				return result;
-			}
-
-			if (count == 0) {
-				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-			}
-			else if (count == 1) {
-				result = selectPhrase (oneitem) + " " + selection [0] +stop;
-			}
-			else if (count == 2) {
-				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] +stop;
+/**
+ * Expand the text below a certain node in the script. This is used for
+ * example to see which finite state nodes correspond to states that
+ * determine whether we have a good or bad match of the user input with
+ * a query recognized by the script. This can also be used to study other
+ * properties of the script, such as the location of a particular built
+ * in function.
+ * @param spec
+ * @return
+ */
+	
+	String expandText (String spec) {
+		String tokens [] = getTokens (spec);
+		StringBuffer sb = new StringBuffer ();
+		for (int i=0; i<tokens.length; i++) {
+			String token = tokens [i];
+			if (isHead (token)) {
+				QaNode node = lookup.get (token);
+				String tailtext = node.getTail ()[0];
+				String result = expandText (tailtext);
+				sb.append (" "+result);
+				continue;
 			}
 			else {
-				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance)
-				+ " " + selection [0] +stop;
+				sb.append (" "+token);
+				continue;
 			}
-			return result;
+		}
+		String text = new String (sb).trim ();
+		return text;
+	}
+
+/**
+ * Load the questions that are to be understood by the interpreter. Here
+ * "question" is just any input by the user, including responses by the
+ * user to system queries.
+ * @param filename
+ */
+	
+	void loadQuestions (String filename) {
+		try {
+			questspecs = new TreeMap <String, String> ();
+			BufferedReader in = new BufferedReader (new FileReader (filename));
+			String line;
+			int count = 0;
+			while ((line = in.readLine ()) != null) {
+				int pos = line.indexOf ("\t");
+				if (pos == -1) continue;
+				StringTokenizer st = new StringTokenizer (line, "\t");
+				if (st.countTokens () < 2) continue;
+				String q = st.nextToken ().trim ().toLowerCase ();
+				String s = st.nextToken ().trim ();
+				// there may be additional semantic information in another token
+				// specs will have upper case things in them
+				if (q.length () == 0 || s.length () == 0) continue;
+				questspecs.put (q, s);
+				count++;
+			}
+			in.close ();
+			Log.info ("Loaded "+count+" question spec pairs");
 		}
 		catch (Exception e) {
 			e.printStackTrace ();
-			return "error";
 		}
 	}
 
-	String generateSpecific (Qapair p) {
-		try {
-			Log.fine ("generateSpecific: "+ p.field+" "+p.attribute+" "+p.quant+" "+p.nnp);
-			boolean up = true;
-			if (p.quant.toLowerCase ().endsWith ("-n")) up = false;
-			int f = findColumn (p.attribute);
-			if (f == -1) {
-				Log.warning ("Could not find atrribute "+p.attribute);
-				return "error";
-			}
+/**
+ * Get the grammar specification corresponding to a question. The question is
+ * something in natural language while the grammar specification has placeholders
+ * for nouns, adjectives and other parts of speech. The finite state machine and
+ * script generally work with the grammar specification.
+ * @param question
+ * @return
+ */
+	
+	String getSpec (String question) {
+		String lower = question.toLowerCase ();
+		String spec = questspecs.get (lower);
+		if (spec != null) return spec;
+		else return Error;
+	}
 
-			// String stop = ".";
-			String stop = " ";
-
-			String selection [] = selectComparative (f, up, p.nnp);
-			if (selection == null) {
-				String problem = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-				return problem;
-			}
-
-			int count = selection.length;
-			String result = "";
-
-			if (p.command.equals ("ask")) {
-				if (count == 0) {
-					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
+/**
+ * When a user input is obtained by Interact, it looks through a list of
+ * possible inputs to locate those that are close to the given input.
+ * This information is put into a "map" which is sorted with the best
+ * matches first. The handleInputValue is then called with this list to
+ * obtain a response to the user input.
+ * This calls makeAnswer to get the response. makeAnswer returns a string
+ * array, which may optinally contain a new state to be set. This generally
+ * happens only with a user-defined function, which may decide to set the
+ * finite state machine to a state that is different from the state that
+ * is given as the output state in the finite state machine. For example,
+ * a function may decide that the current line of conversation should not
+ * be continued and decide to go to a different location for a different
+ * kind of conversation. 
+ * @param map
+ * @return
+ */
+	
+	public String handleInputValue (TreeMap <Integer, String> map) {
+		Log.fine (showLastStates ("handleInputValue"));
+		Integer firstKey = map.firstKey ();
+		if (firstKey == null) {
+			Log.severe ("No input in call to handleInput");
+			return errorResult (Error, map);
+		}
+		int firstval = -(firstKey.intValue ());
+		String input = map.get (firstKey);
+		String spec = getSpec (input);
+		if (spec.equals (Error)) {
+			Log.severe ("Cannot find spec for matched query "+input);
+			return errorResult (input, map);
+		}
+		if (firstval == 100) {
+			String result [] = handleInput (input, map);
+			// history already has the new state
+			return result [0];
+		}
+		for (int i=0; i<nfsm; i++) {
+			if (!isMatch [i]) continue;
+			String statenow = fsm [i][0];
+			// initially skip the anystate clauses
+			if (statenow.equals (anyState)) continue;
+			String tomatch = fsm [i][1];
+			String matchtokens [] = getTokens (tomatch);
+			String stokens [] = getTokens (spec);
+			if (historyMatches (statenow)) {
+				Log.fine ("matched: "+i+" "+statenow+ " "+tomatch);
+				if (matchNodeValue (firstval, matchtokens, stokens, 0, 0)) {
+					Log.fine (tomatch+" at "+i+" matched "+spec);
+					String answer [] = makeAnswer (input, fsm [i], map);
+					HistNode node = new HistNode (fsm [i], input, answer [0], map);
+					if (answer.length > 1) {
+						String fnew [] = fsm [i].clone ();
+						fnew [3] = answer [1];
+						node = new HistNode (fnew, input, answer [0]);
+					}
+					history.add (node);
+					return answer [0];
 				}
-				else {
-					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
+			}
+		}
+		// try again by matching anyState
+		Log.info ("handleInputValue: Nothing worked, going to anyState match");
+		for (int i=0; i<nfsm; i++) {
+			String statenow = fsm [i][0];
+			// initially skip the anystate clauses
+			if (!statenow.equals (anyState)) continue;
+			String lastState = defaultState;
+			int hn = history.size ();
+			if (hn > 0) {
+				HistNode lastnode = history.elementAt (hn-1);
+				lastState = lastnode.fsmNode [3];
+			}
+			String tomatch = fsm [i][1];
+			String stokens [] = getTokens (spec);
+			String matchtokens [] = getTokens (tomatch);
+			// doesn't matter if history matches
+			if (matchNodeValue (firstval, matchtokens, stokens, 0, 0)) {
+				Log.fine (tomatch+" at "+i+" matched "+spec+" with anyState");
+				String answer [] = makeAnswer (input, fsm [i], map);
+				String fnew [] = fsm [i].clone ();
+				fnew [0] = lastState;
+				HistNode node = new HistNode (fnew, input, answer [0], map);
+				if (answer.length > 1) {
+					fnew [3] = answer [1];
+					node = new HistNode (fnew, input, answer [0], map);
 				}
-				return result;
+				history.add (node);
+				return answer [0];
 			}
+		}
+		return errorResult (input, map);
+	}
 
-			if (count > 0) {
-				for (int i=0; i<count; i++) {
-					Log.finest ("selection:"+i+" "+selection [i]);
-				}
-			}
+/**
+ * Once we have decided on the user input, handleInput can deal with
+ * creating the response.
+ * @param input
+ * @param map
+ * @return
+ */
 
-			if (count == 0) {
-				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-			}
-			else if (count == 1) {
-				result = selectPhrase (oneitem) + " " + selection [0] +stop;
-			}
-			else if (count == 2) {
-				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] +stop;
-			}
-			else {
-				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance) 
-				+ " " + selection [0] +stop;
-			}
+	public String [] handleInput (String input, TreeMap <Integer, String> map) {
+		Log.fine (showLastStates ("handleInput"));
+		String spec = getSpec (input);
+		String result [] = new String [1];
+		if (spec.equals (Error)) {
+			Log.severe ("Cannot find spec for matched query "+input);
+			result [0] = errorResult (input, null);
 			return result;
 		}
-		catch (Exception e) {
-			e.printStackTrace ();
-			return "error";
-		}
-	}
-
-	String generateSpecificElse (Qapair p) {
-		try {
-			Log.fine ("generateSpecificElse: "+ p.field+" "+p.attribute+" "+p.quant+" "+p.nnp+" "+p.els);
-			boolean up = true;
-			if (p.quant.toLowerCase ().endsWith ("-n")) up = false;
-			int f = findColumn (p.attribute);
-			if (f == -1) {
-				Log.warning ("Could not find atrribute "+p.attribute);
-				return "error";
-			}
-
-			// String stop = ".";
-			String stop = " ";
-
-			// select the relevant data
-			// String orig [] = selectOrdering (f, plow, phigh);
-			String orig [] = selectComparative (f, up, p.nnp);
-			if (orig == null) {
-				String problem = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-				return problem;
-			}
-
-			// form selection from the rest
-			int total = orig.length;
-			Vector <String> hold = new Vector <String> ();
-			for (int i=0; i<total; i++) {
-				if (orig [i].equals (p.nnp)) continue;
-				hold.add (orig [i]);
-			}
-
-			int count = hold.size ();
-			String selection [] = new String [count];
-			for (int i=0; i<count; i++) {
-				selection [i] = hold.elementAt (i);
-			}
-			String result = "";
-
-			if (p.command.equals ("ask")) {
-				if (count == 0) {
-					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-				}
-				else {
-					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
-				}
-				return result;
-			}
-
-			if (count > 0) {
-				for (int i=0; i<count; i++) {
-					Log.finest ("selection:"+i+" "+selection [i]);
+		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
+		matches.put (new Integer (-99), input);
+		for (int i=0; i<nfsm; i++) {
+			String statenow = fsm [i][0];
+			String tomatch = fsm [i][1];
+			String stokens [] = getTokens (spec);
+			String matchtokens [] = getTokens (tomatch);
+			// if (statenow.equals ("om1")) Log.info ("om1/"+tomatch+"/"+fsm[i][2]+"/"+fsm[i][3]);
+			if (historyMatches (statenow)) {
+				// if (statenow.equals ("om1")) Log.info ("matched: "+statenow+ " "+tomatch);
+				if (matchNode (matchtokens, stokens, 0, 0)) {
+					Log.fine (tomatch+" at "+i+" matched "+spec);
+					String answer [] = makeAnswer (input, fsm [i], matches);
+					HistNode node = new HistNode (fsm [i], input, answer [0], map);
+					if (answer.length > 1) {
+						String fnew [] = fsm [i].clone ();
+						fnew [3] = answer [1];
+						node = new HistNode (fnew, input, answer [0], map);
+					}
+					history.add (node);
+					return answer;
 				}
 			}
-
-			if (count == 0) {
-				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-			}
-			else if (count == 1) {
-				result = selectPhrase (oneitem) + " " + selection [0] +stop;
-			}
-			else if (count == 2) {
-				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] + stop;
-			}
-			else {
-				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance)
-				+ " " + selection [0] +stop;
-			}
-			return result;
 		}
-		catch (Exception e) {
-			e.printStackTrace ();
-			return "error";
-		}
-	}
-
-	// need to avoid previous answers here
-	String generateElse (Qapair p, Vector <String> nnps) {
-		try {
-			Log.fine ("generateElse: "+p.field+" "+p.attribute+" "+p.quant);
-			boolean up = true;
-			if (p.quant.toLowerCase ().endsWith ("-n")) up = false;
-			int f = findColumn (p.attribute);
-			if (f == -1) {
-				Log.warning ("Could not find atrribute "+p.attribute);
-				return "error";
-			}
-
-			String stop = " ";
-
-			// select the relevant data
-			// String orig [] = selectOrdering (f, plow, phigh);
-			String nnp = nnps.elementAt (0);
-			String orig [] = selectComparative (f, up, nnp);
-			if (orig == null) {
-				String problem = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-				return problem;
-			}
-
-			// form selection from the rest. avoiding everything in nnp
-			int total = orig.length;
-			Vector <String> hold = new Vector <String> ();
-			outer: for (int i=0; i<total; i++) {
-				for (int j=0; j<nnps.size (); j++) {
-					nnp = nnps.elementAt (j);
-					if (orig [i].equals (nnp)) continue outer;
-				}
-				hold.add (orig [i]);
-			}
-
-			int count = hold.size ();
-			String selection [] = new String [count];
-			for (int i=0; i<count; i++) {
-				selection [i] = hold.elementAt (i);
-			}
-
-			String result = "";
-
-			if (p.command.equals ("ask")) {
-				if (count == 0) {
-					result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-				}
-				else {
-					result = selectPhrase (intro) + " " + selectPhrase (yesanswers) + stop;
-				}
-				return result;
-			}
-
-			if (count > 0) {
-				for (int i=0; i<count; i++) {
-					Log.finest ("selection:"+i+" "+selection [i]);
+		// try again by setting statenow to default
+		Log.info ("handleInput: Nothing worked, going to default state");
+		for (int i=0; i<nfsm; i++) {
+			String statenow = fsm [i][0];
+			String tomatch = fsm [i][1];
+			String stokens [] = getTokens (spec);
+			String matchtokens [] = getTokens (tomatch);
+			if (historyMatches (defaultState)) {
+				Log.fine ("matched: defaultState "+tomatch);
+				if (matchNode (matchtokens, stokens, 0, 0)) {
+					Log.fine (tomatch+" at "+i+" matched "+spec);
+					String answer [] = makeAnswer (input, fsm [i], matches);
+					HistNode node = new HistNode (fsm [i], input, answer [0], map);
+					if (answer.length > 1) {
+						String fnew [] = fsm [i].clone ();
+						fnew [3] = answer [1];
+						node = new HistNode (fnew, input, answer [0], map);
+					}
+					history.add (node);
+					return answer;
 				}
 			}
-
-			if (count == 0) {
-				result = selectPhrase (intro) + " " + selectPhrase (noanswers) + stop;
-			}
-			else if (count == 1) {
-				result = selectPhrase (oneitem) + " " + selection [0] +stop;
-			}
-			else if (count == 2) {
-				result = selectPhrase (twoitems) + " "  + selection [0] + " and "+ selection [1] + stop;
-			}
-			else {
-				result = selectPhrase (manyitems) + " " + selectPhrase (forinstance)
-				+ " " + selection [0] +stop;
-			}
-			return result;
 		}
-		catch (Exception e) {
-			e.printStackTrace ();
-			return "error";
-		}
-	}
-
-	int findColumn (String field) {
-		for (int i=0; i<fields.length; i++) {
-			if (fields [i].equals (field)) return i;
-		}
-		return -1;
-	}
-
-	// we assume for these qualitative data tables that the first column is the
-	// identification and the remaining columns are attributes
-
-	// plow and phigh are between 0 and 99
-
-	String [] selectOrdering (int f, int plow, int phigh) {
-		// Log.fine ("Select ordering from "+plow+" to "+phigh);
-		if (f == 0 || f >=nf) {
-			Log.warning ("selectOrdering based on a column > 0 and < nf");
-			return null;
-		}
-		// order the rows
-		Point pp [] = new Point [nr];
-		for (int i=0; i<nr; i++) {
-			int val = (int)(new Double (data [i][f]).doubleValue ()*100.0);
-			pp [i] = new Point (i, val);
-		}
-		Utils.quicksortpointy (pp, 0, nr-1); // increasing order of data [i][f];
-
-		double xnr = (double)nr;
-		double low = (double)plow;
-		double high = (double)phigh;
-		double per = xnr/100.0;
-		// Log.fine ("nr="+nr+" xnr="+xnr+" per="+per+" low="+low+" high="+high);
-		int start = (int)(per*low);
-		int end = (int)(per*high);
-		Log.fine ("start at row "+start+" end at row "+end);
-		String selection [] = new String [end - start+1];
-		if (end -start < 0) return null;
-		for (int i=0; i<=end-start; i++) {
-			Point p = pp [start+i];
-			int j = p.x;
-			selection [i] = data [j][0];
-		}
-
-		return selection;
-	}
-
-	String [] selectComparative (int f, boolean up, String nnp) {
-		if (f == 0 || f >=nf) {
-			Log.warning ("selectOrdering based on a column > 0 and < nf");
-			return null;
-		}
-		if (nnp.indexOf ("nnp:") != -1) {
-			nnp = nnp.substring (4).trim ();
-		}
-		// order the rows
-		Point pp [] = new Point [nr];
-		for (int i=0; i<nr; i++) {
-			int val = (int)(new Double (data [i][f]).doubleValue ()*100.0);
-			pp [i] = new Point (i, val);
-		}
-		Utils.quicksortpointy (pp, 0, nr-1); // increasing order of data [i][f];
-		// find the one with data [i][0] equaling nnp
-		int mark = -1;
-		for (int i=0; i<nr; i++) {
-			Point p = pp [i];
-			int j = p.x;
-			if (data [j][0].equals (nnp)) {
-				mark = i;
-				break;
-			}
-		}
-
-		if (mark == -1) {
-			Log.warning ("could not find anything to match "+nnp);
-			return null;
-		}
-
-		String selection [];
-		if (up) {
-			selection = new String [nr - mark - 1];
-			for (int i=0; i<nr-mark-1; i++) {
-				int j = mark + 1 + i;
-				Point p = pp [j];
-				int k = p.x;
-				selection [i] = data [k][0];
-			}
-		}
-		else {
-			selection = new String [mark];
-			for (int i=0; i<mark; i++) {
-				Point p = pp [i];
-				int k = p.x;
-				selection [i] = data [k][0];
-			}
-		}
-		return selection;
-	}
-
-	String selectPhrase (String [] phrases) {
-			int n = phrases.length;
-			int selected = (int)(Math.random ()*(double)n);
-			if (selected >= n) selected = n-1;
-			return phrases [selected];
-	}
-
-	String confusedAnswer (Semnet net) {
-		String start = selectPhrase (confused);
-		String follow = selectPhrase (followup);
-		String topic = selectPhrase (topics);
-		String suggest = net.picktopic (2);
-		String result = start  + " "+ follow + " " + topic + " " + suggest;
+		result [0] = errorResult (input, null);
 		return result;
 	}
 
-	// command handler
-	// currently it does very little, but this is the place to use both
-	// the command and the args to do various actions
-
-	public String handleCommand (Qapair p) {
-		String command = p.command;
-		if (command.equals ("back") || command.equals ("clear") || command.equals ("reset")) {
-			Act.clearhistory ();
-			return selectPhrase (askanother);
+/**
+ * produce a response to an input along with an assumed incoming state.
+ * This is used to get a response within some larger finite state machine
+ * operation, while ignoring the current state of that larger operation.
+ * This function is usually called from handling the built=in "exec".
+ * @param input
+ * @param state
+ * @return
+ */
+	
+	String [] handleInputDirect (String input, String state) {
+		Log.fine (showLastStates ("handleInputDirect"));
+		String spec = getSpec (input);
+		String result [] = new String [1];
+		if (spec.equals (Error)) {
+			Log.severe ("Cannot find spec for matched query "+input);
+			result [0] = errorResult (input, null);
+			return result;
 		}
-		else if (command.equals ("end")) {
-			Act.qstack.push ("terminate");
-			return "terminate";
+		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
+		matches.put (new Integer (-99), input);
+		for (int i=0; i<nfsm; i++) {
+			String statenow = fsm [i][0];
+			String tomatch = fsm [i][1];
+			if (!statenow.equals (state)) continue;
+			String stokens [] = getTokens (spec);
+			String matchtokens [] = getTokens (tomatch);
+			if (state != null) {
+			// if (historyMatches (state)) {
+				// Debug ("handleInputDirect: matched state "+statenow);
+				if (matchNode (matchtokens, stokens, 0, 0)) {
+					Log.fine ("direct: state "+state+" "+tomatch+" at "+i+" matched "+spec);
+					String answer [] = makeAnswer (input, fsm [i], matches);
+					// HistNode node = new HistNode (fsm [i], input, answer);
+					// history.add (node);
+					return answer;
+				}
+			}
+		}
+		result [0] = errorResult (input, null);
+		return result;
+	}
+
+/**
+ * The errorTag is "errorTag". A finite state machine should contain a node
+ * that provides the system response for an error. This way, the error message
+ * sent to the user can be cusotomized to the application and to the language
+ * of the conversational dialog.
+ * @param input
+ * @param map
+ * @return
+ */
+	
+	public String errorResult (String input, TreeMap <Integer, String> map) {
+		QaNode errorNode = lookup.get (errorTag);
+		String errorAnswer = Error;
+		if (errorNode != null) errorAnswer = errorNode.pickRandomTail ();
+		String nm [] = new String [quad];
+		nm [0] = lastState ();
+		nm [1] = input;
+		nm [2] = errorAnswer;
+		nm [3] = defaultState;
+		HistNode hist = new HistNode (nm, "", errorAnswer, map);
+		history.add (hist);
+		return errorAnswer;
+	}
+
+/**
+ * Any user input has to be matched with a node in the grammar. This is done
+ * recursively.
+ * @param value
+ * @param spec
+ * @param tomatch
+ * @param kspec
+ * @param kmatch
+ * @return
+ */
+
+	boolean matchNodeValue (int value, String spec [], String tomatch [], int kspec, int kmatch) {
+		// Log.finest ("s "+kspec+" "+display(spec)+" m "+kmatch+" "+display(tomatch));
+		// Log.finest ("specs:" + display (spec));
+		// Log.finest ("match:" + display (tomatch));
+		// Log.finest ("\tkspec="+kspec+" kmatch="+kmatch);
+		if (kspec >= spec.length) return true;
+		String stoken = spec [kspec];
+		if (isExpression (stoken)) {
+			boolean test = evaluate (stoken, value);
+			if (test) return (matchNodeValue (value, spec, tomatch, kspec+1, kmatch));
+			else return false;
+		}
+		else if (isHead (stoken)) {
+			QaNode node = lookup.get (stoken);
+			String tail [] = node.getTail ();
+			int n = spec.length;
+			int m = n - (kspec + 1);
+			for (int i=0; i<tail.length; i++) {
+				String tokens [] = getTokens (tail [i]);
+				if (tokens == null) continue;
+				// String tokens [] = tail [i].split (" ");
+				// Log.finest ("\t\ttail["+i+"] "+display (tokens));
+				int l = tokens.length;
+				String newtok [] = new String [l+m];
+				for (int a=0; a<l; a++) newtok [a] = tokens [a];
+				for (int b=0; b<m; b++) newtok [l+b] = spec [kmatch+1+b];
+				if (matchNodeValue (value, newtok, tomatch, 0, kmatch)) return true;
+			}
+			// nothing worked
+			return false;
 		}
 		else {
-			String result = Act.command.handleCommand (p);
-			Act.qstack.push (result);
+			if (!stoken.equals (tomatch [kmatch])) return false;
+			else return matchNodeValue (value, spec, tomatch, kspec+1, kmatch+1);
+		}
+	}
+
+/**
+ * Another form of matching nodes, this time without considering the value,
+ * i.e. the degree of match of the input with questions.
+ * @param spec
+ * @param tomatch
+ * @param kspec
+ * @param kmatch
+ * @return
+ */
+	
+	boolean matchNode (String spec [], String tomatch [], int kspec, int kmatch) {
+		// Log.finest ("s "+kspec+" "+display(spec)+" m "+kmatch+" "+display(tomatch));
+		// Log.finest ("specs:" + display (spec));
+		// Log.finest ("match: "+display (tomatch));
+		// Log.finest ("\tkspec="+kspec+" kmatch="+kmatch);
+		if (kmatch >= tomatch.length) return true;
+		else if (kspec >= spec.length) return false;
+		String stoken = spec [kspec];
+		String ttoken = tomatch [kmatch];
+		if (isExpression (stoken)) {
+			return false;	// no evaluation in this version
+		}
+		else if (isHead (stoken)) {
+			QaNode node = lookup.get (stoken);
+			String tail [] = node.getTail ();
+			int n = spec.length;
+			int m = n - (kspec + 1);
+			for (int i=0; i<tail.length; i++) {
+				String tokens [] = getTokens (tail [i]);
+				if (tokens == null) continue;
+				// String tokens [] = tail [i].split (" ");
+				// Log.finest ("\t\ttail["+i+"] "+display (tokens));
+				int l = tokens.length;
+				String newtok [] = new String [l+m];
+				for (int a=0; a<l; a++) newtok [a] = tokens [a];
+				for (int b=0; b<m; b++) newtok [l+b] = spec [kmatch+1+b];
+				if (matchNode (newtok, tomatch, 0, kmatch)) return true;
+			}
+			// nothing worked
+			return false;
+		}
+		else {
+			if (!stoken.equals (tomatch [kmatch])) return false;
+			else return matchNode (spec, tomatch, kspec+1, kmatch+1);
+		}
+	}
+
+/**
+ * Get the tokens in a string, keeping strings within a pair of parentheses
+ * as single tokens.
+ * @param text
+ * @return
+ */
+	String [] getTokens (String text) {
+		// split then merge anything inside ( )
+		Vector <String> hold = new Vector <String> ();
+		if (text == null) return emptyTokens;
+		StringTokenizer st = new StringTokenizer (text);
+		while (st.hasMoreTokens ()) {
+			hold.add (st.nextToken ());
+		}
+		// merge
+		Vector <String> merged = new Vector <String> ();
+		int n = hold.size ();
+		outer: for (int i=0; i<n; i++) {
+			String token = hold.elementAt (i);
+			if (token.startsWith ("(")) {
+				// find the token ending with )
+				int j=i;
+				for (; j<n; j++) {
+					String test = hold.elementAt (j);
+					if (test.endsWith (")")) break;
+				}
+				if (j == n) {
+					Log.severe (token+" +unclosed ()");
+					return null; // will be bad anyway
+				}
+				// combine things from i to j
+				StringBuffer sb = new StringBuffer ();
+				for (int k=i; k<=j; k++) {
+					sb.append (" " + hold.elementAt (k));
+				}
+				String combined = new String (sb).trim (); //get rid of leading space
+				merged.add (combined);
+				i = j;
+				continue;
+			}
+			else {
+				merged.add (token);
+			}
+		}
+		int m = merged.size ();
+		String values [] = merged.toArray (new String [m]);
+		return values;
+	}
+
+/**
+ * This version of historyMatches assumes that we match only the last state
+ * in history.
+ * @param state
+ * @return
+ */
+	
+	boolean historyMatches (String state) {
+		// state actually is space separated sequence of states
+		String states [] = state.split (" ");
+		int m = states.length;
+		// if (m == 1 && states [0].equals (defaultState)) return true;
+		int n = history.size ();
+		/*
+		if (m > n) return false;
+		int start = n - m;
+		for (int i=start, j=0; i<n; i++, j++) {
+			HistNode record = history.elementAt (i);
+			if (!record.fsmNode [3].equals (states [j])) return false;
+		}
+		return true;
+		*/
+		// simpler version matchin only last state
+		String last = states [m-1];
+		HistNode hist = history.lastElement ();
+		if (last.equals (hist.fsmNode [3])) return true;
+		else return false;
+	}
+	
+/**
+ * Create the response to a particular user input. Here "question" means
+ * user input and "answer" means the response to that answer. In a converstaion,
+ * the user may actually be ansewring questions from the system.
+ * @param question
+ * @param fsm
+ * @param map
+ * @return
+ */
+
+	String [] makeAnswer (String question, String fsm [], TreeMap<Integer, String> map) {
+		Log.fine ("makeAnswer: "+fsm[0]+" "+fsm[1]+" "+fsm[2]+" "+fsm[3]);
+		String rspec = fsm [2];
+		Log.fine ("makeAnswer "+question+" / "+rspec);
+		String answer [] = generateText (question, rspec, fsm [3], map);
+		return answer;
+	}
+	
+/**
+ * The actual work of creating responses is done in generateText, called from makeAnswer.
+ * @param input
+ * @param spec
+ * @param state
+ * @param map
+ * @return
+ */
+
+	String [] generateText (String input, String spec, String state, TreeMap<Integer, String> map) {
+		String tokens [] = getTokens (spec);
+		StringBuffer sb = new StringBuffer ();
+		String outstate = state;
+		for (int i=0; i<tokens.length; i++) {
+			String token = tokens [i];
+			if (isExpression (token)) {
+				String result [] = handleFunction (input, token, state, map);
+				if (result.length > 1) outstate = result [1];
+				Log.fine ("generateText:isExpression: "+display (result));
+				String gen [] = generateText (input, result [0], state, map);
+				sb.append (" "+gen [0]);
+				continue;
+			}
+			else if (isHead (token)) {
+				QaNode node = lookup.get (token);
+				String tailtext = node.pickRandomTail ();
+				String result [] = generateText (input, tailtext, state, map);
+				sb.append (" "+result [0]);
+				continue;
+			}
+			else {
+				sb.append (" "+token);
+				continue;
+			}
+		}
+		String text = new String (sb).trim ();
+		Log.fine ("generateText "+input+" / "+spec+" ---> "+text);
+		String generated [] = new String [2];
+		generated [0] = text;
+		generated [1] = outstate;
+		if (!outstate.equals (state)) {
+			Log.fine ("generateText: Setting state back from "+state+" to "+outstate);
+		}
+		return generated;
+	}
+
+/**
+ * Create response from a built-in or user defined function.
+ * @param input
+ * @param spec
+ * @param instate
+ * @param map
+ * @return
+ */
+	
+	String [] handleFunction (String input, String spec, String instate,
+		TreeMap<Integer, String> map) {
+		Log.fine ("handleFunction "+input+" / "+spec);
+		String inside = spec.substring (1, spec.length () -1).trim ();
+		// built in functions
+		StringTokenizer st = new StringTokenizer (inside);
+		String function = st.nextToken ();
+		if (function.equals ("exec")) {
+			String arg = st.nextToken ().trim ();
+			String result [] = handleExec (input, arg, map);
+			Log.fine ("handleFunction: input="+input+" result: "+display (result));
+			return result;
+		}
+		else if (function.equals ("quote")) {
+			String result [] = handleLastquery (spec, map);
+			return result;
+		}
+		else {
+			String result [] = F.handle (function, input, spec, instate, history);
+			Log.fine ("handleFunction: function="+function+" input="+input+" result: "+display (result));
 			return result;
 		}
 	}
 
+	// built in functions
+
+/**
+ * handle the exec built in function.
+ * @param input
+ * @param which
+ * @param state
+ * @param map
+ * @return
+ */
+	
+	String [] handleExec (String input, String which, TreeMap<Integer, String> map) {
+		Log.fine ("handleExec "+input+" / "+which);
+		if (which.equals ("this")) {
+			if (map != null) {
+				Integer firstkey = map.firstKey ();
+				if (firstkey != null) {
+					String query = map.get (firstkey);
+					if (query != null) {
+						// get the state from history, otherwise default
+						String state = defaultState;
+						if (history.size () > 0) {
+							HistNode hnode = history.lastElement ();
+							state = hnode.fsmNode [3];
+						}
+						Log.fine ("executing handleInputDirect/"+state+"/"+query);
+						String result [] = handleInputDirect (query, state);
+						Log.fine ("result handleInputDirect "+display (result));
+						return result;
+					}
+				}
+			}
+		}
+		else if (which.equals ("last")) {
+			// pull the last query from the history
+			// add this to the history, then handleInput with the
+			// pulled query
+			int n = history.size ();
+			for (int i=n-1; i>=0; i--) {
+				HistNode hist = history.elementAt (i);
+				// check the map entry in hist
+				TreeMap <Integer, String> matches = hist.matches;
+				if (matches == null) continue;
+				if (matches.size () == 0) continue;
+				Integer firstkey = matches.firstKey ();
+				if (firstkey == null) continue;
+				String query = matches.get (firstkey);
+				if (query == null) continue;
+				if (query.length () == 0) continue;
+				// set state from the history node
+				String state = hist.fsmNode [0];
+				Log.fine ("handleExec calling handleInputDirect "+query);
+				String result [] = handleInputDirect (query, state);
+				return result;
+			}
+		}
+		Log.severe ("exec unimplemented option "+which);
+		String errored [] = new String [1];
+		errored [0] = errorResult (input, null);
+		return errored;
+	}
+	
+/**
+ * Built in function to get the last query (useful when handling some mismatches.)
+ * @param input
+ * @param map
+ * @return
+ */
+
+	String [] handleLastquery (String input, TreeMap<Integer, String> map) {
+		Log.fine ("handleLastQuery "+input);
+		int n = history.size ();
+		// pull the first item in the map
+		if (map != null) {
+			Integer firstkey = map.firstKey ();
+			if (firstkey != null) {
+				String query = map.get (firstkey);
+				if (query != null) {
+					String result [] = new String [1];
+					result [0] = query;
+					Log.fine ("handleLastQuery returning with current map "+result);
+					return result;
+				}
+			}
+		}
+		// otherwise go through history?
+		for (int i=n-1; i>=0; i--) {
+			HistNode hist = history.elementAt (i);
+			// check the map entry in hist
+			TreeMap <Integer, String> matches = hist.matches;
+			if (matches == null) continue;
+			if (matches.size () == 0) continue;
+			Integer firstkey = matches.firstKey ();
+			if (firstkey == null) continue;
+			String query = matches.get (firstkey);
+			if (query == null) continue;
+			if (query.length () == 0) continue;
+			String result [] = new String [1];
+			result [0] = query;
+			Log.fine ("handleLastQuery using history node "+i+" with "+result);
+			return result;
+		}
+		String errored [] = new String [1];
+		errored [0] = errorResult (input, null);
+		return errored;
+	}
+
+/**
+ * Select a random phrase from a list of possible phrases; this is useful
+ * to introduce some natural variation into system responses.
+ * @param phrases
+ * @return
+ */
+	
+	String selectPhrase (String [] phrases) {
+		int n = phrases.length;
+		int selected = (int)(Math.random ()*(double)n);
+		if (selected >= n) selected = n-1;
+		return phrases [selected];
+	}
+
+/**
+ * Evaluate an arithmetic expression using the Expression class.
+ * @param expression
+ * @param value
+ * @return
+ */
+	boolean evaluate (String expression, int value) {
+		String sval = ""+value;
+		if (expression.indexOf ("match") != -1) {
+			String replaced = expression.replaceAll ("match", sval);
+			String t = Expression.tokenizeFormula (replaced);
+			// Log.finest ("Tokenized "+t);
+			// check the tokenization
+			if (!evaluatable (t)) return false;
+			String p = Expression.postFix (t);
+			// Log.finest ("Postfix "+p);
+			int v = Expression.evaluate (p);
+			// Log.finest ("evaluating "+expression+" value = "+v);
+			if (v == 1) return true;
+			else return false;
+		}
+		else {
+			Log.info ("Evaluate: only match is implemented as a test");
+			return false;
+		}
+	}
+
+/**
+ * Test whether an expression is evaluatable. This is done to make sure
+ * there are no undefined variables in the experession.
+ * @param t
+ * @return
+ */
+	boolean evaluatable (String t) {
+		StringTokenizer st = new StringTokenizer (t);
+		while (st.hasMoreTokens ()) {
+			String token = st.nextToken ();
+			char c = token.charAt (0);
+			if (Character.isLetterOrDigit (c)) {
+				if (!isNumber (token)) return false;
+			}
+		}
+		return true;
+	}
+	
+/**
+ * Test whether the given string is an expression.
+ * @param token
+ * @return
+ */
+
+	public static boolean isExpression (String token) {
+		String inside = token.trim ();
+		if (inside.startsWith ("(") && inside.endsWith (")")) return true;
+		else return false;
+	}
+	
+/**
+ * Test to see if an expression contains the word "match" used to see if the
+ * matching value fits with the conditions of the expression. This is used for
+ * example to determine what constitutes an excellent, good or bad match.
+ * @param expression
+ * @return
+ */
+
+	boolean hasMatch (String expression) {
+		StringTokenizer st = new StringTokenizer (expression, "(=<>)+-*&/ \t", true);
+		while (st.hasMoreTokens ()) {
+			String token = st.nextToken ();
+			if (token.equals ("(")) {
+				String next = "";
+				do {
+					next = st.nextToken ();
+				} while (next.trim ().length () == 0);
+				if (next.equals ("match")) return true;
+			}
+		}
+		return false;
+	}
+	
+/**
+ * See if the given string is the head of a grammar node.
+ * @param token
+ * @return
+ */
+
+	boolean isHead (String token) {
+		QaNode node = lookup.get (token);
+		return (node != null);
+	}
+
+/**
+ * Function to see if the given string is a number.
+ * @param s
+ * @return
+ */
+	public static boolean isNumber (String s) {
+		try {
+			double x = new Double (s).doubleValue ();
+			return true;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+	
+/**
+ * Test whether the given string is a state.
+ * @param s
+ * @return
+ */
+	public static boolean isState (String s) {
+		String t = s.trim ();
+		if (t.startsWith ("[") && t.endsWith ("]"))
+			return true;
+		else
+			return false;
+	}
+
+/**
+ * Display the contents of an array as a string, used mainly for
+ * debugging.
+ * @param a
+ * @return
+ */
+	
+	String display (String a []) {
+		StringBuffer sb = new StringBuffer ();
+		for (int i=0; i<a.length; i++) {
+			sb.append ("-"+a[i]);
+		}
+		return new String (sb);
+	}
+
+/**
+ * Show a few last states of the history.
+ * @param orig
+ * @return
+ */
+	
+	String showLastStates (String orig) {
+		StringBuffer sb = new StringBuffer ();
+		int start = Math.max (history.size () - 5, 0);
+		sb.append (orig);
+		for (int i=start; i<history.size (); i++) {
+			HistNode h = history.elementAt (i);
+			sb.append (" ("+h.fsmNode [0]+" "+h.fsmNode [3]+")");
+		}
+		String s = new String (sb);
+		return s;
+	}
+
+/**
+ * Show the entire history by printing it to the screen.
+ */
+	
+	public void showHistory () {
+		for (int i=0; i<history.size (); i++) {
+			HistNode h = history.elementAt (i);
+			System.out.println ("History Element "+i+"\n"+h.toString ());
+		}
+	}
+
+// getters and setters
+	
+/**
+ * Get the Command class that is associated with this script. This Command
+ * class will contain user-defined functions.
+ * @return
+ */
+	public Command getCommandClass () {
+		return F;
+	}
+
+/**
+ * Set the Command class containing user-defined functions.
+ * @param F
+ */
+	
+	public void setCommandClass (Command F) {
+		this.F = F;
+	}
+
+/**
+ * Get the Interact associated with this Script.
+ * @return
+ */
+	
+	public Interact getInteract () {
+		return I;
+	}
+
+/**
+ * Get the grammar stored in a QaList class. Generally we use a
+ * TreeMap list of user inputs and corresponding grammar nodes that
+ * is stored in this QaList.
+ * @return
+ */
+	
+	public QaList getList () {
+		return List;
+	}
+
+/**
+ * Get the string that represents the default state.
+ * @return
+ */
+	public static String getDefaultState () {
+		return defaultState;
+	}
+
+/**
+ * Set the string to be used for default state.
+ * @param defaultState
+ */
+	
+	public static void setDefaultState (String defaultState) {
+		Script.defaultState = defaultState;
+	}
+
+/**
+ * Get the tag to be used for a node describing an overall error message.
+ * @return
+ */
+	public static String getErrorTag () {
+		return errorTag;
+	}
+
+/**
+ * Set the tag used in the grammar to specify an overall error message
+ * @param errorTag
+ */
+	public static void setErrorTag (String errorTag) {
+		Script.errorTag = errorTag;
+	}
+
+/**
+ * Get the finite state machine used by this script.
+ * @return
+ */
+	public String[][] getFsm () {
+		return fsm;
+	}
+
+/**
+ * Set the fninite state machine used by this script.
+ * @param fsm
+ */
+	public void setFsm (String[][] fsm) {
+		this.fsm = fsm;
+	}
+
+/**
+ * Get the history of execution up to this point.
+ * @return
+ */
+	public Vector<HistNode> getHistory () {
+		return history;
+	}
+	
+/**
+ * Get the last state in the history
+ */
+	public String lastState () {
+		if (history == null) return defaultState;
+		if (history.size () == 0) return defaultState;
+		HistNode hist = history.lastElement ();
+		String last = hist.fsmNode [3];
+		return last;
+	}
+
+/**
+ * Get the key value pairs of properties used by this script. This identifies
+ * locations of various files that may be used by this script.
+ * @return
+ */
+	public Properties getKv () {
+		return kv;
+	}
+	
+/**
+ * Set the key value properties used here to be a particular Properties
+ * instance.
+ * @param kv
+ */
+
+	public void setKv (Properties kv) {
+		this.kv = kv;
+	}
+
+/**
+ * Get the lookup table in the QaList associated with this script.
+ * @return
+ */
+	public TreeMap<String, QaNode> getLookup () {
+		return lookup;
+	}
+
+/**
+ * Get the table that associates user inputs with their corresponding
+ * grammar forms
+ * @return
+ */
+	public TreeMap<String, String> getQuestspecs () {
+		return questspecs;
+	}
+
 }
+
 

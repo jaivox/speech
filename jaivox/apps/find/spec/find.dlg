@@ -1,0 +1,27 @@
+
+#include errors.dlg
+
+{
+[match]
+	def ;
+	do we have anything in Java on entropy ;
+	(find matchingFile) ;
+	def ;
+}
+
+{
+[time]
+	def ;
+	when was the last time we looked at docs ;
+	(find latestTime) ;
+	def ;
+}
+
+{
+[most]
+	def ;
+	where do I have a lot of papers ;
+	(find mostDir) ;
+	def ;
+}
+

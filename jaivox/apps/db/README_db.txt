@@ -1,4 +1,3 @@
-
 The program here connects a speech recognizer to an SQL database.
 Specifically it connects Jaivox libraries to an Sqlite database used
 with Mozilla Firefox.
@@ -12,4 +11,5 @@ a. who has placed a lot of cookies?
 b. what portion of cookies is for analytics?
 c. what portion is recent?
 
-More details can be found at http://www.jaivox.com/dbappgen.html
+The program here is generated from db.conf, then modified to use the
+SQL interface in dbCommand.java.

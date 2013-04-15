@@ -1,0 +1,139 @@
+
+#include errors.dlg
+
+{
+[def_dyh]
+	def ;
+	i need some car insurance ;
+	do you have insurance already ;
+	dyh ;
+}
+
+{
+[def_dyh_dyh]
+	dyh ;
+	yeah ;
+	did you have any accidents in the last three years ;
+	dyh ;
+}
+
+{
+[def_dyh_dyh_dyh]
+	dyh ;
+	yes ;
+	did you have more than five ;
+	dyh ;
+}
+
+{
+[def_dyh_dyh_dyh_def]
+	dyh ;
+	yes ;
+	you should get high risk insurance ;
+	def ;
+}
+
+{
+[def_dyh_dyh_mtt]
+	dyh ;
+	no ;
+	more than two ;
+	mtt ;
+}
+
+{
+[def_dyh_dyh_mtt_def]
+	mtt ;
+	yes ;
+	your insurance rate probably will probably be high ;
+	def ;
+}
+
+{
+[def_dyh_dyh_mtt_lus]
+	mtt ;
+	no ;
+	let us see do you drive more than ten miles each day ;
+	lus ;
+}
+
+{
+[def_dyh_dyh_mtt_lus_ayb]
+	lus ;
+	yes ;
+	are you below twenty five ;
+	ayb ;
+}
+
+{
+[def_dyh_dyh_mtt_lus_ayb_def]
+	ayb ;
+	yes ;
+	you can get regular insurance but it will pricey ;
+	def ;
+}
+
+{
+[def_dyh_dyh_mtt_lus_ayb_def]
+	ayb ;
+	no ;
+	a few accidents do not matter too much ;
+	def ;
+}
+
+{
+[def_dyh_ita]
+	dyh ;
+	no ;
+	is this a new car ;
+	ita ;
+}
+
+{
+[def_dyh_ita_iio]
+	ita ;
+	yes ;
+	is it on lease ;
+	iio ;
+}
+
+{
+[def_dyh_ita_iio_def]
+	iio ;
+	yes ;
+	then there is some minimal required coverage ;
+	def ;
+}
+
+{
+[def_dyh_ita_iio_def]
+	iio ;
+	no ;
+	you can get the standard deducatables ;
+	def ;
+}
+
+{
+[def_dyh_ita_iim]
+	ita ;
+	no ;
+	is it more than ten years old ;
+	iim ;
+}
+
+{
+[def_dyh_ita_iim_def]
+	iim ;
+	yes ;
+	well you do not need comprehensive ;
+	def ;
+}
+
+{
+[def_dyh_ita_iim_def]
+	iim ;
+	no ;
+	probably best to get comprehensive ;
+	def ;
+}
+

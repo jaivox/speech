@@ -1,21 +1,42 @@
+/*
+   Jaivox version 0.4 April 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 /**
  * Utils primarily consists of some edit distance functions.
  */
 
 package com.jaivox.interpreter;
 
-import java.util.*;
 import java.awt.Point;
+import java.util.StringTokenizer;
 
 public class Utils {
 
-	static String terms = " \t\r\n!@$#$%^&*()_-~`+={}[]|\\:;\"\'<>,.?/";
+	public static String terms = " \t\r\n!@$#$%^&*()_-~`+={}[]|\\:;\"\'<>,.?/";
 
 	public Utils () {
 	}
 
+/**
+ * Split tokens using the terminators givenin Utils.terms
+ * @param line
+ * @return
+ */
 
-	public String [] splitTokens (String line) {
+	public static String [] splitTokens (String line) {
 		StringTokenizer st = new StringTokenizer (line, terms);
 		int n = st.countTokens ();
 		String qq [] = new String [n];
@@ -25,7 +46,13 @@ public class Utils {
 		return qq;
 	}
 
-	String makeString (String tokens []) {
+/**
+ * Assemble a string from an array of stringgs, mostly for printing out
+ * @param tokens
+ * @return
+ */
+	
+	public static String makeString (String tokens []) {
 		StringBuffer sb = new StringBuffer ();
 		int n = tokens.length;
 		if (n == 0) return "";
@@ -37,12 +64,27 @@ public class Utils {
 		return result;
 	}
 
+
+/**
+ * Used for edit distance
+ * @param a
+ * @param b
+ * @param c
+ * @return
+ */
 	// http://en.wikibooks.org/wiki/Algorithm_implementation/Strings/Levenshtein_distance#Java
-	int minimum(int a, int b, int c) {
+	static int minimum(int a, int b, int c) {
 		return Math.min (Math.min(a, b), c);
 	}
 
-	public int editDistance (String one, String two) {
+/**
+ * Determine the Levenshtein edit distance between two strings of characters
+ * @param one
+ * @param two
+ * @return
+ */	
+	
+	public static int editDistance (String one, String two) {
 		int n = one.length ();
 		int m = two.length ();
 		int [][] distance = new int [n + 1][m + 1];
@@ -65,14 +107,28 @@ public class Utils {
 		return distance [n][m];
 	}
 
-	public int approxMatch (String a, String b) {
+/**
+ * Get the edit distance between two strings of words
+ * @param a
+ * @param b
+ * @return
+ */	
+	
+	public static int approxMatch (String a, String b) {
 		String one [] = a.split (" ");
 		String two [] = b.split (" ");
 		int d = approxMatch (one, two);
 		return d;
 	}
 
-    int approxMatch (String one [], String two []) {
+/**
+ * do the actual levenshtein distance computation between two arrays of words
+ * @param one
+ * @param two
+ * @return
+ */
+	
+    static int approxMatch (String one [], String two []) {
 		int n = one.length;
 		int m = two.length;
         int [][] distance = new int [n + 1][m + 1];
@@ -94,7 +150,15 @@ public class Utils {
         return distance [n][m];
     }
 
-    static void quicksortpointy (Point p[], int low, int high) {
+	
+/**
+ * Sort an array of points in increasing order of the y coordinate.
+ * @param p
+ * @param low
+ * @param high
+ */
+	
+    public static void quicksortpointy (Point p[], int low, int high) {
         int lo = low;
         int hi = high;
         if (lo >= hi) {

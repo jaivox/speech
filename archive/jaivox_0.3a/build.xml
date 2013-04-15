@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<!--This build file uses the ant runtime environment, which gets your system classpath.
+    It is better to run config.bash to set the classpath explicitly -->
+
+<project name="Jaivox" default="build" basedir=".">
+	<property environment="env" />
+	<target name="clean">
+		<delete dir="bin"/>
+	</target>
+	<target name="build">
+		<mkdir dir="bin"/>
+        <javac includeantruntime="true" srcdir="src" destdir="bin"/>
+	</target>
+	<target name="jarfile" description="Create jaivox.jar" depends="build">
+		<jar jarfile="jaivox.jar" 
+	             	manifest="src/com/jaivox/jaivox.Manifest"
+	             	compress="true"
+	 		basedir="bin/">
+	 		<include name="com/**"/>
+	 	</jar>
+  	</target>
+</project>

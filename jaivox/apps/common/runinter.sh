@@ -1,4 +1,4 @@
-!#/bin/sh
+#!/bin/sh
 
-java interpreterTest
+java PATinterpreterTest
 

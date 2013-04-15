@@ -1,0 +1,155 @@
+
+#include errors.dlg
+
+{
+[def_dyt]
+	def ;
+	what math should I take ;
+	did you take calculus in school ;
+	dyt ;
+}
+
+{
+[def_dyt_dyt]
+	dyt ;
+	yes ;
+	did you take the ap test ;
+	dyt ;
+}
+
+{
+[def_dyt_dyt_wsd]
+	dyt ;
+	yes ;
+	what score did you get ;
+	wsd ;
+}
+
+{
+[def_dyt_dyt_wsd_def]
+	wsd ;
+	five ;
+	you should calculus three ;
+	def ;
+}
+
+{
+[def_dyt_dyt_wsd_def]
+	wsd ;
+	four ;
+	you can take calculus two ;
+	def ;
+}
+
+{
+[def_dyt_dyt_wsd_def]
+	wsd ;
+	three ;
+	it may be best to retake calculus ;
+	def ;
+}
+
+{
+[def_dyt_dyt_wsd_def]
+	wsd ;
+	two ;
+	definitely take college calculus one ;
+	def ;
+}
+
+{
+[def_dyt_dyt_wsd_def]
+	wsd ;
+	one ;
+	you really need to retake calculus ;
+	def ;
+}
+
+{
+[def_dyt_dyt_wsd_def]
+	wsd ;
+	zero ;
+	it is like you never took it, take calculus ;
+	def ;
+}
+
+{
+[def_dyt_dyt_dyd]
+	dyt ;
+	no ;
+	did you do well in calculus in school ;
+	dyd ;
+}
+
+{
+[def_dyt_dyt_dyd_def]
+	dyd ;
+	no ;
+	you want to start with calculus one ;
+	def ;
+}
+
+{
+[def_dyt_dyt_dyd_def]
+	dyd ;
+	yes ;
+	you may be all right with calculus for engineers ;
+	def ;
+}
+
+{
+[def_dyt_dyt]
+	dyt ;
+	no ;
+	did you take advanced algebra ;
+	dyt ;
+}
+
+{
+[def_dyt_dyt_haa]
+	dyt ;
+	yes ;
+	how about analytic geometry ;
+	haa ;
+}
+
+{
+[def_dyt_dyt_haa_wyn]
+	haa ;
+	dont think so ;
+	well you need to take some prep courses ;
+	wyn ;
+}
+
+{
+[def_dyt_dyt_haa_wyn_def]
+	wyn ;
+	what ;
+	pre calculus is a good option ;
+	def ;
+}
+
+{
+[def_dyt_dyt_haa_wyn_def]
+	wyn ;
+	really ;
+	yeah one semester of precalculus will help ;
+	def ;
+}
+
+{
+[def_dyt_dyt_haa_def]
+	haa ;
+	yes ;
+	then you can take regular calculus one ;
+	def ;
+}
+
+{
+[def_dyt_dyt_def]
+	dyt ;
+	no ;
+	you should take some pre calculus ;
+	def ;
+}
+

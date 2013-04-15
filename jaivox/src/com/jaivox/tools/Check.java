@@ -1,9 +1,34 @@
+/*
+   Jaivox version 0.4 April 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 
 package com.jaivox.tools;
 
-import java.io.*;
-import java.util.*;
-import com.jaivox.util.*;
+import com.jaivox.util.Log;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
+
 
 /**
  * Check an input specification and report errors.
@@ -25,7 +50,7 @@ public class Check {
 	String msgELS = "Please specify how the user may ask for alternative answers, suggestion \"besides\"";
 	String msgNN = "Please specify othe synonyms for this field";
 	String msgNNS = "Please specify plural forms corresponding to noun forms";
-	String msgNNP = "Please indicate the column of the table containing proper names";
+	// String msgNNP = "Please indicate the column of the table containing proper names";
 	// add a note here about the syntax?
 
 	String msgJJ_P = "Please specify positive adjective forms of this attribute";
@@ -130,14 +155,16 @@ public class Check {
 		try {
 			String name = node.name;
 			// assume this is file in the source directory
+			String base = quest.kv.getProperty ("Base");
 			String specdir = quest.kv.getProperty ("source");
 			Log.fine ("Assumes "+name+" is a file in "+specdir);
-			datafile = specdir + name;
+			datafile = base + specdir + name;
 			dataname = name;
 			File F = new File (datafile);
 			if (!F.exists ()) {
-				Log.severe ("Data file "+datafile+" does not exist.");
-				return false;
+				Log.warning ("Could not check Data file "+datafile+" (does not exist.) ");
+				// return false;
+				return true;
 			}
 			// check that the data file contains the columns that are mentioned
 			String fields [] = quest.fields;
@@ -287,13 +314,15 @@ public class Check {
 				return false;
 			}
 			// check various required grammar tags
+			/*
 			if (!checkGrammar (field, fnode, "WP", msgWP)) return false;
 			if (!checkGrammar (field, fnode, "ELS", msgELS)) return false;
 			if (!checkGrammar (field, fnode, "NN", msgNN)) return false;
 			if (!checkGrammar (field, fnode, "NNS", msgNNS)) return false;
-			if (!checkGrammar (field, fnode, "NNP", msgNNP)) return false;
+			// if (!checkGrammar (field, fnode, "NNP", msgNNP)) return false;
 			// NNP may need an extra check of the table
 			Log.info ("Field "+field+" seems to be specified correctly.");
+			*/
 			return true;
 		}
 		catch (Exception e) {

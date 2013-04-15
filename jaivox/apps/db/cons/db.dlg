@@ -1,0 +1,27 @@
+
+#include errors.dlg
+
+{
+[cookies]
+	def ;
+	who has placed a lot of cookies ;
+	(sqlite mostCookies) ;
+	def ;
+}
+
+{
+[analytics]
+	def ;
+	what portion of cookies is for analytics ;
+	(sqlite analyticRatio) ;
+	def ;
+}
+
+{
+[recent]
+	def ;
+	what portion is recent ;
+	(sqlite recentRatio) ;
+	def ;
+}
+
