@@ -10,23 +10,23 @@
 }
 
 {
-[def_dyt_dyt]
+[def_dyt_dyt1]
 	dyt ;
 	yes ;
 	did you take the ap test ;
-	dyt ;
+	dyt1 ;
 }
 
 {
-[def_dyt_dyt_wsd]
-	dyt ;
+[def_dyt_dyt1_wsd]
+	dyt1 ;
 	yes ;
 	what score did you get ;
 	wsd ;
 }
 
 {
-[def_dyt_dyt_wsd_def]
+[def_dyt_dyt1_wsd_def]
 	wsd ;
 	five ;
 	you should calculus three ;
@@ -34,7 +34,7 @@
 }
 
 {
-[def_dyt_dyt_wsd_def]
+[def_dyt_dyt1_wsd_def]
 	wsd ;
 	four ;
 	you can take calculus two ;
@@ -42,7 +42,7 @@
 }
 
 {
-[def_dyt_dyt_wsd_def]
+[def_dyt_dyt1_wsd_def]
 	wsd ;
 	three ;
 	it may be best to retake calculus ;
@@ -50,7 +50,7 @@
 }
 
 {
-[def_dyt_dyt_wsd_def]
+[def_dyt_dyt1_wsd_def]
 	wsd ;
 	two ;
 	definitely take college calculus one ;
@@ -58,7 +58,7 @@
 }
 
 {
-[def_dyt_dyt_wsd_def]
+[def_dyt_dyt1_wsd_def]
 	wsd ;
 	one ;
 	you really need to retake calculus ;
@@ -66,7 +66,7 @@
 }
 
 {
-[def_dyt_dyt_wsd_def]
+[def_dyt_dyt1_wsd_def]
 	wsd ;
 	zero ;
 	it is like you never took it, take calculus ;
@@ -74,15 +74,15 @@
 }
 
 {
-[def_dyt_dyt_dyd]
-	dyt ;
+[def_dyt_dyt1_dyd]
+	dyt1 ;
 	no ;
 	did you do well in calculus in school ;
 	dyd ;
 }
 
 {
-[def_dyt_dyt_dyd_def]
+[def_dyt_dyt1_dyd_def]
 	dyd ;
 	no ;
 	you want to start with calculus one ;
@@ -90,7 +90,7 @@
 }
 
 {
-[def_dyt_dyt_dyd_def]
+[def_dyt_dyt1_dyd_def]
 	dyd ;
 	yes ;
 	you may be all right with calculus for engineers ;
@@ -98,23 +98,23 @@
 }
 
 {
-[def_dyt_dyt]
+[def_dyt_dyt2]
 	dyt ;
 	no ;
 	did you take advanced algebra ;
-	dyt ;
+	dyt2 ;
 }
 
 {
-[def_dyt_dyt_haa]
-	dyt ;
+[def_dyt_dyt2_haa]
+	dyt2 ;
 	yes ;
 	how about analytic geometry ;
 	haa ;
 }
 
 {
-[def_dyt_dyt_haa_wyn]
+[def_dyt_dyt2_haa_wyn]
 	haa ;
 	dont think so ;
 	well you need to take some prep courses ;
@@ -122,7 +122,7 @@
 }
 
 {
-[def_dyt_dyt_haa_wyn_def]
+[def_dyt_dyt2_haa_wyn_def]
 	wyn ;
 	what ;
 	pre calculus is a good option ;
@@ -130,7 +130,7 @@
 }
 
 {
-[def_dyt_dyt_haa_wyn_def]
+[def_dyt_dyt2_haa_wyn_def]
 	wyn ;
 	really ;
 	yeah one semester of precalculus will help ;
@@ -138,7 +138,7 @@
 }
 
 {
-[def_dyt_dyt_haa_def]
+[def_dyt_dyt2_haa_def]
 	haa ;
 	yes ;
 	then you can take regular calculus one ;
@@ -146,8 +146,8 @@
 }
 
 {
-[def_dyt_dyt_def]
-	dyt ;
+[def_dyt_dyt2_def]
+	dyt2 ;
 	no ;
 	you should take some pre calculus ;
 	def ;

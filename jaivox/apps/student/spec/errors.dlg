@@ -1,5 +1,15 @@
 
-// error handling
+// errorTag is defined in Script
+
+{
+errortag
+	sorry, there is an error ;
+	i apologize but there is an error ;
+	we can not continue due to an error ;
+	there is some problem with recognition ;
+	please try again later, we are experiencing problems ;
+}
+
 
 {
 [bm1_bm2]
@@ -455,16 +465,5 @@ apologymore
 	i am extremely sorry ;
 	i must truly apologize ;
 	my most profound regrets ;
-}
-
-// errorTag is defined in Script
-
-{
-errorTag
-	sorry, there is an error ;
-	i apologize but there is an error ;
-	we can not continue due to an error ;
-	there is some problem with recognition ;
-	please try again later, we are experiencing problems ;
 }
 

@@ -82,24 +82,24 @@
 }
 
 {
-[def_wdy_eao_wta_tch_atg_atg]
+[def_wdy_eao_wta_tch_atg_atg1]
 	atg ;
 	yes ;
 	are they getting enough sun ;
-	atg ;
+	atg1 ;
 }
 
 {
-[def_wdy_eao_wta_tch_atg_atg_def]
-	atg ;
+[def_wdy_eao_wta_tch_atg_atg1_def]
+	atg1 ;
 	yes ;
 	i think you should give it another month ;
 	def ;
 }
 
 {
-[def_wdy_eao_wta_tch_atg_atg_def]
-	atg ;
+[def_wdy_eao_wta_tch_atg_atg1_def]
+	atg1 ;
 	no ;
 	cut some of the trees shading them ;
 	def ;
@@ -114,56 +114,56 @@
 }
 
 {
-[def_wdy_eao_wta_dyf_atp]
+[def_wdy_eao_wta_dyf_atp1]
 	dyf ;
 	yes ;
 	are the plants looking burned ;
-	atp ;
+	atp1 ;
 }
 
 {
-[def_wdy_eao_wta_dyf_atp_def]
-	atp ;
+[def_wdy_eao_wta_dyf_atp1_def]
+	atp1 ;
 	yes ;
 	you probably over fertilized ;
 	def ;
 }
 
 {
-[def_wdy_eao_wta_dyf_atp_atg]
-	atp ;
+[def_wdy_eao_wta_dyf_atp1_atg2]
+	atp1 ;
 	no ;
 	are they growing well ;
-	atg ;
+	atg2 ;
 }
 
 {
-[def_wdy_eao_wta_dyf_atp_atg_def]
-	atg ;
+[def_wdy_eao_wta_dyf_atp1_atg2_def]
+	atg2 ;
 	yes ;
 	prune them a bit ;
 	def ;
 }
 
 {
-[def_wdy_eao_wta_dyf_atp_atg_atg]
-	atg ;
+[def_wdy_eao_wta_dyf_atp1_atg2_atg3]
+	atg2 ;
 	no ;
 	are they getting plenty of sun and water ;
-	atg ;
+	atg3 ;
 }
 
 {
-[def_wdy_eao_wta_dyf_atp_atg_atg_def]
-	atg ;
+[def_wdy_eao_wta_dyf_atp1_atg2_atg3_def]
+	atg3 ;
 	yes ;
 	give it another two weeks ;
 	def ;
 }
 
 {
-[def_wdy_eao_wta_dyf_atp_atg_atg_def]
-	atg ;
+[def_wdy_eao_wta_dyf_atp1_atg2_atg3_def]
+	atg3 ;
 	no ;
 	try to remove some of the shade ;
 	def ;

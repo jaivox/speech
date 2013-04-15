@@ -68,7 +68,7 @@ public class Script {
  * (in the appropriate language of the script) saying something like "I cannot
  * process your request".
  */
-	public static String errorTag = "errorTag";
+	public static String errorTag = "errortag";
 	
 /**
  * The initial state is used to create something in the history. This way if
@@ -419,7 +419,6 @@ public class Script {
 		// try again by setting statenow to default
 		Log.info ("handleInput: Nothing worked, going to default state");
 		for (int i=0; i<nfsm; i++) {
-			String statenow = fsm [i][0];
 			String tomatch = fsm [i][1];
 			String stokens [] = getTokens (spec);
 			String matchtokens [] = getTokens (tomatch);
@@ -487,7 +486,7 @@ public class Script {
 	}
 
 /**
- * The errorTag is "errorTag". A finite state machine should contain a node
+ * The errorTag is "errortag". A finite state machine should contain a node
  * that provides the system response for an error. This way, the error message
  * sent to the user can be cusotomized to the application and to the language
  * of the conversational dialog.
@@ -500,6 +499,7 @@ public class Script {
 		QaNode errorNode = lookup.get (errorTag);
 		String errorAnswer = Error;
 		if (errorNode != null) errorAnswer = errorNode.pickRandomTail ();
+		else Log.fine ("No "+errorTag+" value defined in dialog.");
 		String nm [] = new String [quad];
 		nm [0] = lastState ();
 		nm [1] = input;

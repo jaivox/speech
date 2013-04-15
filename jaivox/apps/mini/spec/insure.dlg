@@ -10,39 +10,39 @@
 }
 
 {
-[def_dyh_dyh]
+[def_dyh_dyh1]
 	dyh ;
 	yeah ;
 	did you have any accidents in the last three years ;
-	dyh ;
+	dyh1 ;
 }
 
 {
-[def_dyh_dyh_dyh]
-	dyh ;
+[def_dyh_dyh1_dyh2]
+	dyh1 ;
 	yes ;
 	did you have more than five ;
-	dyh ;
+	dyh2 ;
 }
 
 {
-[def_dyh_dyh_dyh_def]
-	dyh ;
+[def_dyh_dyh1_dyh2_def]
+	dyh2 ;
 	yes ;
 	you should get high risk insurance ;
 	def ;
 }
 
 {
-[def_dyh_dyh_mtt]
-	dyh ;
+[def_dyh_dyh1_mtt]
+	dyh1 ;
 	no ;
 	more than two ;
 	mtt ;
 }
 
 {
-[def_dyh_dyh_mtt_def]
+[def_dyh_dyh1_mtt_def]
 	mtt ;
 	yes ;
 	your insurance rate probably will probably be high ;
@@ -50,7 +50,7 @@
 }
 
 {
-[def_dyh_dyh_mtt_lus]
+[def_dyh_dyh1_mtt_lus]
 	mtt ;
 	no ;
 	let us see do you drive more than ten miles each day ;
@@ -58,7 +58,7 @@
 }
 
 {
-[def_dyh_dyh_mtt_lus_ayb]
+[def_dyh_dyh1_mtt_lus_ayb]
 	lus ;
 	yes ;
 	are you below twenty five ;
@@ -66,7 +66,7 @@
 }
 
 {
-[def_dyh_dyh_mtt_lus_ayb_def]
+[def_dyh_dyh1_mtt_lus_ayb_def]
 	ayb ;
 	yes ;
 	you can get regular insurance but it will pricey ;
@@ -74,7 +74,7 @@
 }
 
 {
-[def_dyh_dyh_mtt_lus_ayb_def]
+[def_dyh_dyh1_mtt_lus_ayb_def]
 	ayb ;
 	no ;
 	a few accidents do not matter too much ;

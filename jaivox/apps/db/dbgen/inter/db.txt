@@ -1,6 +1,0 @@
-google,25,90
-yahoo,96,61
-doubleclick,12,89
-nytimes,90,21
-cnet,97,90
-weather,23,96
