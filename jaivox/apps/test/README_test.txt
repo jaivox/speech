@@ -7,13 +7,16 @@ about the conditions of various roads. Questions involve two properties of
 roads, whether they are fast, and whether they are smooth (meaning, good
 surface, not too many lights etc.)
 
-To generate the three agents that will work together, change to the 
+To generate the three agents that will work together, change to the
 
-bin 
+bin
 
-directory (this is created when you installed by running ant) and enter 
+directory (this is created when you installed by running ant) and enter
 
-java com.jaivox.tools.Jvgen test.conf
+java com.jaivox.tools.Jvgen path_to_apps_test/test.conf
+
+(In general, refer to test.conf as being in the test directory to make
+sure that the paths in test.conf are used correctly.)
 
 The example shows how you can generate the programs for the recognizer
 (using sphinx, in a directory gen/sphinx), for the interpreter (in

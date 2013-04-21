@@ -1,0 +1,465 @@
+{
+[bm1_bm2]
+	bm1 ;
+	badmatch ;
+	apology1 nobmquit ;
+	def ;
+}
+
+{
+[bm1_gm1]
+	bm1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[bm1_nm1]
+	bm1 ;
+	nomatch ;
+	apology1 nonmquit ;
+	def ;
+}
+
+{
+[bm1_no1]
+	bm1 ;
+	noinput ;
+	apology1 nonoquit ;
+	def ;
+}
+
+{
+[bm1_om1]
+	bm1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[nm1_bm1]
+	nm1 ;
+	badmatch ;
+	apology1 nobmquit ;
+	def ;
+}
+
+{
+[nm1_gm1]
+	nm1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[nm1_nm2]
+	nm1 ;
+	nomatch ;
+	apology1 nonmquit ;
+	def ;
+}
+
+{
+[nm1_no1]
+	nm1 ;
+	noinput ;
+	apology1 nonoquit ;
+	def ;
+}
+
+{
+[nm1_om1]
+	nm1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[no1_bm1]
+	no1 ;
+	badmatch ;
+	apology1 nobmquit ;
+	def ;
+}
+
+{
+[no1_gm1]
+	no1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[no1_nm1]
+	no1 ;
+	nomatch ;
+	apology1 nonmquit ;
+	def ;
+}
+
+{
+[no1_no2]
+	no1 ;
+	noinput ;
+	apology1 nonoquit ;
+	def ;
+}
+
+{
+[no1_om1]
+	no1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[om1_bm1]
+	om1 ;
+	badmatch ;
+	apology1 promptbm1 ;
+	bm1 ;
+}
+
+{
+[om1_gm1]
+	om1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[om1_nm1]
+	om1 ;
+	nomatch ;
+	apology1 promptnm1 ;
+	nm1 ;
+}
+
+{
+[om1_no1]
+	om1 ;
+	noinput ;
+	apology1 promptno1 ;
+	no1 ;
+}
+
+{
+[om1_om2]
+	om1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om2 ;
+}
+
+{
+[zzzzstate_bm1]
+	zzzzstate ;
+	badmatch ;
+	apology1 promptbm1 ;
+	bm1 ;
+}
+
+{
+[zzzzstate_gm1]
+	zzzzstate ;
+	goodmatch ;
+	(exec this) ;
+	def ;
+}
+
+{
+[zzzzstate_nm1]
+	zzzzstate ;
+	nomatch ;
+	apology1 promptnm1 ;
+	nm1 ;
+}
+
+{
+[zzzzstate_no1]
+	zzzzstate ;
+	noinput ;
+	apology1 promptno1 ;
+	no1 ;
+}
+
+// confirmation sequences
+
+{
+[zzzzstate_om1]
+	zzzzstate ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[om1_nok1]
+	om1 ;
+	notokmatch ;
+	apology1 repeatyn ;
+	nok1 ;
+}
+
+{
+[om1_nok1_nok2]
+	nok1 ;
+	notokmatch ;
+	apology2 repeatyn ;
+	nok2 ;
+}
+
+{
+[om1_nok1_nok2_q]
+	nok2 ;
+	notokmatch ;
+	aplogy2 nomatchquit ;
+	def ;
+}
+
+{
+[om1_om2]
+	om1 ;
+	okmatch ;
+	(exec this) ;
+	def ;
+}
+
+{
+[om1_y]
+	om1 ;
+	yes.continue ;
+	(exec last) ;
+	def ;
+}
+
+{
+[om1_n]
+	om1 ;
+	no.continue ;
+	prompt (quote last) ;
+	om2 ;
+}
+
+{
+[om1_om2_y]
+	om2 ;
+	yes.continue ;
+	(exec last) ;
+	def ;
+}
+
+{
+[om1_om2_n]
+	om2 ;
+	no.continue ;
+	apology2 nomatchquit ;
+	def ;
+}
+
+{
+noinput
+	(match<10) ;
+}
+
+{
+nomatch
+	(match<30) ;
+}
+
+{
+badmatch
+	(match>29) (match<60) ;
+}
+
+{
+okmatch
+	(match>59) (match<80) ;
+}
+
+{
+goodmatch
+	(match>79) ;
+}
+
+{
+notokmatch
+	(match<50) ;
+}
+
+{
+noinputquit
+	apology1 no le puedo oír, por favor inténtelo nuevamente ;
+	apology1 se ha producido un error, por favor vuelva a intentarlo más tarde
+	apology2 todavía no le puedo oír, vuelva a intentarlo más tarde ;
+	apology2 parece que el sistema tiene problemas, por favor contacte al administrador ;
+}
+
+{
+promptno1
+	no le puedo oír ;
+	apology1 no puedo oír su pregunta ;
+	apology1 no le puedo oír, puede usted repetir la pregunta ;
+}
+
+{
+promptno2
+	apology2 todavía no le puedo oír ;
+	apology2 tal vez haya un problema, no le puedo oír para nada ;
+	apology2 pregunte nuevamente, por favor ;
+}
+
+{
+promptnm1
+	apology1 no puedo entender su pregunta, por favor, pregunte nuevamente ;
+	apology1 no pude comprender su pregunta, puede usted preguntar nuevamente ;
+}
+
+{
+promptnm2
+	apology2 ahora no le puedo oír, pregunte nuevamente por favor ;
+	apology2 pero no le puedo oír ;
+	apology1 parece que ahora tenemos un problema con el audio, por favor inténtelo nuevamente ;
+}
+
+{
+promptbm1
+	apology1 no puedo entender su pregunta, por favor, pregunte nuevamente ;
+	apology1 no pude comprender su pregunta, puede usted preguntar nuevamente ;
+}
+
+{
+promptbm2
+	apology2 ahora no le puedo oír, pregunte nuevamente por favor ;
+	apology2 pero no le puedo oír ;
+	apology1 parece que ahora tenemos un problema con el audio, por favor inténtelo nuevamente ;
+}
+
+{
+nomatchquit
+	apology2 parece que no puedo entender lo que dice usted ;
+	apology2 probablemente no funciona bien el reconocedor de voz ;
+	apology2 no puedo reconocer nada, es posible que hay un problema con el micrófono ;
+}
+
+{
+nonmquit
+	apology2 parece que no pude comprender su pregunta, por favor inténtelo nuevamente ;
+	apologymore creo que esto no va a funcionar, por favor contacte al administrador ;
+}
+
+{
+nonoquit
+	apologymore creo que no hay ninguna manera de hacer esto, lo siento. ;
+	apologymore pues parece que esto no va a funcionar, lo siento. ;
+}
+
+{
+nobmquit
+	apology2 parece que no pude comprender su pregunta, por favor inténtelo nuevamente ;
+	apologymore creo que esto no va a funcionar, por favor contacte al administrador ;
+}
+
+{
+prompt
+	su pregunta es ;
+	pregunta usted ;
+}
+
+{
+repeatyn
+	quisiera repetir la pregunta para asegurar que lo entiendo, pregunta usted ;
+	no sé si entiendo bien la pregunta, déjeme repetirla, su pregunta es ;
+}
+
+{
+yes.more
+	sí hay más ;
+}
+
+{
+no.more
+	no no hay nada más ;
+	no hay más soluciones ;
+}
+
+// included for testing matchNode
+{
+confirmation
+	yes.continue pull.stack ;
+	no.continue ask.another ;
+}
+
+{
+yes.continue
+	sí ;
+	okay ;
+	bueno ;
+	parece que sí ;
+	siga ;
+	creo que sí ;
+}
+
+{
+no.continue
+	no ;
+	creo que no ;
+	parece que no ;
+	no es correcto ;
+	no, es falso ;
+}
+
+{
+pull.stack
+	eso sí que es lo que pregunté ;
+	esa era mi pregunta ;
+	esa fue mi pregunta ;
+	regreso a la pregunta reconocida ;
+}
+
+{
+ask.another
+	apology1 Puede usted hacer otra pregunta ;
+	apology1 Por favor déjeme hacer otra pregunta ;
+}
+
+{
+apology1
+	lo siento ;
+	lo siento mucho ;
+	perdóname ;
+	perdóname, por favor ;
+}
+
+{
+apology2
+	lo siento tanto ;
+	lo siento pero debo preguntar otra vez ;
+	pido perdón ;
+	lo siento muchísimo ;
+}
+
+{
+apologymore
+	mil perdones ;
+	de veras lo siento mucho ;
+}
+
+// errorTag is defined in Script
+
+{
+errorTag
+	lo siento, hay un error ;
+	lo siento pero hay un error ;
+	no podemos seguir a causa de un error ;
+	hay algún problema con el reconocimiento ;
+	por favor vuelva a intentarlo más tarde, tenemos problems técnicos ;
+}
+

@@ -16,9 +16,9 @@ tomato: is a conversation about growing tomatoes in central Texas.
 
 The explanation below is about the "cold" conversation.
 
-To generate the program
+To generate the program, do so from the parent directory, for example
 
-java com.jaivox.tools.Jvgen cold.conf
+java com.jaivox.tools.Jvgen mini/cold.conf
 
 This creates a subdirectory withe the name "cold". Change to that
 directory.
@@ -28,28 +28,28 @@ spec/cold.dlg. This logic can also be explained by the following
 if - then structure:
 
 IF user = i am feeling sick THEN System = do you feel hot and THEN
-	IF user = a little THEN System = is your nose runny and THEN
-		IF user = yes THEN System = how is your throat and THEN
-			IF user = itchy THEN System = it is probably just a cold
-			ELSE IF user = hurts THEN System = could be an infection. are you coughing and THEN
-				IF user = a lot THEN System = go to a doctor
-				ELSE IF user = a little THEN System = may be best to go to a doctor
-				ELSE IF user = no THEN System = try drinking some fluids
-			ELSE IF user = fine THEN System = are you wheezing and THEN
-				IF user = yes THEN System = a lot or just a little and THEN
-					IF user = a lot THEN System = could be asthma
-					ELSE IF user = a little THEN System = could be allergies
-		ELSE IF user = no THEN System = do you feel congested and THEN
-			IF user = yes THEN System = did you have a cold earlier and THEN
-				IF user = yes THEN System = well give it some time
-			ELSE IF user = no THEN System = are you allergic to anything and THEN
-				IF user = yes THEN System = what and THEN
-					IF user = pollen THEN System = well it is the season
-					ELSE IF user = dust THEN System = try cleaning your house
-					ELSE IF user = dogs THEN System = do you have a dog and THEN
-						IF user = no THEN System = did you visit somebody who has a dog and THEN
-							IF user = no THEN System = well come in for an evaluation and THEN
-							ELSE IF user = yes THEN System = that could be it
+  IF user = a little THEN System = is your nose runny and THEN
+    IF user = yes THEN System = how is your throat and THEN
+      IF user = itchy THEN System = it is probably just a cold
+      ELSE IF user = hurts THEN System = could be an infection. are you coughing and THEN
+        IF user = a lot THEN System = go to a doctor
+        ELSE IF user = a little THEN System = may be best to go to a doctor
+        ELSE IF user = no THEN System = try drinking some fluids
+      ELSE IF user = fine THEN System = are you wheezing and THEN
+        IF user = yes THEN System = a lot or just a little and THEN
+          IF user = a lot THEN System = could be asthma
+          ELSE IF user = a little THEN System = could be allergies
+    ELSE IF user = no THEN System = do you feel congested and THEN
+      IF user = yes THEN System = did you have a cold earlier and THEN
+        IF user = yes THEN System = well give it some time
+      ELSE IF user = no THEN System = are you allergic to anything and THEN
+        IF user = yes THEN System = what and THEN
+          IF user = pollen THEN System = well it is the season
+          ELSE IF user = dust THEN System = try cleaning your house
+          ELSE IF user = dogs THEN System = do you have a dog and THEN
+            IF user = no THEN System = did you visit somebody who has a dog and THEN
+              IF user = no THEN System = well come in for an evaluation and THEN
+              ELSE IF user = yes THEN System = that could be it
 
 The questions and answers are tabbed so that you can tell which ELSE goes with
 which IF. The things that the user can say are prefixed with user = .

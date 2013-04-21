@@ -38,6 +38,22 @@ mini: this shows how the jaivox interpreter can handle a wide variety of
 onefile: shows how the test example, which generates three agents, can instead
 	be used to create batch tests and live tests.
 
+recorded: this example shows an agent-based version of the program in the
+	apps/1st directory. The directory recorded/gen_saved contains four
+	subdirectories: sphinx is a recognizer agent, inter is a Jaivox
+	interpreter agent, and both festival and freetts directories contain
+	synthesizer agents, only one of them should be used. For details
+	please see recorded/README_recorded.txt.
+
+spanish: this shows how Jaivox dialogs can be adapted to any language. This
+	example adpats the files in the test example to Spanish. Corresponding to
+	files road.spec, errors.dlg and road.dlg, here we have road_es.spec,
+	errors_es.dlg and road_es.dlg. The program live.java in the es subdirectory
+	is generated with Jvgen with input spanish.conf. The program is then modified
+	to use a configuration script live_es.xml which points to the Voxforge
+	Spanish audio model and dictionary. See README_spanish.txt for more
+	details.
+
 student: is an application that demonstrates the use of some grammar enhancements for
 	better questions. The application involves asking questions about students (from
 	a teacher or administrator's viewpoint.)
@@ -50,14 +66,18 @@ applications are generated using a generator in the tools package. There are
 several configuration (.conf) files in the directories, as well as related information
 in various spec directories, that are used to generate the applications.
 
+IMPORTANT: The *.conf files in the applications are created so that they are
+referenced in context with their parent directories. For example, if generating
+db application, you should refer to db.conf as being in db/db.conf.
+
 For example, assuming your classpath settings are done correctly, you can generate
 the test application with
 
-java com.jaivox.tools.Jvgen test.conf
+java com.jaivox.tools.Jvgen test/test.conf
 
 For the student application similarly, change the student directory and enter
 
-java com.jaivox.tools.Jvgen student.conf
+java com.jaivox.tools.Jvgen student/student.conf
 
 In both cases, Jvgen will generate three directories in a gen directory. The three
 directories are

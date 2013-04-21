@@ -1,3 +1,23 @@
+
+
+import com.jaivox.interpreter.Command;
+import com.jaivox.interpreter.Interact;
+import com.jaivox.util.Log;
+import com.sun.speech.freetts.Voice;
+import com.sun.speech.freetts.VoiceManager;
+import edu.cmu.sphinx.frontend.util.AudioFileDataSource;
+import edu.cmu.sphinx.recognizer.Recognizer;
+import edu.cmu.sphinx.result.Result;
+import edu.cmu.sphinx.util.props.ConfigurationManager;
+import java.io.File;
+import java.net.URL;
+import java.util.Properties;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
+
 /*
    Jaivox version 0.4 April 2013
    Copyright 2010-2013 by Bits and Pixels, Inc.
@@ -15,23 +35,6 @@
    limitations under the License.
 */
 
-import com.jaivox.interpreter.Command;
-import com.jaivox.interpreter.Interact;
-import com.jaivox.util.Log;
-import com.sun.speech.freetts.Voice;
-import com.sun.speech.freetts.VoiceManager;
-import edu.cmu.sphinx.frontend.util.AudioFileDataSource;
-import edu.cmu.sphinx.recognizer.Recognizer;
-import edu.cmu.sphinx.result.Result;
-import edu.cmu.sphinx.util.props.ConfigurationManager;
-import java.io.File;
-import java.net.URL;
-import java.util.Properties;
-import javax.media.format.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
 
 /**
  * batchTest uses sphinx, jaivox and freetts as libraries to recognize spoken

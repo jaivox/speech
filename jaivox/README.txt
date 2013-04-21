@@ -143,11 +143,11 @@ generating and testing an application.
 Please note that you can modify runsphinx.sh and/or runinter.sh for running
 your application.
 
-See http://www.jaivox.com/recordeddemo.html for a demo where you can hear
-one of us asking questions and the Jaivox interpreter creating anwswers
-which are spoken through festival.
-
 The simplest test involves the files in apps/1st. This is a complete program
 that uses Sphinx and Free TTS. See apps/1st/README_1st.txt for details
 on running this program.
+
+See http://www.jaivox.com/recordeddemo.html for a demo where you can hear
+one of us asking questions and the Jaivox interpreter creating anwswers
+which are spoken through festival.
 
