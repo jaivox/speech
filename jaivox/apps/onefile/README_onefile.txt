@@ -11,6 +11,14 @@ to the program in the apps/1st directory. (In fact, to work like the one
 in apps/1st, you have to modify batchTest and some other programs to fetch
 the data and formulate answers.)
 
+To generate the programs, from the apps directory
+
+java com.jaivox.tools.Jvgen onefile/live.conf
+
+and
+
+java com.jaivox.tools.Jvgen onefile/batch.conf
+
 The file live.conf creates a version of the program that reacts to questions
 asked through a microphone. Again there is no data connection here, so that
 the answers generally will not be very useful. But you can see if your

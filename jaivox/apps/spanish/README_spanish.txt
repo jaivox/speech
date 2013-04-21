@@ -9,7 +9,7 @@ Here we modify the test example to Spanish.
 
 The test example is created using
 
-	com.jaivox.tools.Jvgen test.conf
+	com.jaivox.tools.Jvgen test/test.conf
 
 The file test.conf refers to various other files
 
@@ -28,11 +28,14 @@ files. We did not change road.txt.
 
 These are referenced in a configuration file spanish.conf.
 
-To create the Spanish example, the first step is to create the program using
-
+(You do not need to generate the files since they are already generated.
+But if you want to reate the Spanish example, the first step is to create
+the program using
 	com.jaivox.tools.Jvgen spanish/spanish.conf
+This creates the spanish/es directory.)
 
-This creates the spanish/es directory.
+We have modified the programs in spanish/es to create spanish/es_saved.
+In the following, assume you are working in the es_saved directory.
 
 Some further modifications of the files here is necessary because we need
 to use a different audio model for Spanish.
@@ -45,7 +48,7 @@ which can be downloaded from various places. To follow the arrangement
 we have used for the WSJ audio model, we organize some of the files here
 a bit differently.
 
-Information about using this model can be found at
+Some information about using this model can be found at
 
 http://cmusphinx.sourceforge.net/sphinx4/doc/UsingSphinxTrainModels.html
 
