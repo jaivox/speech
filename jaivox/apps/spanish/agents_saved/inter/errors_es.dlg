@@ -330,7 +330,7 @@ promptnm2
 }
 
 {
-promptbm1
+propmtbm1
 	apology1 no puedo entender su pregunta, por favor, pregunte nuevamente ;
 	apology1 no pude comprender su pregunta, puede usted preguntar nuevamente ;
 }

@@ -139,3 +139,65 @@ There are a few problems that need to be solved at this point.
 	way that the test example was adapted to in the "1st" example.
 
 
+There is a solution to problem 2. This is included here in the subdirectory
+agents_saved.
+
+Using festival spanish voice
+----------------------------
+The current version of festival does not seem to come with a spanish voice,
+but there is an older version that is currently (April, 2013) available
+on the web at
+
+http://www.cstr.ed.ac.uk/downloads/festival/1.95/
+
+What you need is the file festvox_ellpc11k.tar.gz
+
+After unpacking this file, you should get
+
+$ tar -ztvf festvox_ellpc11k.tar.gz
+-rw-r--r-- awb/cstr    2061153 1998-07-08 12:14 festival/lib/voices/spanish/el_diphone/group/ellpc11k.group
+-rw-r--r-- awb/cstr      10892 1999-06-18 14:12 festival/lib/voices/spanish/el_diphone/festvox/el_diphone.scm
+-rw-r--r-- awb/cstr      21903 1999-06-10 01:28 festival/lib/voices/spanish/el_diphone/festvox/spanlex.scm
+-rw-r--r-- awb/cstr       3439 1999-06-10 01:27 festival/lib/voices/spanish/el_diphone/festvox/spanint.scm
+-rw-r--r-- awb/cstr       8834 1999-06-18 14:13 festival/lib/voices/spanish/el_diphone/festvox/sptoken.scm
+-rw-r--r-- awb/cstr       2038 1999-06-10 01:32 festival/lib/voices/spanish/el_diphone/COPYING
+
+As super user, copy the spanish directory here to /usr/share/festival/lib/voices
+to create /usr/share/festival/lib/voices/spanish containing the directory
+el_diphone.
+
+You can use agents.conf to generate an agent-based system that uses the
+spanish voice for festival. The generated files should be modfied to work
+with the Voxforge Spanish corpus.
+
+We have all the required modifications already in spanish/agents_saved
+
+The files generated for agents_saved/sphinx and agents_saved/festival are modified slightly.
+For agents_saved/sphinx/sphinxTest.java, we copy over the live_es.xml from the es_saved
+directory to use instead of the generated road.config.xml.
+
+
+In the agents_saved/festival directory, we modify CxxResponder.cc to include an
+initialization for the spanish voice
+
+In CxxResponder::handleFestival
+
+	if (!festival_initialized) {
+	    festival_initialize (load_init_files, heap_size);
+		festival_eval_command("(voice_el_diphone)"); // <--- added this line
+		festival_initialized = 1;
+	}
+
+Now compile and execute the agents in each of the directories in agents_saved.
+
+First start the interpreter with: java interTest
+Then start festival with: /.festivaltest
+Then start the sphinx server with: java sphinxTest
+
+(each in its respective window of course, as in the tutorial in 
+http://www.jaivox.com/tutorial.html, see towards the end on how to test the agents.)
+
+Assuming that something is recognized by sphinx, a message will be sent to 
+inter, which will then send a response to festival. You should then be able
+to hear the response in a male (Castillian) Spanish voice.
+
