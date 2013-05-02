@@ -2,6 +2,17 @@
 Jaivox Spanish example
 ======================
 
+---------
+es_data directory
+----------------
+For the impatient: The easiest way to test this is to look at questions in
+road.sent. run terminalTest which allows you to type questions. Type in these
+questions and see the answers that are produced.
+
+You can also run the liveTest program in this directory. The program here is
+similar to apps/1st in that data questions are answered.
+---------
+
 Jaivox dialogs can be created in any language. This process is illustrated
 here in an example using Spanish.
 
