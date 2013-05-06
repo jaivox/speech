@@ -40,7 +40,7 @@ files. We did not change road.txt.
 These are referenced in a configuration file spanish.conf.
 
 (You do not need to generate the files since they are already generated.
-But if you want to reate the Spanish example, the first step is to create
+But if you want to recreate the Spanish example, the first step is to create
 the program using
 	com.jaivox.tools.Jvgen spanish/spanish.conf
 This creates the spanish/es directory.)
@@ -48,7 +48,7 @@ This creates the spanish/es directory.)
 We have modified the programs in spanish/es to create spanish/es_saved.
 In the following, assume you are working in the es_saved directory.
 
-Some further modifications of the files here is necessary because we need
+Some further modifications of the files here are necessary because we need
 to use a different audio model for Spanish.
 
 We are using
@@ -178,7 +178,7 @@ to create /usr/share/festival/lib/voices/spanish containing the directory
 el_diphone.
 
 You can use agents.conf to generate an agent-based system that uses the
-spanish voice for festival. The generated files should be modfied to work
+spanish voice for festival. The generated files should be modified to work
 with the Voxforge Spanish corpus.
 
 We have all the required modifications already in spanish/agents_saved
@@ -205,10 +205,10 @@ First start the interpreter with: java interTest
 Then start festival with: /.festivaltest
 Then start the sphinx server with: java sphinxTest
 
-(each in its respective window of course, as in the tutorial in 
+(each in its respective window of course, as in the tutorial in
 http://www.jaivox.com/tutorial.html, see towards the end on how to test the agents.)
 
-Assuming that something is recognized by sphinx, a message will be sent to 
+Assuming that something is recognized by sphinx, a message will be sent to
 inter, which will then send a response to festival. You should then be able
 to hear the response in a male (Castillian) Spanish voice.
 

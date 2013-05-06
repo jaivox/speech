@@ -117,18 +117,6 @@ public class Utils {
 	public static int approxMatch (String a, String b) {
 		String one [] = a.split (" ");
 		String two [] = b.split (" ");
-		int d = approxMatch (one, two);
-		return d;
-	}
-
-/**
- * do the actual levenshtein distance computation between two arrays of words
- * @param one
- * @param two
- * @return
- */
-	
-    static int approxMatch (String one [], String two []) {
 		int n = one.length;
 		int m = two.length;
         int [][] distance = new int [n + 1][m + 1];
