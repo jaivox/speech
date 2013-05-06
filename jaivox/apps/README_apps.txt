@@ -22,6 +22,9 @@ db: is an application that queries the cookie sqlite database (this is created b
 
 find: is another application that searches files using the "find" command.
 
+google: compares google's speech recognition and Sphinx4 recognition
+	on the same data.
+
 mini: this shows how the jaivox interpreter can handle a wide variety of
 	conversations. There are five examples here. These examples do not contain
 	sentence variations in questions (as in test, 1st or onefile) and no data

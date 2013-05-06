@@ -1,0 +1,33 @@
+001	does the road gets slow at this time
+002	the roads get congested at this time
+003	are roads busy
+004	do you think the roads are slow
+005	do you think Elmwood Avenue slow
+006	do you think we'll Mill Road fast
+007	do you think Old Mill Road is quick
+008	is Elmwood Avenue a fast Highway
+009	is Avenue oh the quickest route
+010	is Avenue oh the quickest Highway
+011	is Dearborn Court the quickest Highway
+012	are the freeway is congested
+013	are the freeways busy
+014	what are the fast Road
+015	what freeway is faster than Avenue O
+016	which free way is quicker than Old Mill Road
+017	what freeway is busier than Elmwood Avenue
+018	what highway is slower than Dearborn Court
+019	which freeway is more congested than Elmwood Avenue
+020	which freeway is busier than Avenue O
+021	what is the fastest highway
+022	what is faster than Avenue O
+023	how fast the 15th Avenue
+024	what the fight after court
+025	is there anything faster than Elmwood Avenue
+026	is there anything busier than Dearborn Court
+027	how about Old Mill Road
+028	any other fast Road
+029	any other fast root
+030	the roads get busy at this time
+031	are Highway stop and go
+032	do you think Elmwood Avenue stop and go
+033	is Elmwood Avenue with moose road
