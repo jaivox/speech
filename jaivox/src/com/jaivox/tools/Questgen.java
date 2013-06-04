@@ -223,7 +223,7 @@ public class Questgen {
 
 		String gtag = pat [stage];
 		// any lower case pattern is passed through
-		if (gtag.equals (gtag.toLowerCase ())) {
+		if (!gtag.equals (gtag.toUpperCase ())) {
 			q [stage] = gtag;
 			gt (finfo, ainfo, stage+1, pat, pato, q);
 		}

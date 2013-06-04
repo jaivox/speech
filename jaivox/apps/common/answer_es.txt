@@ -1,0 +1,87 @@
+{
+intro:
+	Creo que
+	Me parece que
+	Parece que
+
+yesanswers:
+	eso es
+	es así
+	sí
+	es verdad
+	es cierto
+
+noanswers:
+	no es así
+	no
+	es falso
+	es equivocado
+
+confused:
+	No puedo entender su pregunta
+	No entiendo su pregunta
+	No puedo averiguar
+	Lo siento, no puedo averiguar
+	Lo siento pero no entiendo
+	Lo siento pero no lo sé
+	Es posible que me equivoque
+	Lo siento mucho pero
+	Lo siento, no estoy seguro
+
+followup:
+	puede Ud. hacer otra pregunta
+	puede Ud. preguntarlo de otra manera
+	hay otra forma de pedir lo que busque Ud.
+	hay otra forma de hacer la pregunta
+	podrá Ud. repetir la pregunta de otra forma
+
+topics:
+	si recuerdo bien, estábamos hablando sobre
+	tal vez haya algo relacionado con
+	su pregunta trata de
+	puede ser que pregunta Ud. sobre
+
+oneitem:
+	eso puede ser
+	es posible
+	tal vez
+	quizá
+	quizás
+	eso sí que es
+
+twoitems:
+	hay dos así
+	hay exactamente dos respuestas
+	hay dos opciones
+	hay dos soluciones para este punto
+	aquí están dos soluciones
+
+manyitems:
+	hay varias soluciones para este punto
+	hay muchas soluciones
+	hay muchas formas de contestar esta pregunta
+	hay varias respuestas
+	hay varias maneras de contestar su pregunta
+
+forinstance:
+	por ejemplo
+	como
+	como ejemplo
+	una solución es
+	aquí tiene Ud. un ejemplo
+	un ejemplo es
+	
+askanother:
+	puede Ud. hacer otra pregunta
+	puede Ud. preguntarlo de otra manera
+	hay otra forma de pedir lo que busque Ud.
+	hay otra forma de hacer la pregunta
+	podrá Ud. repetir la pregunta de otra forma
+	
+dontknow:
+	pues, no sé
+	bueno, no sé
+	lo siento pero no sé
+	qué sé yo
+	
+}

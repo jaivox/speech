@@ -1,0 +1,76 @@
+{
+intro:
+	Ich glaube, dass
+	Es sieht so aus, dass
+	Es scheint, dass
+	Es scheint so, dass
+
+yesanswers:
+	das stimmt
+	das richtig ist
+	das wahr ist
+
+noanswers:
+	das nicht stimmt
+	das nicht richtig ist
+	das falsch ist
+
+confused:
+	Ich verstehe nicht Ihre Frage
+	Ich weiß es nicht
+	Das weiß ich nicht
+	Es tut mir Leid, aber ich verstehe nicht
+	Es tut mir Leid, aber ich weiß es nicht
+	Hm, vielleicht verstehe ich es nicht richtig
+	Es tut mir wirklich Leid, aber
+
+followup:
+	können Sie eine neue Frage stellen
+	können Sie das anders fragen
+	können Sie das anders formulieren
+	vielleicht können Sie die Frage anders formulieren
+
+topics:
+	ich glaube, wir haben über
+	vielleicht gibt es etwas, was mit
+	Ihre Frage ist über
+	fragen Sie vielleicht über
+
+oneitem:
+	das kann sein
+	das ist möglich
+	das ist richtig
+
+twoitems:
+	es gibt zwei Antworten,
+	es gibt genau zwei Antworten,
+	es gibt zwei Möglichkeiten,
+	zwei Lösungen,
+	es gibt zwei Wahlen,
+
+manyitems:
+	es gibt viele Lösungen,
+	manche Antworten finden Sie hier,
+	es gibt viele Arten von Antworten,
+	hier haben Sie verschiedene Lösungen,
+	es liegt eine Menge von Antworten,
+
+forinstance:
+	zum Beispiel
+	beispielsweise
+	Beispiele
+	zum Exempel
+	eine ist
+	ein Beispiel ist
+	
+askanother:
+	stellen Sie eine neue Frage
+	fragen Sie doch mal anders
+	können Sie das anders formulieren
+	
+dontknow:
+	hm, das weiß ich nicht
+	ich glaube nicht, dass ich das weiß
+	was weiß ich
+	
+}

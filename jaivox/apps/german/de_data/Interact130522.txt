@@ -1,0 +1,6 @@
+12:07:46 Q: gibt es schnelle Autobahnen
+12:07:46 A: error
+12:16:32 Q: gibt es schnelle Autobahnen
+12:16:32 A: Ich glaube, dass das wahr ist
+08:11:05 Q: quit
+08:11:07 A: es tut mir wirklich Leid es tut mir Leid ich konnte Ihre Frage nicht begreifen, können Sie noch einmal fragen

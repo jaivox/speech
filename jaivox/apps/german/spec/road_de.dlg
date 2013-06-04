@@ -1,0 +1,292 @@
+// state stuff included
+
+#include errors_de.dlg
+
+// old stuff
+
+{
+[are_nn_jj]
+	def ;
+	are.NN.JJ ;
+	(ask) ;
+	asked ;
+}
+
+{
+[which_nn_jj]
+	def ;
+	which.NN.JJ ;
+	(find) ;
+	def ;
+}
+
+{
+[what_else]
+	def ;
+	WP.ELS ;
+	(find ELS) ;
+	def ;
+}
+
+{
+start
+	fully.specified.question ;
+	not.fully.specified.question ;
+	confirmation ;
+	command system ;
+}
+
+{
+not.fully.specified.question
+	any ELS ask.ELS ;
+	WP.ELS find.ELS ;
+	yes.continue yes.more ;
+	no.continue no.more ;
+}
+
+
+
+{
+fully.specified.question
+	are.NN.JJ ;
+	which.NN.JJ ;
+}
+
+{
+are.NN.JJ
+	sind die NNS JJ-N ;
+	sind die NNS-M JJ-N ;
+	sind die NNS JJ-N um diese Zeit ;
+	sind die NNS jetzt JJ-N ;
+	sind die NNS JJ-N jetzt ;
+	gibt es JJE-P NNS ;
+	werden die NNS JJ-N um diese Zeit ;
+	werden die NNS jetzt JJ-N ;
+	werden die NNS JJ-N jetzt ;
+	glauben Sie, die NNS sind JJ-N ;
+	sind die NNS-M JJ-N um diese Zeit ;
+	sind die NNS-M jetzt JJ-N ;
+	sind die NNS-M JJ-N jetzt ;
+	gibt es JJE-P NNS-M ;
+	werden die NNS-M JJ-N um diese Zeit ;
+	werden die NNS-M jetzt JJ-N ;
+	werden die NNS-M JJ-N jetzt ;
+	glauben Sie, die NNS-M sind JJ-N ;	
+	glauben Sie, NNP ist JJ-N ;
+	glauben Sie, NNP ist JJ-P ;
+	ist NNP ein JJM-P NN-M ;
+	ist NNP eine JJE-P NN ;
+	ist NNP der JJS-P NN-M ;
+	ist NNP die JJS-P NN ;
+	ist NNP JJR-P ;
+	ist NNP JJR-N ;
+}
+
+{
+which.NN.JJ
+	welche NN ist JJ-P ;
+	welcher NN-M ist JJ-P ;
+	welche NNS sind JJ-P ;
+	welche NN ist JJR-P als NNP ;
+	welcher NN-M ist JJR-P als NNP ;
+	welche NN ist die JJS-P ;
+	welcher NN-M ist der JJS-P ;
+	was ist ein JJM-P NN-M ;
+	was ist eine JJE-P NN ;
+	was sind die JJE-P NNS ;
+	welche NN ist JJ-N ;
+	welcher NN-M ist JJ-N ;
+	welche NNS sind JJ-N ;
+	welche NN ist JJR-N als NNP ;
+	welcher NN-M ist JJR-N als NNP ;
+	welche NN ist die JJS-N ;
+	welcher NN-M ist der JJS-N ;
+	was ist ein JJM-N NN-M ;
+	was ist eine JJE-N NN ;
+	was sind die JJE-N NNS ;
+}
+
+{
+WP.ELS
+	sonst welche NN ist JJ-P ;
+	sonst welcher NN-M ist JJ-P ;
+	sonst welche JJE-P NN ;
+	sonst welcher JJM-P NN-M ;
+	gibt es noch eine JJE-P NN ;
+	gibt es noch ein JJM-P NN-M ;
+	gibt es sonst noch eine JJE-P NN ;
+	gibt es sonst noch ein JJM-P NN-M ;
+	sonst welche NN ist JJ-N ;
+	sonst welcher NN-M ist JJ-N ;
+	sonst welche JJE-N NN ;
+	sonst welcher JJM-N NN-M ;
+	gibt es noch eine JJE-N NN ;
+	gibt es noch ein JJM-N NN-M ;
+	gibt es sonst noch eine JJE-N NN ;
+	gibt es sonst noch ein JJM-N NN-M ;
+	sonst welche NNS sind JJ-P ;
+	sonst welche NNS-M sind JJ-P ;
+	sonst welche JJE-P NNS ;
+	sonst welche JJE-P NNS-M ;
+	gibt es noch JJE-P NNS ;
+	gibt es noch JJE-P NNS-M ;
+	gibt es sonst noch JJE-P NNS ;
+	gibt es sonst noch JJE-P NNS-M ;
+	sonst welche NNS sind JJ-N ;
+	sonst welche NNS-M sind JJ-N ;
+	sonst welche JJE-N NNS ;
+	sonst welche JJE-N NNS-M ;
+	gibt es noch JJE-N NNS ;
+	gibt es noch JJE-N NNS-M ;
+	gibt es sonst noch JJE-N NNS ;
+	gibt es sonst noch JJE-N NNS-M ;
+	welche JJE-P NN gibt es sonst außer NNP ;
+	welcher JJM-P NN gibt es sonst außer NNP ;
+	welche JJE-P NN gibt es sonst noch außer NNP ;
+	welcher JJM-P NN gibt es sonst noch außer NNP ;
+	sonst welche JJE-P NN gibt es außer NNP ;
+	sonst welcher JJM-P NN gibt es außer NNP ;
+	sonst noch welche JJE-P NN gibt es außer NNP ;
+	sonst noch welcher JJM-P NN gibt es außer NNP ;
+	sonst welche JJE-P NN außer NNP ;
+	sonst welcher JJM-P NN außer NNP ;
+	sonst noch welche JJ-P NN außer NNP ;
+	sonst noch welcher JJM-P NN außer NNP ;
+	welche JJE-N NN gibt es sonst außer NNP ;
+	welcher JJM-N NN gibt es sonst außer NNP ;
+	welche JJE-N NN gibt es sonst noch außer NNP ;
+	welcher JJM-N NN gibt es sonst noch außer NNP ;
+	sonst welche JJE-N NN gibt es außer NNP ;
+	sonst welcher JJM-N NN gibt es außer NNP ;
+	sonst noch welche JJE-N NN gibt es außer NNP ;
+	sonst noch welcher JJM-N NN gibt es außer NNP ;
+	sonst welche JJE-N NN außer NNP ;
+	sonst welcher JJM-N NN außer NNP ;
+	sonst noch welche JJE-N NN außer NNP ;
+	sonst noch welcher JJM-N NN außer NNP ;
+	sonst noch welche NN ist JJ-P ;
+	sonst noch welcher NN-M ist JJ-P ;
+	sonst noch welche NN ist JJ-N ;
+	sonst noch welcher NN-M ist JJ-N ;
+	welche NN ist JJR-P ;
+	welcher NN-M ist JJR-P ;
+	welche NN ist JJR-N ;
+	welcher NN-M ist JJR-N ;
+	ELS noch was ;
+	ELS noch etwas ;
+}
+
+{
+ask.ELS
+	(ask ELS) ;
+}
+
+{
+find.ELS
+	(find ELS) ;
+}
+
+{
+(ask)
+	(V0=0) intro noanswers ;
+	(V0>0) intro yesanswers ;
+}
+
+{
+(find)
+	(V0=0) cantfind ;
+	(V0=1) oneitem V1 ;
+	(V0=2) twoitems V1 and V2 ;
+	(V0>2) manyitems forinstance V1 ;
+}
+
+{
+(ask ELS)
+	(V0=0) intro noanswers ;
+	(V0>0) intro yesanswers ;
+}
+
+{
+(find ELS)
+	(V0=0) cantfind ;
+	(V0=1) oneitem V1 ;
+	(V0=2) twoitems V1 and V2 ;
+	(V0>2) manyitems forinstance V1 ;
+}
+
+{
+intro
+	Ich glaube, dass ;
+	Es sieht so aus, dass ;
+	Es scheint, dass ;
+	Es scheint so, dass ;
+}
+
+{
+yesanswers
+	das stimmt ;
+	das richtig ist ;
+	das wahr ist ;
+}
+
+{
+noanswers
+	das nicht stimmt ;
+	das nicht richtig ist ;
+	das falsch ist ;
+}
+
+{
+cantfind
+	Ich finde keine Antwort ;
+	Ich kann keine Antwort finden ;
+	Es scheint, dass ich keine Antworten finde ;
+	Es sieht aus, dass es keine Antwort gibt ;
+}
+
+{
+oneitem
+	das kann sein ;
+	das ist möglich ;
+	das ist richtig ;
+}
+
+{
+twoitems
+	es gibt zwei Antworten, ;
+	es gibt genau zwei Antworten, ;
+	es gibt zwei Möglichkeiten, ;
+	zwei Lösungen, ;
+	es gibt zwei Wahlen, ;
+}
+
+{
+manyitems
+	es gibt viele Lösungen, ;
+	manche Antworten finden Sie hier, ;
+	es gibt viele Arten von Antworten, ;
+	hier haben Sie verschiedene Lösungen, ;
+	es liegt eine Menge von Antworten, ;
+}
+
+{
+forinstance
+	zum Beispiel ;
+	beispielsweise ;
+	Beispiele ;
+	zum Exempel ;
+	eine ist ;
+	ein Beispiel ist ;
+}
+
+{
+command
+	list ;
+	cat ;
+}
+
+{
+system
+	pc ;
+	linux ;
+}

@@ -1,85 +1,44 @@
-/*
-   Jaivox version 0.4 April 2013
-   Copyright 2010-2013 by Bits and Pixels, Inc.
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-package com.jaivox.synthesizer.freetts;
+package com.jaivox.recognizer.web;
 
 import com.jaivox.agent.Server;
 import com.jaivox.agent.Session;
 import com.jaivox.agent.TestResponder;
 import com.jaivox.util.Log;
 import java.net.Socket;
-import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-
 /**
- * SynthServer is an synthesizer server. In a typical application, this
- * server communicates with an interpreter and gets requests to speak.
- * This package uses Free Tts. See comments in Synthesizer for the
- * correct way to specify the CLASSPATH to use freetts.jar (the location
- * of the jar file is used by freetts to locate some other files, thus
- * you need to set that path explicity in the CLASSPATH.)
+ * This server is wrapped by a SpeechInput class, so that recognized
+ * strings can be sent through this agent's sessions.
  */
 
-public class SynthServer extends Server implements Runnable {
+public class WebAsrServer extends Server implements Runnable {
 	int waitTime = 5000;
 
-	String basedir;
-	Properties kv;
-	Synthesizer Synth;
-
-
 /**
- * The Sythensizer may need information from some files.
- * Here the server sets some variables that can be accessed by
- * the SynthResponder when creating an Synthesizer class
-@param name
+ * Create a server listening at a designated port
 @param port
-@param base
-@param kv	Properties for the Synthpreter
  */
-
-	public SynthServer (String name, int port, String base, Properties pp) {
-		super (name, port);
-		basedir = base;
-		kv = pp;
-		Synth = new Synthesizer (base, kv);
-	}
-
-
-/**
- * Creates an SynthServer that listens on the designated port
-@param port	socket listens on this port
- */
-	public SynthServer (int port) {
+	public WebAsrServer (int port) {
 		super (port);
 	}
-
+	
 /**
- * Crates an SynthServer with a specific name, that listens at
- * the specified port
-@param name	Name of the server (used in messages)
-@param port socket listens on this port
+ * Create a server with a specific name that listens at a designated port
+@param name
+@param port
  */
-
-	public SynthServer (String name, int port) {
+	
+	public WebAsrServer (String name, int port) {
 		super (name, port);
 	}
-
+	
+/**
+ * Run the agent's thread, making connections on requests to create
+ * a speech session
+ */
 	public void run () {
 		try {
 			while (true) {
@@ -87,23 +46,16 @@ public class SynthServer extends Server implements Runnable {
 				int count = getIdCount ();
 				String id = Name+"_"+getIdCount ();
 				setIdCount (count+1);
-				SynthResponder r = new SynthResponder (basedir, kv, Synth);
-				SynthSession ias = new SynthSession (id, this, link, r);
+				WebAsrResponder r = new WebAsrResponder ();
+				SpeechSession ias = new SpeechSession (id, this, link, r);
 				addSession (ias);
 				Log.info ("Added client "+ias.getSid ());
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace ();
-			Log.severe (Name+" "+e.toString ());
+			Log.severe (Name+e.toString ());
 		}
 	}
-
-/**
- * Execute agent-based commands to connect, disconnect and perform
- * other actions
-@param command
- */
 
 	public void execute (String command) {
 		try {
@@ -124,11 +76,11 @@ public class SynthServer extends Server implements Runnable {
 				Socket link = new Socket (host, port);
 				int count = sessionCount ();
 				String id = Name+"_"+count;
-				SynthResponder rtest = new SynthResponder (basedir, kv, Synth);
-				SynthSession ias = new SynthSession (id, this, link, rtest);
+				WebAsrResponder rtest = new WebAsrResponder ();
+				SpeechSession ias = new SpeechSession (id, this, link, rtest);
 				rtest.setOwner (ias);
 				addSession (ias);
-				Log.info ("Made connection client id "+id);
+				Log.fine ("Made connection client id "+id);
 			}
 			else if (command.startsWith ("disconnect")) {
 				if (ntok != 2) {
@@ -169,8 +121,11 @@ public class SynthServer extends Server implements Runnable {
 					sb.append (tokens.elementAt (i));
 				}
 				String message = new String (sb);
+				// String req = "{action: send, from: "+getId ()+", to: "+ias.getSid ();
+				// req += ", message: "+message+"}";
+				// send a terminate message to the session
 				ias.outbuffer = message;
-				// Log.fine ("sending \""+message+"\" to "+id);
+				Log.fine ("sending \""+message+"\" to "+id);
 				if (message.equals (TestResponder.terminateRequest)) {
 					sleep (waitTime);
 					ias.terminate ();
@@ -197,7 +152,7 @@ public class SynthServer extends Server implements Runnable {
 			}
 		}
 		catch (Exception e) {
-			Log.severe ("Synthserver: execute "+e.toString ());
+			Log.severe ("sphinxServer:execute "+e.toString ());
 		}
 	}
 
@@ -206,7 +161,7 @@ public class SynthServer extends Server implements Runnable {
 @param command
 @return
  */
-
+	
 	public String executeReply (String command) {
 		try {
 			Vector <String> tokens = new Vector <String> ();
@@ -226,15 +181,15 @@ public class SynthServer extends Server implements Runnable {
 				Socket link = new Socket (host, port);
 				int count = sessionCount ();
 				String id = Name+"_"+count;
-				SynthResponder rtest = new SynthResponder ();
-				SynthSession ias = new SynthSession (id, this, link, rtest);
+				WebAsrResponder rtest = new WebAsrResponder ();
+				SpeechSession ias = new SpeechSession (id, this, link, rtest);
 				rtest.setOwner (ias);
 				addSession (ias);
 				return ("OK: Made connection client id "+id);
 			}
 			else if (command.startsWith ("disconnect")) {
 				if (ntok != 2) {
-					return ("Error: Syntax: disconnect sessionid");
+					return ("Error: Sytax: disconnect sessionid");
 				}
 				String id = tokens.elementAt (1);
 				Session ias = findSession (id);
@@ -303,24 +258,15 @@ public class SynthServer extends Server implements Runnable {
 			}
 		}
 		catch (Exception e) {
-			Log.severe ("SynthServer:executeReply "+e.toString ());
+			Log.severe ("sphinxServer:executeReply "+e.toString ());
 			return ("Error: "+e.toString ());
 		}
 	}
 
-/**
- * Returns a pointer to the Synthesizer used by this agent
- */
-	public Synthesizer getSynthesizer () {
-		return Synth;
-	}
-
-/**
- * Sets a particular synthesizer to be used by this agent.
-@param synth
- */
-	public void setSynthesizer (Synthesizer synth) {
-		Synth = synth;
+	public static void main (String args []) {
+		String name = args [0];
+		int port = Integer.parseInt (args [1]);
+		new WebAsrServer (name, port);
 	}
 
 }
