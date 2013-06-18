@@ -16,6 +16,7 @@
 */
 
 package com.jaivox.tools;
+
 import com.jaivox.util.Log;
 
 /**
@@ -35,6 +36,10 @@ public class Jvgen {
 			return;
 		}
 		Generator gen = new Generator (args [0]);
+		if (!gen.Valid) {
+			System.out.println ("Invalid specifications, generation is incomplete.");
+			return;
+		}
 		if (args.length > 1) {
 			if (args[1].toLowerCase ().equals ("-update")) {
 				gen.updateLmQuestions ();
@@ -44,7 +49,6 @@ public class Jvgen {
 			}
 		}
 		else {
-			gen.generateAll ();
 			gen.createQuestions ();
 			gen.createCustomCommands ();
 		}

@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import com.jaivox.util.Log;
 
 public class SpeechInput {
 
@@ -67,21 +68,21 @@ public class SpeechInput {
 				String result = new String (sb);
 				int pos = result.indexOf (utt);
 				if (pos == -1) {
-					System.out.println (flacfile+"\tNo utt result");
+					Log.severe (flacfile+"\tNo utt result");
 					return "error";
 				}
 				int qos = result.indexOf (first, pos+1);
 				if (qos == -1) {
-					System.out.println (flacfile+"\tNo first result");
+					Log.severe (flacfile+"\tNo first result");
 					return "error";
 				}
 				int ros = result.indexOf (second, qos+1);
 				if (ros == -1) {
-					System.out.println (flacfile+"\tNo second result");
+					Log.severe (flacfile+"\tNo second result");
 					return "error";
 				}
 				recognized = result.substring (qos+3, ros);
-				System.out.println (flacfile+"\t"+recognized);
+				Log.info (flacfile+"\t"+recognized);
 			}
 			return recognized;
 		}

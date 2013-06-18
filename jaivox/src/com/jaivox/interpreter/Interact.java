@@ -103,7 +103,7 @@ public class Interact {
  * recognizer is not doing too well.
  */
 	void initialize () {
-		String stub = "Interact";
+		String stub = null;
 		String temp = kv.getProperty ("recorder_name");
 		if (temp != null) stub = temp;
 		Record = new Recorder (stub);
@@ -128,7 +128,7 @@ public class Interact {
  */
 	
 	public Interact () {
-		Record = new Recorder ("interpreter");
+		Record = new Recorder ("interact");
 		gen = new Script (this);
 	}
 

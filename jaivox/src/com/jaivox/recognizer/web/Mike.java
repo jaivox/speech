@@ -5,6 +5,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Timer;
+import com.jaivox.util.Log;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -36,7 +37,7 @@ public class Mike extends Thread {
 		}
 		catch (Exception e) {
 			e.printStackTrace ();
-			System.out.println ("Sorry: could not create recorder");
+			Log.severe ("Sorry: could not create recorder");
 			return;
 		}
 	}
@@ -47,7 +48,7 @@ public class Mike extends Thread {
 			long wait = (long)seconds * 1000L;
 			String soundfile = stub + "_" + lcount + format;
 			capture = new MikeCapture (this, soundfile);
-			showtime ("Before scheduling");
+			// showtime ("Before scheduling");
 			timer.schedule (capture, wait, period);
 			showtime ("Before recording");
 			capture.startrecording ();
@@ -59,8 +60,8 @@ public class Mike extends Thread {
 			return result;
 		}
 		catch (Exception e) {
-			System.out.println ("Error trying to record");
 			e.printStackTrace ();
+			Log.severe ("Error trying to record");
 			return "error";
 		}
 	}
@@ -100,7 +101,7 @@ public class Mike extends Thread {
 		try {
 			channel.close ();
 			timer.cancel ();
-	   		showtime ("Stopped the timer");
+	   		// showtime ("Stopped the timer");
 		}
 		catch (Exception e) {
 			e.printStackTrace ();

@@ -22,6 +22,9 @@ db: is an application that queries the cookie sqlite database (this is created b
 
 find: is another application that searches files using the "find" command.
 
+gentest: contains various configuration files for generating with different
+	recognizer and synthesizer combinations.
+
 google: compares google's speech recognition and Sphinx4 recognition
 	on the same data.
 

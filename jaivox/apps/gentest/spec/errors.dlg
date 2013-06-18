@@ -1,0 +1,469 @@
+
+// errorTag is defined in Script
+
+{
+errortag
+	sorry, there is an error ;
+	i apologize but there is an error ;
+	we can not continue due to an error ;
+	there is some problem with recognition ;
+	please try again later, we are experiencing problems ;
+}
+
+
+{
+[bm1_bm2]
+	bm1 ;
+	badmatch ;
+	apology1 nobmquit ;
+	def ;
+}
+
+{
+[bm1_gm1]
+	bm1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[bm1_nm1]
+	bm1 ;
+	nomatch ;
+	apology1 nonmquit ;
+	def ;
+}
+
+{
+[bm1_no1]
+	bm1 ;
+	noinput ;
+	apology1 nonoquit ;
+	def ;
+}
+
+{
+[bm1_om1]
+	bm1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[nm1_bm1]
+	nm1 ;
+	badmatch ;
+	apology1 nobmquit ;
+	def ;
+}
+
+{
+[nm1_gm1]
+	nm1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[nm1_nm2]
+	nm1 ;
+	nomatch ;
+	apology1 nonmquit ;
+	def ;
+}
+
+{
+[nm1_no1]
+	nm1 ;
+	noinput ;
+	apology1 nonoquit ;
+	def ;
+}
+
+{
+[nm1_om1]
+	nm1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[no1_bm1]
+	no1 ;
+	badmatch ;
+	apology1 nobmquit ;
+	def ;
+}
+
+{
+[no1_gm1]
+	no1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[no1_nm1]
+	no1 ;
+	nomatch ;
+	apology1 nonmquit ;
+	def ;
+}
+
+{
+[no1_no2]
+	no1 ;
+	noinput ;
+	apology1 nonoquit ;
+	def ;
+}
+
+{
+[no1_om1]
+	no1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[om1_bm1]
+	om1 ;
+	badmatch ;
+	apology1 promptbm1 ;
+	bm1 ;
+}
+
+{
+[om1_gm1]
+	om1 ;
+	goodmatch ;
+	(exec last) ;
+	def ;
+}
+
+{
+[om1_nm1]
+	om1 ;
+	nomatch ;
+	apology1 promptnm1 ;
+	nm1 ;
+}
+
+{
+[om1_no1]
+	om1 ;
+	noinput ;
+	apology1 promptno1 ;
+	no1 ;
+}
+
+{
+[om1_om2]
+	om1 ;
+	okmatch ;
+	prompt (quote last) ;
+	om2 ;
+}
+
+{
+[zzzzstate_bm1]
+	zzzzstate ;
+	badmatch ;
+	apology1 promptbm1 ;
+	bm1 ;
+}
+
+{
+[zzzzstate_gm1]
+	zzzzstate ;
+	goodmatch ;
+	(exec this) ;
+	def ;
+}
+
+{
+[zzzzstate_nm1]
+	zzzzstate ;
+	nomatch ;
+	apology1 promptnm1 ;
+	nm1 ;
+}
+
+{
+[zzzzstate_no1]
+	zzzzstate ;
+	noinput ;
+	apology1 promptno1 ;
+	no1 ;
+}
+
+// confirmation sequences
+
+{
+[zzzzstate_om1]
+	zzzzstate ;
+	okmatch ;
+	prompt (quote last) ;
+	om1 ;
+}
+
+{
+[om1_nok1]
+	om1 ;
+	notokmatch ;
+	apology1 repeatyn ;
+	nok1 ;
+}
+
+{
+[om1_nok1_nok2]
+	nok1 ;
+	notokmatch ;
+	apology2 repeatyn ;
+	nok2 ;
+}
+
+{
+[om1_nok1_nok2_q]
+	nok2 ;
+	notokmatch ;
+	apology2 nomatchquit ;
+	def ;
+}
+
+{
+[om1_om2]
+	om1 ;
+	okmatch ;
+	(exec this) ;
+	def ;
+}
+
+{
+[om1_y]
+	om1 ;
+	yes.continue ;
+	(exec last) ;
+	def ;
+}
+
+{
+[om1_n]
+	om1 ;
+	no.continue ;
+	prompt (quote last) ;
+	om2 ;
+}
+
+{
+[om1_om2_y]
+	om2 ;
+	yes.continue ;
+	(exec last) ;
+	def ;
+}
+
+{
+[om1_om2_n]
+	om2 ;
+	no.continue ;
+	apology2 nomatchquit ;
+	def ;
+}
+
+{
+noinput
+	(match<10) ;
+}
+
+{
+nomatch
+	(match<30) ;
+}
+
+{
+badmatch
+	(match>29) (match<60) ;
+}
+
+{
+okmatch
+	(match>59) (match<80) ;
+}
+
+{
+goodmatch
+	(match>79) ;
+}
+
+{
+notokmatch
+	(match<50) ;
+}
+
+{
+noinputquit
+	apology1 i cannot hear you, please try later ;
+	apology2 i still cannot hear you, perhaps you can try later ;
+	apology2 i guess the system has some problems, please contact the admin ;
+}
+
+{
+promptno1
+	i cannot hear you ;
+	apology1 i cannot hear your question ;
+	apology1 i could not hear you, can you ask again ;
+}
+
+{
+promptno2
+	apology2 i still cannot hear you ;
+	apology2 there may be a problem, i cannot hear you at all ;
+	apology2 please ask again ;
+}
+
+{
+promptnm1
+	apology1 i cannot make out your question, please ask again ;
+	apology1 i could not figure out your question, can you ask again ;
+}
+
+{
+promptnm2
+	apology2 now I cannot hear you, please ask again ;
+	apology2 but I cannot hear you ;
+	apology1 i guess now we have an audio problem, please try again ;
+}
+
+{
+promptbm1
+	apology1 i cannot make out your question, please ask again ;
+	apology1 i could not figure out your question, can you ask again ;
+}
+
+{
+promptbm2
+	apology2 now I cannot hear you, please ask again ;
+	apology2 but I cannot hear you ;
+	apology1 i guess now we have an audio problem, please try again ;
+}
+
+{
+nomatchquit
+	apology2 seems like I cannot understand what you are saying ;
+	apology2 probably the recognizer is not working right ;
+	apology2 could be a problem with the microphone, but I cannot recognize anything ;
+}
+
+{
+nonmquit
+	apology2 i guess i could not figure out your question, please try later ;
+	apologymore i think this will not work, please contact the admin ;
+}
+
+{
+nonoquit
+	apologymore i think there is no wa to do this, sorry about this. ;
+	apologymore well it does not look like this will work, sorry. ;
+}
+
+{
+nobmquit
+	apology2 i guess i could not figure out your question, please try later ;
+	apologymore i think this will not work, please contact the admin ;
+}
+
+{
+prompt
+	is your query ;
+	are you asking ;
+}
+
+{
+repeatyn
+	again, are you asking ;
+	once more, is your question ;
+}
+
+{
+yes.more
+	yes there are more ;
+	yes there is more ;
+}
+
+{
+no.more
+	no there are no more ;
+	no more solutions ;
+}
+
+// included for testing matchNode
+
+{
+confirmation
+	yes.continue pull.stack ;
+	no.continue ask.another ;
+}
+
+{
+yes.continue
+	yes ;
+	yeah ;
+	yup ;
+	okay ;
+	i guess ;
+	go on ;
+	i think so ;
+}
+
+{
+no.continue
+	nope ;
+	nah ;
+	i dont think so ;
+	i guess not ;
+	that is not correct ;
+	not ;
+}
+
+{
+pull.stack
+	the question is what i asked ;
+	returning to recognized question ;
+}
+
+{
+ask.another
+	apology1 Can you ask another question ;
+	apology1 Perhaps i can try another question ;
+}
+
+{
+apology1
+	i am sorry ;
+	i am really sorry ;
+	i apologize ;
+	sorry about this ;
+}
+
+{
+apology2
+	i am so sorry ;
+	sorry to ask again ;
+	i must apologize ;
+	my apologies ;
+}
+
+{
+apologymore
+	i am extremely sorry ;
+	i must truly apologize ;
+	my most profound regrets ;
+}
+

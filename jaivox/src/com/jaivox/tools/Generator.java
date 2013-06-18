@@ -45,13 +45,13 @@ import java.util.TreeMap;
 public class Generator {
 
 	static Properties kv;
-	
+
 /**
  * Patterns to be replaced in templates start with patIndicator,
  * the default value is "PAT"
  */
 	public static String patIndicator = "PAT";
-	
+
 	Set <String> keys;
 	String source = "./";
 	String common = "./";
@@ -59,50 +59,115 @@ public class Generator {
 	String dir_recognizer;
 	String dir_interpreter;
 	String dir_synthesizer;
-	String onefile;
 	boolean onedir = false;
 	boolean overwrite = false;
 
-	static String templates [] = {
+/**
+ * Options are essentially
+ * iomode: live, batch, console
+ * directories: one or multiple
+ * recognizer: sphinx or web
+ * synthesizer: festival or one of (freetts, espeak, web)
+ */
+
+	String input;
+	String recognizer;
+	String synthesizer;
+
+	static String patFiles [] = {
+		"batchMultiWeb.java",
+		"batchOneSphinx.java",
+		"batchOneWeb.java",
+		"batch.xml",
+		"consoleTest.java",
+		"CxxResponder.cc",
+		"CxxServer.cc",
+		"CxxSession.cc",
 		"interpreterTest.java",
+		"liveMultiWeb.java",
+		"liveOneSphinx.java",
+		"liveOneWeb.java",
+		"live.xml",
+		"lmgen.sh",
+		"project.config.xml",
+		"recognizerBatchTest.java",
+		"recognizerTest.java",
+		"synthesizerTest.java"
+	};
+
+	static String LiveOneSphinx [] = {
+		"live.xml",
+		"liveOneSphinx.java",
+		"lmgen.sh",
+		"ccs.ccs"
+	};
+
+	static String LiveOneWeb [] = {
+		"liveOneWeb.java",
+	};
+
+	static String LiveMultiSphinx [] = {
 		"recognizerTest.java",
 		"project.config.xml",
 		"lmgen.sh",
-		"runinter.sh",
-		"runsphinx.sh"
+		"ccs.ccs"
 	};
-	
-	static String festival [] = {
+
+	static String LiveMultiWeb [] = {
+		"liveMultiWeb.java"
+	};
+
+
+	static String MultiFestival [] = {
 		"CxxServer.cc",
 		"CxxResponder.cc",
-		"CxxSession.cc"
-		};
-	
-	static String freetts [] = {
+		"CxxSession.cc",
+		"CxxData.cc",
+		"CxxSocket.cc",
+		"CxxThread.cc",
+		"CxxData.h",
+		"CxxResponder.h",
+		"CxxServer.h",
+		"CxxSession.h",
+		"CxxSocket.h",
+		"CxxThread.h",
+		"makefile"
+	};
+
+	static String MultiSynthesizer [] = {
 		"synthesizerTest.java",
-		"compsynth.sh",
-		"runsynth.sh"
 	};
-	
-	static String batch [] = {
+
+
+	static String BatchOneSphinx [] = {
 		"batch.xml",
-		"batchTest.java",
+		"batchOneSphinx.java",
 		"lmgen.sh",
-		"compbatch.sh",
-		"runbatch.sh",
 		"ccs.ccs"
 	};
-	
-	static String live [] = {
-		"live.xml",
-		"liveTest.java",
+
+	static String BatchOneWeb [] = {
+		"batchOneWeb.java",
+	};
+
+	static String BatchMultiSphinx [] = {
+		"recognizerBatchTest.java",
+		"batch.xml",
 		"lmgen.sh",
-		"complive.sh",
-		"runlive.sh",
 		"ccs.ccs"
 	};
-	
-	static String console [] = {
+
+	static String BatchMultiWeb [] = {
+		"batchMultiWeb.java"
+	};
+
+
+	static String MultiInterpreter [] = {
+		"interpreterTest.java"
+	};
+
+
+	static String Console [] = {
 		"consoleTest.java"
 	};
 
@@ -113,70 +178,808 @@ public class Generator {
 	String commandName;
 	String commandFile;
 	Questgen qg;
+	TreeMap <String, Integer> patternFiles;
 	static Integer One = new Integer (1);
 
+	public boolean Valid = false;
 
-
-/**
- * Generate files based on a configuration file
-@param confname
- */
 	public Generator (String confname) {
 		new Config (confname);
 		kv = Config.kv;
+
+		patternFiles = new TreeMap <String, Integer> ();
+		for (int i=0; i<patFiles.length; i++) {
+			patternFiles.put (patFiles [i], One);
+		}
+
+		String project = kv.getProperty ("project");
+		if (project == null) {
+			Log.severe ("project name not specified");
+			return;
+		}
+
+		// get the basic variables
+		input = kv.getProperty ("input");
+		if (input != null && !find_required ("input", " live batch console ")) {
+			Log.severe ("input specification incorrect");
+			// return;
+		}
+		// for backward compatibility
+		if (input == null) {
+			input = kv.getProperty ("onefile");
+			if (input != null && !find_required ("onefile", " live batch console ")) {
+				Log.severe ("onefile specification incorrect");
+				return;
+			}
+		}
+		// get some basic values
+
 		String base = (String) (kv.get ("Base"));
-		String overwrite_answer = kv.getProperty ("overwrite_files");
-		if (overwrite_answer != null) {
-			if (overwrite_answer.equals ("yes")) overwrite = true;
+
+		if (!find_required ("overwrite_files", " yes no ")) {
+			Log.severe ("overwrite_files not specified correctly");
+			return;
 		}
-		String useonedir = kv.getProperty ("onedirectory");
-		if (useonedir != null) {
-			if (useonedir.equals ("yes")) onedir = true;
-		}
-		onefile = kv.getProperty ("onefile");
+		String overwritefiles = kv.getProperty ("overwrite_files");
+		overwrite = (overwritefiles.equals ("yes") ? true : false);
+
+
 		String src = kv.getProperty ("source");
 		if (src != null && !src.equals ("null")) source = base + src;
 		String cmn = kv.getProperty ("common");
 		if (cmn != null) common = base + cmn;
 		String dest = kv.getProperty ("destination");
 		if (dest != null) destination = base + dest;
+		commandName = project + "Command";
+		commandFile = destination + commandName + ".java";
+		if (!dest.endsWith (File.separator)) destination = destination + File.separator;
 		Log.info ("Source:"+source+" Common:"+common+" Dest:"+destination);
-		if (onedir) {
-			dir_interpreter = destination;
-			dir_recognizer = destination;
-			dir_synthesizer = destination;
+
+		// console is the simplified testing framework
+		if (input.equals ("console")) {
+			genConsole ();
+			Valid = true;
+			return;
+		}
+
+		if (!find_required ("onedirectory", " yes no ")) {
+			Log.severe ("onedirectory not specified correctly");
+			return;
+		}
+		String temp = kv.getProperty ("onedirectory");
+		if (temp.equalsIgnoreCase ("yes")) onedir = true;
+		else onedir = false;
+
+		if (!find_required ("recognizer", " sphinx web google ")) {
+			Log.severe ("recognizer not specified correctory");
+			return;
+		}
+		recognizer = kv.getProperty ("recognizer");
+
+		if (!find_required ("synthesizer", " festival espeak freetts web ")) {
+			Log.severe ("synthesizer not specified correctory");
+			return;
+		}
+		synthesizer = kv.getProperty ("synthesizer");
+
+
+		// from here we branch according to combination values. there
+		// are 24 possible combinations as of now (May 2013).
+
+		if (input.equals ("live")) {
+			if (onedir) {
+				dir_interpreter = destination;
+				dir_recognizer = destination;
+				dir_synthesizer = destination;
+				// create custom command file name
+				// Use the directory name to create Command name
+				commandName = project + "Command";
+				commandFile = dir_interpreter + commandName + ".java";
+				if (recognizer.equals ("sphinx")) {
+					if (synthesizer.equals ("festival")) {
+						genLiveOneSphinxFestival ();
+						return; // error
+					}
+					else if (!synthesizer.equals ("festival")) {
+						genLiveOneSphinxSynthesizer ();
+					}
+					else {
+						Log.severe ("Invalid synthesizer "+synthesizer);
+						return;
+					}
+				}
+				else if (recognizer.equals ("web") || recognizer.equals ("google")) {
+					if (synthesizer.equals ("festival")) {
+						genLiveOneWebFestival ();
+						return; // error
+					}
+					else {
+						genLiveOneWebSynthesizer ();
+					}
+				}
+				else {
+					Log.severe ("Invalid recognizer "+ recognizer);
+					return;
+				}
+			}
+			else {
+				// get the directories for recognizer, synthesizer and interpreter
+				String dirinter = kv.getProperty ("dir_interpreter");
+				if (dirinter == null) {
+					Log.severe ("dir_interpreter not specified");
+					return;
+				}
+				String dirrecog = kv.getProperty ("dir_recognizer");
+				if (dirrecog == null) {
+					Log.severe ("dir_recognizer not specified");
+					return;
+				}
+				String dirsynth = kv.getProperty ("dir_synthesizer");
+				if (dirsynth == null) {
+					Log.severe ("dir_synthesizer not specified");
+					return;
+				}
+				dir_interpreter = destination + dirinter + "/";
+				dir_recognizer = destination + dirrecog + "/";
+				dir_synthesizer = destination + dirsynth + "/";
+				// create custom command file name
+				// Use the directory name to create Command name
+				commandName = project + "Command";
+				commandFile = dir_interpreter + commandName + ".java";
+				if (recognizer.equals ("sphinx")) {
+					if (synthesizer.equals ("festival")) {
+						genLiveMultiSphinxFestival ();
+					}
+					else {
+						genLiveMultiSphinxSynthesizer ();
+					}
+				}
+				else if (recognizer.equals ("web") || recognizer.equals ("google")) {
+					if (synthesizer.equals ("festival")) {
+						genLiveMultiWebFestival ();
+					}
+					else {
+						genLiveMultiWebSynthesizer ();
+					}
+				}
+				else {
+					Log.severe ("Invalid recognizer "+ recognizer);
+					return;
+				}
+
+			}
+		}
+		else if (input.equals ("batch")) {
+			if (onedir) {
+				dir_interpreter = destination;
+				dir_recognizer = destination;
+				dir_synthesizer = destination;
+				// create custom command file name
+				// Use the directory name to create Command name
+				commandName = project + "Command";
+				commandFile = dir_interpreter + commandName + ".java";
+				if (recognizer.equals ("sphinx")) {
+					if (synthesizer.equals ("festival")) {
+						genBatchOneSphinxFestival ();
+						return; // error
+					}
+					else {
+						genBatchOneSphinxSynthesizer ();
+					}
+				}
+				else if (recognizer.equals ("web") || recognizer.equals ("google")) {
+					if (synthesizer.equals ("festival")) {
+						genBatchOneWebFestival ();
+						return; // error
+					}
+					else {
+						genBatchOneWebSynthesizer ();
+					}
+				}
+				else {
+					Log.severe ("Invalid recognizer "+ recognizer);
+					return;
+				}
+			}
+			else {
+				// get the directories for recognizer, synthesizer and interpreter
+				String dirinter = kv.getProperty ("dir_interpreter");
+				if (dirinter == null) {
+					Log.severe ("dir_interpreter not specified");
+					return;
+				}
+				String dirrecog = kv.getProperty ("dir_recognizer");
+				if (dirrecog == null) {
+					Log.severe ("dir_recognizer not specified");
+					return;
+				}
+				String dirsynth = kv.getProperty ("dir_synthesizer");
+				if (dirsynth == null) {
+					Log.severe ("dir_synthesizer not specified");
+					return;
+				}
+				dir_interpreter = destination + dirinter + "/";
+				dir_recognizer = destination + dirrecog + "/";
+				dir_synthesizer = destination + dirsynth + "/";
+				// create custom command file name
+				// Use the directory name to create Command name
+				commandName = project + "Command";
+				commandFile = dir_interpreter + commandName + ".java";
+				if (recognizer.equals ("sphinx")) {
+					if (synthesizer.equals ("festival")) {
+						genBatchMultiSphinxFestival ();
+					}
+					else {
+						genBatchMultiSphinxSynthesizer ();
+					}
+				}
+				else if (recognizer.equals ("web") || recognizer.equals ("google")) {
+					if (synthesizer.equals ("festival")) {
+						genBatchMultiWebFestival ();
+					}
+					else {
+						genBatchMultiWebSynthesizer ();
+					}
+				}
+				else {
+					Log.severe ("Invalid recognizer "+ recognizer);
+					return;
+				}
+
+			}
+
 		}
 		else {
-			dir_interpreter = destination + kv.getProperty ("dir_interpreter") + "/";
-			dir_recognizer = destination + kv.getProperty ("dir_recognizer") + "/";
-			dir_synthesizer = destination + kv.getProperty ("dir_synthesizer") + "/";
+			Log.severe ("Cannot generate from specified options.");
+			return;
 		}
-		// Use the directory name to create Command name
-		commandName = kv.getProperty ("project") + "Command";
-		commandFile = dir_interpreter + commandName + ".java";
-
+		Valid = true;
 	}
 
-/**
- * generate everything, i.e. speech, festival and interpreter agents,
- * and files required by these agents.
- */
-	public void generateAll () {
-			// branch away if a single file generation
-		if (onefile != null) {
-			if (onefile.equals ("batch")) {
-				generateBatch ();
+	boolean find_required (String name, String matches) {
+		String val = kv.getProperty (name);
+		if (val == null) {
+			Log.severe (""+name+" not specified, should be one of:" + matches);
+			return false;
+		}
+		// pad value with spaces
+		String test = " "+val+" ";
+		int pos = matches.indexOf (test);
+		if (pos == -1) {
+			Log.severe (""+name+" should be one of" + matches);
+			return false;
+		}
+		else return true;
+	}
+
+
+	void genLiveOneSphinxFestival () {
+		Log.severe ("Currently we cannot combine Festival with Sphinx in one file.");
+		Valid = false;
+		return;
+	}
+
+	void genLiveOneSphinxSynthesizer () {
+		boolean ok = false;
+		try {
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+
+			String livename = kv.getProperty ("live");
+			if (livename == null) {
+				kv.setProperty ("live", "live");
+			}
+			for (int i=0; i<LiveOneSphinx.length; i++) {
+				String name = LiveOneSphinx [i];
+				tpls.put (name, yes);
+				ok = generateFile (destination, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, destination, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, destination, commonwords)) {
+				Log.severe ("Could not copy common words file");
 				return;
 			}
-			else if (onefile.equals ("live")) {
-				generateLive ();
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, destination, specs)) {
+				Log.severe ("Could not copy specifications file");
 				return;
 			}
-			else if (onefile.equals ("console")) {
-				generateConsole ();
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, destination, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, destination, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
 				return;
 			}
 		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genLiveOneWebFestival () {
+		Log.severe ("Currently we cannot combine festival with web recognizer in one file.");
+		Valid = false;
+		return;
+	}
+
+	void genLiveOneWebSynthesizer () {
+		boolean ok = false;
+		try {
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+
+			String livename = kv.getProperty ("live");
+			if (livename == null) {
+				kv.setProperty ("live", "live");
+			}
+			for (int i=0; i<LiveOneWeb.length; i++) {
+				String name = LiveOneWeb [i];
+				tpls.put (name, yes);
+				ok = generateFile (destination, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, destination, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, destination, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, destination, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, destination, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, destination, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genLiveMultiSphinxFestival () {
+		boolean ok = false;
+		try {
+			// File src = new File (source);
+			File src = new File (common);
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			if (!onedir) {
+				fd = new File (dir_interpreter);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_recognizer);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_synthesizer);
+				if (!fd.exists ()) fd.mkdirs ();
+			}
+			// String files [] = src.list ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
+				tpls.put (name, yes);
+				String dest = dir_interpreter;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			for (int i=0; i<LiveMultiSphinx.length; i++) {
+				String name = LiveMultiSphinx [i];
+				String dest = dir_recognizer;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, dir_interpreter, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+
+			generateFestival ();
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genLiveMultiSphinxSynthesizer () {
+		boolean ok = false;
+		try {
+			// File src = new File (source);
+			File src = new File (common);
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			if (!onedir) {
+				fd = new File (dir_interpreter);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_recognizer);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_synthesizer);
+				if (!fd.exists ()) fd.mkdirs ();
+			}
+			// String files [] = src.list ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
+				tpls.put (name, yes);
+				String dest = dir_interpreter;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			for (int i=0; i<LiveMultiSphinx.length; i++) {
+				String name = LiveMultiSphinx [i];
+				String dest = dir_recognizer;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, dir_interpreter, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+
+			generateSynthesizer ();
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genLiveMultiWebFestival () {
+		boolean ok = false;
+		try {
+			// File src = new File (source);
+			File src = new File (common);
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			if (!onedir) {
+				fd = new File (dir_interpreter);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_recognizer);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_synthesizer);
+				if (!fd.exists ()) fd.mkdirs ();
+			}
+			// String files [] = src.list ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
+				tpls.put (name, yes);
+				String dest = dir_interpreter;
+				if (name.startsWith ("recognizer") || name.endsWith (".config.xml") ||
+				name.equals (lmtool)) dest = dir_recognizer;
+				else if (name.equals (runsphinx)) dest = dir_recognizer;
+				else if (name.equals (runinter)) dest = dir_interpreter;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			for (int i=0; i<LiveMultiWeb.length; i++) {
+				String name = LiveMultiWeb [i];
+				if (tpls.get (name) != null) continue;
+				String dest = dir_recognizer;
+				if (dest != null) {
+					ok = generateFile (dest, name);
+					if (!ok) {
+						Log.severe ("Could not generate from "+name);
+						return;
+					}
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, dir_interpreter, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+
+			generateFestival ();
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genLiveMultiWebSynthesizer () {
+		boolean ok = false;
+		try {
+			// File src = new File (source);
+			File src = new File (common);
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			if (!onedir) {
+				fd = new File (dir_interpreter);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_recognizer);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_synthesizer);
+				if (!fd.exists ()) fd.mkdirs ();
+			}
+			// String files [] = src.list ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
+				tpls.put (name, yes);
+				String dest = dir_interpreter;
+				if (name.startsWith ("recognizer") || name.endsWith (".config.xml") ||
+				name.equals (lmtool)) dest = dir_recognizer;
+				else if (name.equals (runsphinx)) dest = dir_recognizer;
+				else if (name.equals (runinter)) dest = dir_interpreter;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			for (int i=0; i<LiveMultiWeb.length; i++) {
+				String name = LiveMultiWeb [i];
+				if (tpls.get (name) != null) continue;
+				String dest = dir_recognizer;
+				if (dest != null) {
+					ok = generateFile (dest, name);
+					if (!ok) {
+						Log.severe ("Could not generate from "+name);
+						return;
+					}
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, dir_interpreter, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+
+			generateSynthesizer ();
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genBatchOneSphinxFestival () {
+		Log.severe ("Currently we cannot combine festival with Sphinx in one file.");
+		Valid = false;
+		return;
+	}
+
+	void genBatchOneSphinxSynthesizer () {
+		boolean ok = false;
+		try {
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+
+			String batchname = kv.getProperty ("batch");
+			if (batchname == null) {
+				kv.setProperty ("batch", "batch");
+			}
+			for (int i=0; i<BatchOneSphinx.length; i++) {
+				String name = BatchOneSphinx [i];
+				tpls.put (name, yes);
+				ok = generateFile (destination, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, destination, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, destination, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, destination, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, destination, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, destination, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genBatchOneWebFestival () {
+		Log.severe ("Currently we cannot combine festival with web recognizer in one file.");
+		Valid = false;
+		return;
+	}
+
+	void genBatchOneWebSynthesizer () {
+		boolean ok = false;
+		try {
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+			String batchname = kv.getProperty ("batch");
+			if (batchname == null) {
+				kv.setProperty ("batch", "batch");
+			}
+
+			for (int i=0; i<BatchOneWeb.length; i++) {
+				String name = BatchOneWeb [i];
+				tpls.put (name, yes);
+				ok = generateFile (destination, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, dir_interpreter, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genBatchMultiSphinxFestival () {
 		boolean ok = false;
 		try {
 			// File src = new File (source);
@@ -194,8 +997,8 @@ public class Generator {
 			String files [] = src.list ();
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
-			for (int i=0; i<templates.length; i++) {
-				String name = templates [i];
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
 				tpls.put (name, yes);
 				String dest = dir_interpreter;
 				if (name.startsWith ("recognizer") || name.endsWith (".config.xml") ||
@@ -208,14 +1011,87 @@ public class Generator {
 					return;
 				}
 			}
-			for (int i=0; i<files.length; i++) {
-				String name = files [i];
+			for (int i=0; i<BatchMultiSphinx.length; i++) {
+				String name = BatchMultiSphinx [i];
 				if (tpls.get (name) != null) continue;
-				String dest = null;
-				if (name.endsWith (".cc")) continue;
-				else if (name.endsWith (".h")) continue;
-				else if (name.endsWith ("ccs.ccs")) dest = dir_recognizer;
-				else if (name.endsWith ("makefile")) continue;
+				String dest = dir_recognizer;
+				if (dest != null) {
+					ok = generateFile (dest, name);
+					if (!ok) {
+						Log.severe ("Could not generate from "+name);
+						return;
+					}
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, dir_interpreter, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+
+			generateFestival ();
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genBatchMultiSphinxSynthesizer () {
+		boolean ok = false;
+		try {
+			// File src = new File (source);
+			File src = new File (common);
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			if (!onedir) {
+				fd = new File (dir_interpreter);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_recognizer);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_synthesizer);
+				if (!fd.exists ()) fd.mkdirs ();
+			}
+			String files [] = src.list ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
+				tpls.put (name, yes);
+				String dest = dir_interpreter;
+				if (name.startsWith ("recognizer") || name.endsWith (".config.xml") ||
+				name.equals (lmtool)) dest = dir_recognizer;
+				else if (name.equals (runsphinx)) dest = dir_recognizer;
+				else if (name.equals (runinter)) dest = dir_interpreter;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			for (int i=0; i<BatchMultiSphinx.length; i++) {
+				String name = BatchMultiSphinx [i];
+				if (tpls.get (name) != null) continue;
+				String dest = dir_recognizer;
 				if (dest != null) {
 					if (!copyFile (common, dest, name)) {
 						Log.severe ("Could not copy "+name+" to "+destination);
@@ -248,139 +1124,183 @@ public class Generator {
 				Log.severe ("Could not copy all included files in "+grammar);
 				return;
 			}
-			
-			// generate for festival or freetts
-			String synth = kv.getProperty ("synthesizer");
-			if (synth.equals ("festival")) {
-				generateFestival ();
-			}
-			else if (synth.equals ("freetts")) {
-				generateFreetts ();
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace ();
-		}
-	}
-	
-	void generateBatch () {
-		boolean ok = false;
-		try {
-			File fd = new File (destination);
-			if (!fd.exists ()) fd.mkdirs ();
-			Hashtable <String, String> tpls = new Hashtable <String, String> ();
-			String yes = "yes";
-			
-			String batchname = kv.getProperty ("batch");
-			if (batchname == null) {
-				kv.setProperty ("batch", "batch");
-			}
-			for (int i=0; i<batch.length; i++) {
-				String name = batch [i];
-				tpls.put (name, yes);
-				ok = generateFile (destination, name);
-				if (!ok) {
-					Log.severe ("Could not generate from "+name);
-					return;
-				}
-			}
-			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
-			if (datafile != null && !copyFile (source, destination, datafile)) {
-				Log.info ("Could not find data file "+datafile);
-				// return;
-			}
-			String commonwords = kv.getProperty ("common_words");
-			if (!copyFile (common, destination, commonwords)) {
-				Log.severe ("Could not copy common words file");
-				return;
-			}
-			String specs = kv.getProperty ("specs_file");
-			if (specs != null && !copyFile (source, destination, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
-			}
-			String grammar = kv.getProperty ("grammar_file");
-			if (grammar != null && !copyFile (source, destination, grammar)) {
-				Log.severe ("Could not copy grammar file ");
-				return;
-			}
-			if (!copyIncludedFiles (source, destination, grammar)) {
-				Log.severe ("Could not copy all included files in "+grammar);
-				return;
-			}
+
+			generateSynthesizer ();
 		}
 		catch (Exception e) {
 			e.printStackTrace ();
 		}
 	}
 
-	void generateLive () {
+	void genBatchMultiWebFestival () {
 		boolean ok = false;
 		try {
+			// File src = new File (source);
+			File src = new File (common);
 			File fd = new File (destination);
 			if (!fd.exists ()) fd.mkdirs ();
+			if (!onedir) {
+				fd = new File (dir_interpreter);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_recognizer);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_synthesizer);
+				if (!fd.exists ()) fd.mkdirs ();
+			}
+			String files [] = src.list ();
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
-			
-			String livename = kv.getProperty ("live");
-			if (livename == null) {
-				kv.setProperty ("live", "live");
-			}
-			for (int i=0; i<live.length; i++) {
-				String name = live [i];
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
 				tpls.put (name, yes);
-				ok = generateFile (destination, name);
+				String dest = dir_interpreter;
+				if (name.startsWith ("recognizer") || name.endsWith (".config.xml") ||
+				name.equals (lmtool)) dest = dir_recognizer;
+				else if (name.equals (runsphinx)) dest = dir_recognizer;
+				else if (name.equals (runinter)) dest = dir_interpreter;
+				ok = generateFile (dest, name);
 				if (!ok) {
 					Log.severe ("Could not generate from "+name);
 					return;
 				}
 			}
+			for (int i=0; i<BatchMultiWeb.length; i++) {
+				String name = BatchMultiSphinx [i];
+				if (tpls.get (name) != null) continue;
+				String dest = dir_recognizer;
+				if (dest != null) {
+					ok = generateFile (dest, name);
+					if (!ok) {
+						Log.severe ("Could not generate from "+name);
+						return;
+					}
+				}
+			}
+
 			// copy specific files to interpreter
 			String datafile = kv.getProperty ("data_file");
-			if (datafile != null && !copyFile (source, destination, datafile)) {
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
 			String commonwords = kv.getProperty ("common_words");
-			if (!copyFile (common, destination, commonwords)) {
+			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
 			String specs = kv.getProperty ("specs_file");
-			if (specs != null && !copyFile (source, destination, specs)) {
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
 				Log.severe ("Could not copy specifications file");
 				return;
 			}
 			String grammar = kv.getProperty ("grammar_file");
-			if (grammar != null && !copyFile (source, destination, grammar)) {
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
 			}
-			if (!copyIncludedFiles (source, destination, grammar)) {
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy all included files in "+grammar);
 				return;
 			}
+
+			generateFestival ();
 		}
 		catch (Exception e) {
 			e.printStackTrace ();
 		}
 	}
-	
-	void generateConsole () {
+
+	void genBatchMultiWebSynthesizer () {
+		boolean ok = false;
+		try {
+			// File src = new File (source);
+			File src = new File (common);
+			File fd = new File (destination);
+			if (!fd.exists ()) fd.mkdirs ();
+			if (!onedir) {
+				fd = new File (dir_interpreter);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_recognizer);
+				if (!fd.exists ()) fd.mkdirs ();
+				fd = new File (dir_synthesizer);
+				if (!fd.exists ()) fd.mkdirs ();
+			}
+			String files [] = src.list ();
+			Hashtable <String, String> tpls = new Hashtable <String, String> ();
+			String yes = "yes";
+			for (int i=0; i<MultiInterpreter.length; i++) {
+				String name = MultiInterpreter [i];
+				tpls.put (name, yes);
+				String dest = dir_interpreter;
+				if (name.startsWith ("recognizer") || name.endsWith (".config.xml") ||
+				name.equals (lmtool)) dest = dir_recognizer;
+				else if (name.equals (runsphinx)) dest = dir_recognizer;
+				else if (name.equals (runinter)) dest = dir_interpreter;
+				ok = generateFile (dest, name);
+				if (!ok) {
+					Log.severe ("Could not generate from "+name);
+					return;
+				}
+			}
+			for (int i=0; i<BatchMultiWeb.length; i++) {
+				String name = BatchMultiSphinx [i];
+				if (tpls.get (name) != null) continue;
+				String dest = dir_recognizer;
+				if (dest != null) {
+					ok = generateFile (dest, name);
+					if (!ok) {
+						Log.severe ("Could not generate from "+name);
+						return;
+					}
+				}
+			}
+			// copy specific files to interpreter
+			String datafile = kv.getProperty ("data_file");
+			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
+				Log.info ("Could not find data file "+datafile);
+				// return;
+			}
+			String commonwords = kv.getProperty ("common_words");
+			if (!copyFile (common, dir_interpreter, commonwords)) {
+				Log.severe ("Could not copy common words file");
+				return;
+			}
+			String specs = kv.getProperty ("specs_file");
+			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
+				Log.severe ("Could not copy specifications file");
+				return;
+			}
+			String grammar = kv.getProperty ("grammar_file");
+			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy grammar file ");
+				return;
+			}
+			if (!copyIncludedFiles (source, dir_interpreter, grammar)) {
+				Log.severe ("Could not copy all included files in "+grammar);
+				return;
+			}
+
+			generateSynthesizer ();
+		}
+		catch (Exception e) {
+			e.printStackTrace ();
+		}
+	}
+
+	void genConsole () {
 		boolean ok = false;
 		try {
 			File fd = new File (destination);
 			if (!fd.exists ()) fd.mkdirs ();
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
-			
+
 			String livename = kv.getProperty ("console");
 			if (livename == null) {
 				kv.setProperty ("console", "console");
 			}
-			for (int i=0; i<console.length; i++) {
-				String name = console [i];
+			for (int i=0; i<Console.length; i++) {
+				String name = Console [i];
 				tpls.put (name, yes);
 				ok = generateFile (destination, name);
 				if (!ok) {
@@ -428,8 +1348,8 @@ public class Generator {
 			String files [] = src.list ();
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
-			for (int i=0; i<festival.length; i++) {
-				String name = festival [i];
+			for (int i=0; i<MultiFestival.length; i++) {
+				String name = MultiFestival [i];
 				tpls.put (name, yes);
 				String dest = dir_synthesizer;
 				ok = generateFile (dest, name);
@@ -456,14 +1376,14 @@ public class Generator {
 			e.printStackTrace ();
 		}
 	}
-	
-	public void generateFreetts () {
+
+	public void generateSynthesizer () {
 		boolean ok = false;
 		try {
 			// File src = new File (source);
 			File src = new File (common);
-			for (int i=0; i<freetts.length; i++) {
-				String name = freetts [i];
+			for (int i=0; i<MultiSynthesizer.length; i++) {
+				String name = MultiSynthesizer [i];
 				String dest = dir_synthesizer;
 				ok = generateFile (dest, name);
 				if (!ok) {
@@ -475,7 +1395,7 @@ public class Generator {
 		catch (Exception e) {
 			e.printStackTrace ();
 		}
-		
+
 	}
 
 	boolean generateFile (String dest, String name) {
@@ -539,7 +1459,7 @@ public class Generator {
 			return null;
 		}
 	}
-	
+
 	String fixmisses (String filename, String text) {
 		try {
 			Log.info ("Commenting out lines containing missing patterns with //");
@@ -584,6 +1504,10 @@ public class Generator {
 	boolean copyFile (String src, String dest, String filename) {
 		int bufsize = 1024;
 		try {
+			// is this one that should use generateFile?
+			if (patternFiles.get (filename) != null) {
+				return generateFile (dest, filename);
+			}
 			if (src == null) return false;
 			if (src.equals ("null")) return false;
 			String sourcefile = src + filename;
@@ -690,11 +1614,11 @@ public class Generator {
 				textfile, sentfile);
 	}
 
-	void createLmQuestions (String dirsrc, String dirtarget,
+	void createLmQuestions (String dirinter, String dirrec,
 			String textfile, String sentences) {
 		try {
-			String srcfile = dirsrc + textfile;
-			String destfile = dirtarget + sentences; // should give it a differnet name, later
+			String srcfile = dirinter + textfile;
+			String destfile = dirrec + sentences;
 			String line;
 			BufferedReader in = new BufferedReader (new FileReader (srcfile));
 			PrintWriter out = new PrintWriter (new FileWriter (destfile));

@@ -44,6 +44,10 @@ public class Recorder {
 @param stub
  */
 	public Recorder (String stub) {
+		if (stub == null) {
+			recording = false;
+			return;
+		}
 		startRecorder (stub);
 	}
 	

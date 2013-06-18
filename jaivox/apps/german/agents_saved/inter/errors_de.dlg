@@ -458,7 +458,7 @@ apologymore
 // errorTag is defined in Script
 
 {
-errorTag
+errortag
 	entschuldigung, es gibt ein Fehler ;
 	es tut mir Leid, es gibt ein Fehler ;
 	wir können nicht fortsetzen wegen einem Fehler ;

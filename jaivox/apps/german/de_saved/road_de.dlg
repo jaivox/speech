@@ -9,7 +9,7 @@
 	def ;
 	are.NN.JJ ;
 	(ask) ;
-	asked ;
+	def ;
 }
 
 {
@@ -71,7 +71,7 @@ are.NN.JJ
 	werden die NNS-M JJ-N um diese Zeit ;
 	werden die NNS-M jetzt JJ-N ;
 	werden die NNS-M JJ-N jetzt ;
-	glauben Sie, die NNS-M sind JJ-N ;	
+	glauben Sie, die NNS-M sind JJ-N ;
 	glauben Sie, NNP ist JJ-N ;
 	glauben Sie, NNP ist JJ-P ;
 	ist NNP ein JJM-P NN-M ;

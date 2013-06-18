@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.TimerTask;
+import com.jaivox.util.Log;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -71,7 +72,7 @@ public class MikeCapture extends TimerTask {
 			channel.start ();
 			bufferSize = (int)(audioformat.getSampleRate () * audioformat.getFrameSize ());
 			buffer = new byte [bufferSize];
-			parent.showtime ("Before asking to record");
+			// parent.showtime ("Before asking to record");
 			System.out.println ("Speak or hit control-C");
 			last = new double [silences];
 			for (int i=0; i<silences; i++) last [i] = huge;
@@ -81,7 +82,7 @@ public class MikeCapture extends TimerTask {
 		}
 		catch (Exception e) {
 			e.printStackTrace ();
-			System.out.println ("Error recording: "+e.toString ());
+			Log.severe ("Error recording: "+e.toString ());
 		}
 	}
 
@@ -97,7 +98,7 @@ public class MikeCapture extends TimerTask {
 		}
 		catch (Exception e) {
 			e.printStackTrace ();
-			System.out.println ("Error recording: "+e.toString ());
+			Log.severe ("Error recording: "+e.toString ());
 		}
 	}
 
@@ -123,10 +124,10 @@ public class MikeCapture extends TimerTask {
 				for (int i=0; i<silences; i++) {
 					double x = last [i];
 					if (x == huge) x = 1.0101;
-					System.out.format ("%.4f ", x);
+					// System.out.format ("%.4f ", x);
 					if (x != 0.0) silent = false;
 				}
-				System.out.println ();
+				// System.out.println ();
 
 				if (silent) break;
 
@@ -167,7 +168,7 @@ public class MikeCapture extends TimerTask {
 	int chopSeconds (double last []) {
 		// size of last is silences
 		if (last.length != silences) {
-			System.out.println ("array last is of size "+last.length+" should be "+silences);
+			Log.severe ("array last is of size "+last.length+" should be "+silences);
 			return 0;
 		}
 		// it is all the initial value of huge
@@ -197,8 +198,8 @@ public class MikeCapture extends TimerTask {
 			int nframes = data.length/audioformat.getFrameSize ();
 			int chopframes = chop * (int)audioformat.getSampleRate ();
 			if (chopframes >= nframes) {
-				System.out.println ("No audio detected");
-				System.out.println ("Did not write "+filename);
+				Log.severe ("No audio detected");
+				Log.severe ("Did not write "+filename);
 				return;
 			}
 			nframes = nframes - chopframes;
@@ -207,7 +208,7 @@ public class MikeCapture extends TimerTask {
 			AudioInputStream incoming = new AudioInputStream (in, audioformat, nframes);
 			AudioSystem.write (incoming, type, F);
 			incoming.close ();
-			System.out.println ("Write "+filename+" "+nframes+" frames");
+			Log.info ("Write "+filename+" "+nframes+" frames");
 		}
 		catch (Exception e) {
 			e.printStackTrace ();
