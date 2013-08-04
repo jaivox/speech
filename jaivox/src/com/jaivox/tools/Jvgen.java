@@ -24,6 +24,8 @@ import com.jaivox.util.Log;
  * If generated questions have been modified by hand, then call
  * "com.jaivox.tools.Jvgen whatever.conf -update" 
  * instead of "com.jaivox.tools.Jvgen whatever.conf"
+ * 
+ * Most of the work of generating files is done in Generator.
  */
 
 public class Jvgen {

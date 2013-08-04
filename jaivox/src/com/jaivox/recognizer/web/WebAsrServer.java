@@ -152,7 +152,7 @@ public class WebAsrServer extends Server implements Runnable {
 			}
 		}
 		catch (Exception e) {
-			Log.severe ("sphinxServer:execute "+e.toString ());
+			Log.severe ("WebAsrServer:execute "+e.toString ());
 		}
 	}
 
@@ -258,7 +258,7 @@ public class WebAsrServer extends Server implements Runnable {
 			}
 		}
 		catch (Exception e) {
-			Log.severe ("sphinxServer:executeReply "+e.toString ());
+			Log.severe ("WebAsrServer:executeReply "+e.toString ());
 			return ("Error: "+e.toString ());
 		}
 	}

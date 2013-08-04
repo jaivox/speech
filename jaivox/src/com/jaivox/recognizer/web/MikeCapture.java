@@ -14,6 +14,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.TargetDataLine;
 
 
+/**
+ * This class is used by Mike to capture audio. The recorded audio is
+ * converted into the flac format in the Mike class.
+ * 
+ */
 public class MikeCapture extends TimerTask {
 
 	Mike parent;
@@ -30,6 +35,11 @@ public class MikeCapture extends TimerTask {
 	public boolean validType;
 	boolean stopped = false;
 
+/**
+ * Capture audio into the named file.
+ * @param p
+ * @param name
+ */
 	public MikeCapture (Mike p, String name) {
 		super ();
 		parent = p;
@@ -64,9 +74,12 @@ public class MikeCapture extends TimerTask {
 
 	}
 
+/**
+ * startrecording must be called to start the recording. This is called
+ * from Mike.nextsample
+ */
 	public void startrecording () {
 		try {
-			File stream = new File (filename);
 			audioformat = parent.audioformat;
 			channel.open (audioformat);
 			channel.start ();
@@ -102,7 +115,7 @@ public class MikeCapture extends TimerTask {
 		}
 	}
 
-	public void listenToWrite () {
+	void listenToWrite () {
 		try {
 			byteOut = new ByteArrayOutputStream ();
 

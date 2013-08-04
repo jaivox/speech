@@ -14,8 +14,8 @@ import java.util.Vector;
 
 
 /**
- * Manages a session with a Sphinx server. Sphinx is an open source
- * speech recognition system from Carnegie-Mellon.
+ * Manages a session with a web recognizer server.
+ * The web recognizer (August 2013) is by Google.
  */
 
 public class SpeechSession extends Session implements Runnable {
@@ -25,9 +25,9 @@ public class SpeechSession extends Session implements Runnable {
 	
 	
 /**
- * Creates a session for a sphinx server.
+ * Creates a session for a server.
 @param s	id of the session, useful for debugging
-@param serve	sphinx server that owns this session
+@param serve	server that owns this session
 @param sock	socket for communications
 @param r	responder that handles messages from othe ragnets
  */

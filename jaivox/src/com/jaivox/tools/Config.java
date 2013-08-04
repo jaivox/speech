@@ -25,6 +25,13 @@ import java.util.Properties;
 /**
  * Reads a configuration file and sets relevant values in a key value
  * hash table kv.
+ * In addition to various locations, the configuration file specifies
+ * the different components used for user interaction
+ * 
+ * iomode: live, batch, console
+ * directories: one or multiple
+ * recognizer: sphinx or web
+ * synthesizer: festival or one of (freetts, espeak, web)
  */
 
 public class Config {

@@ -11,6 +11,16 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
 
+/**
+ * The Mike class implements a microphone. It captures audio spoken though
+ * the microphone and converts it into a file that can be used either for
+ * recoginition over the web.
+ * 
+ * google's web recognizer expects .flac or .speex files. We have found that
+ * .flac works better. the Mike class uses MikeCapture to get the audio, then
+ * uses a command calling sox to convert the captured (wav file) into the
+ * right format.
+ */
 
 public class Mike extends Thread {
 
@@ -24,6 +34,14 @@ public class Mike extends Thread {
 	int lcount;
 	static int period = 5000;
 
+	
+/**
+ * Create files from the mike. The filestub will be used to name the files
+ * in order. The ext is desired extension of the file. Each sample is
+ * captured using nextsample.
+ * @param filestub
+ * @param ext
+ */
 
 	public Mike (String filestub, String ext) {
 		try {
@@ -41,6 +59,15 @@ public class Mike extends Thread {
 			return;
 		}
 	}
+	
+/**
+ * Get the next sample. It will use the filestub specified
+ * when Mike was created. The seconds argument is the number of
+ * seconds of silence that will terminate this sample.
+ * @param format
+ * @param seconds
+ * @return
+ */
 
 	public String nextsample (String format, int seconds) {
 		try {
@@ -97,6 +124,10 @@ public class Mike extends Thread {
 		}
 	}
 
+	
+/**
+ * Close this capturing channel
+ */
 	public void closechannel () {
 		try {
 			channel.close ();
@@ -108,6 +139,10 @@ public class Mike extends Thread {
 			System.exit (0);
 		}
 	}
+	
+/** A simple function to display the time along with a message
+ * @param msg
+ */
 
 	public void showtime (String msg) {
 		Date time = new Date ();

@@ -24,7 +24,8 @@ import java.util.Properties;
 /**
  * The SynthServer creates an SynthResponder for each connection.
  * This responder uses an Synthesizer to speak according to messages sent to the
- * agent through the SynthServer.
+ * agent through the SynthServer. This class uses the espeak application
+ * available on various platforms.
  */
 
 public class SynthResponder extends Responder {

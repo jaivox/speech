@@ -29,6 +29,12 @@ public class WebAsrResponder extends Responder {
 		super (own);
 	}
 	
+/**
+ * Send some simple responses to some queries. A real application should
+ * subclass the responder and connect it to actual data sources.
+ * @param request
+ * @return
+ */
 	public MessageData respond (String request) {
 		MessageData req = new MessageData (request);
 		MessageData jd = new MessageData ();

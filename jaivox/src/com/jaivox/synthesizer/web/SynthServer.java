@@ -29,10 +29,8 @@ import java.util.Vector;
 /**
  * SynthServer is an synthesizer server. In a typical application, this
  * server communicates with an interpreter and gets requests to speak.
- * This package uses Free Tts. See comments in Synthesizer for the
- * correct way to specify the CLASSPATH to use freetts.jar (the location
- * of the jar file is used by freetts to locate some other files, thus
- * you need to set that path explicity in the CLASSPATH.)
+ * This version depends on the availabilty of Google's TTS, see the
+ * Synthesizer class.
  */
 
 public class SynthServer extends Server implements Runnable {

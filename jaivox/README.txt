@@ -1,5 +1,5 @@
 
-Jaivox library and applications (Version 0.4, April 2013)
+Jaivox library and applications (Version 0.5, August 2013)
 
 See http://www.jaivox.com for detailed documentation and requirements.
 
@@ -17,18 +17,28 @@ See http://www.jaivox.com for detailed documentation and requirements.
    See the License for the specific language governing permissions and
    limitations under the License.
 
+What is different?
+=================
+Jaivox libraries can now be used with Web-based recognizers and text to speech.
+For now, this means using Google's recognizer and TTS.
 
 Installation - short version
 ============================
-Youn need to install sphinx4 before compiling Jaivox files. If the individual
-class files from sphinx4 are in your classpath, run
+If you do not want to use Sphinx4:
+You do not need to install sphinx4 before installing jaivox libraries. You just
+need to put jaivox class files or jaivox.jar in the classpath.
+
+If you want to use the open source sphinx4:
+Youn need to install sphinx4 before compiling Jaivox files. 
+
+To create the runtime library, run
 
 ant
 
-to build from this directory using the provided build.xml. This build file assumes
-that the classpath that you obtain from antruntime contains the required sphinx4
-classes. It is better to create the classpath explicitly by running config.bash
-and answering questions about locations of various jar files from sphinx4.
+to build from this directory using the provided build.xml. 
+
+If you are using sphinx4, this build file assumes that the classpath that you 
+obtain from antruntime contains the required sphinx4 classes. 
 
 Run
 
@@ -42,6 +52,9 @@ file within the application folder.
 
 Javadocs are in the doc directory.
 
+The test directory contains various tests, mainly using web-based speech
+recognition and tts.
+
 Contact: contact@jaivox.com
 
 Files here
@@ -50,11 +63,25 @@ build.xml is the ant build file
 src/ contains com.jaivox Java source files
 apps/ contains several applications and supporting data.
 	Please see apps/README_apps.txt for details
+test/ contains various tests mainly using web-based tools
 
-Installation
-============
+Installation: not using Sphinx4
+===============================
 You can see more deatails at http://www.jaivox.com/installation.html
 
+If you are not using sphinx4, installation simply involves putting the
+jaivox class files or jar file in the classpath.
+
+If you are not using sphinx4, you need only the following two things
+
+1. Java Development Kit for example from the Oracle Java SE download site
+2. Ant, from Apache
+
+In addition, of course, you need a web connection.
+
+Installation: using Sphinx4
+===========================
+If you are using sphinx4:
 This directory includes a bash script config.bash. You can run it to
 see if your system has required components. It also creates build.xml
 based on information gathered from your answers. (Further it creates two

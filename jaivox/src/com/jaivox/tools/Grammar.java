@@ -41,7 +41,6 @@ public class Grammar {
 
 	static final String terms = " \t\r\n~`!@#$%^&*()+={}[]|\\:;<>,.?/\"\'";
 	static final String tagchars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ-";
-	static final String responsetag = "<2.";
 
 /**
  * Create a grammar from a file. The file is the grammar of a QaList
