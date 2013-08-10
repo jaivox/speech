@@ -66,7 +66,7 @@ public class Synthesizer {
 	
 /**
  * Speak a message in the specified language. The language codes used are
- * not the same as for the asr and may change at any time. Now (August 2013)
+ * not the same as for the speech recognizer and may change at any time. Now (August 2013)
  * the language codes may be found at
  * https://sites.google.com/site/tomihasa/google-language-codes
  * @param lang

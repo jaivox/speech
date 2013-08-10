@@ -45,7 +45,7 @@ public class InterResponder extends Responder {
 /**
  * The Interact class needs some data in a directory we call basedir.
  * In this form, the basedir and the important specifications file
- * are pssed to the Interact class.
+ * are passed to the Interact class.
 @param basedir
 @param specfile
  */

@@ -31,7 +31,7 @@ public class Utils {
 	}
 
 /**
- * Split tokens using the terminators givenin Utils.terms
+ * Split tokens using the terminators given in Utils.terms
  * @param line
  * @return
  */
@@ -47,7 +47,7 @@ public class Utils {
 	}
 
 /**
- * Assemble a string from an array of stringgs, mostly for printing out
+ * Assemble a string from an array of strings, mostly for printing out
  * @param tokens
  * @return
  */

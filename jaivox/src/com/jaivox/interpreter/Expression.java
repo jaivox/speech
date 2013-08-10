@@ -64,7 +64,7 @@ public class Expression {
 	}
 	
 	/**
-	 * Create tokens in an expression incolving relationships and variables
+	 * Create tokens in an expression involving relationships and variables
 	 * @param input
 	 * @return
 	 */
@@ -123,7 +123,7 @@ public class Expression {
 	}
 
 	/**
-	 * Prority table for operators and relations
+	 * Priority table for operators and relations
 	 * @param op
 	 * @return
 	 */

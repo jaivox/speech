@@ -43,7 +43,7 @@ public class Log {
  * you get one message asking to create a logger. If a logger is created,
  * you will get the messages at the selected level of fineness on the
  * console.
- * We initially create the logger with the FINEST level, thus after a
+ * We create the logger with the FINEST level at first, thus after a
  * logger is created, the creating program should set the logging level
  * to the desired level of fineness.
  */

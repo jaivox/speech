@@ -14,7 +14,7 @@ import com.jaivox.util.Log;
 
 /**
  * SpeechInput handles recognition tasks. In the current implementation,
- * web recognition is done using google's (unofficial as of August 2013)
+ * web recognition is done using Google's (unofficial as of August 2013)
  * speech api. When the api becomes official, we expect the addition of
  * an API key to the web location.
  * 
@@ -37,7 +37,7 @@ public class SpeechInput {
 
 /**
  * Recognize a particular recording, in flac format, assuming that the
- * recording is in the designated langauge. Language codes for recognition
+ * recording is in the designated language. Language codes for recognition
  * are determined (in this case) by Google.
  * @param flacfile
  * @param lang

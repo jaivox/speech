@@ -63,7 +63,7 @@ public class Questgen {
 /**
  * Generate questions from a set of properties in the configuration file.
  * Questions are generated for each field and associated attributes.
- * Geneated questions are saved in a specified "questions_file".
+ * Generated questions are saved in a specified "questions_file".
 @param keyval
  */
 	public Questgen (Properties keyval) {
@@ -383,8 +383,3 @@ public class Questgen {
 	}
 
 };
-
-
-
-
-

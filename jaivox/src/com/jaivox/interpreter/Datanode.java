@@ -35,8 +35,8 @@ public class Datanode {
 
 /**
  * Create a data node from information from specifications in an
- * Infonode, from a specific filename. The fileame may be in a directory
- * "datadir" stored i nthe parent Info.
+ * Infonode, from a specific filename. The filename may be in a directory
+ * "datadir" stored in the parent Info.
  * @param mom
  * @param node
  * @param filename
@@ -106,7 +106,7 @@ public class Datanode {
 	}
 	
 /**
- * Show the data stored in the data array array by priting it out
+ * Show the data stored in the data array array by printing it out
  * to the screen.
  */
 	

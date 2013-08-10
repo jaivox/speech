@@ -63,7 +63,7 @@ public class HistNode {
 	}
 
 /**
- * A readable form of te history node.
+ * A readable form of the history node.
  * @return
  */
 	

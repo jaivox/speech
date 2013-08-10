@@ -54,7 +54,7 @@ public class Script {
 	
 /**
  * When an interpreter encounters an error, it tries to produce an error
- * message, generally this is spoken. Since thelanguage of the application is
+ * message, generally this is spoken. Since the language of the application is
  * unknown, the string Error is just "?". A synthesizer will say something like
  * "question mark" if this is not replaced, see @errorResult. The Error string
  * is spoken only if there is no value for errorTag in the script.
@@ -72,7 +72,7 @@ public class Script {
 	
 /**
  * The initial state is used to create something in the history. This way if
- * an action is supposed to happen initially, it can be defined as having the
+ * an action is supposed to happen at first, it can be defined as having the
  * precondition "initial". If some other state has to be the initial state, then
  * it can be created in the grammar by providing a finite state node with
  * tag "initial" and ending state whatever the user wishes to use as the real
@@ -91,7 +91,7 @@ public class Script {
 	
 /**
  * anystate is to be matched only if nothing else matches. This is used to
- * handle bad matches and desparation statements, where the recognizer is not
+ * handle bad matches and desperation statements, where the recognizer is not
  * producing anything useful.
  */
 	
@@ -267,7 +267,7 @@ public class Script {
 
 /**
  * Get the grammar specification corresponding to a question. The question is
- * something in natural language while the grammar specification has placeholders
+ * something in natural language while the grammar specification has place holders
  * for nouns, adjectives and other parts of speech. The finite state machine and
  * script generally work with the grammar specification.
  * @param question
@@ -288,7 +288,7 @@ public class Script {
  * matches first. The handleInputValue is then called with this list to
  * obtain a response to the user input.
  * This calls makeAnswer to get the response. makeAnswer returns a string
- * array, which may optinally contain a new state to be set. This generally
+ * array, which may optionally contain a new state to be set. This generally
  * happens only with a user-defined function, which may decide to set the
  * finite state machine to a state that is different from the state that
  * is given as the output state in the finite state machine. For example,
@@ -488,7 +488,7 @@ public class Script {
 /**
  * The errorTag is "errortag". A finite state machine should contain a node
  * that provides the system response for an error. This way, the error message
- * sent to the user can be cusotomized to the application and to the language
+ * sent to the user can be customized to the application and to the language
  * of the conversational dialog.
  * @param input
  * @param map
@@ -685,8 +685,8 @@ public class Script {
 	
 /**
  * Create the response to a particular user input. Here "question" means
- * user input and "answer" means the response to that answer. In a converstaion,
- * the user may actually be ansewring questions from the system.
+ * user input and "answer" means the response to that answer. In a conversation,
+ * the user may actually be answering questions from the system.
  * @param question
  * @param fsm
  * @param map
@@ -1146,7 +1146,7 @@ public class Script {
 	}
 
 /**
- * Set the fninite state machine used by this script.
+ * Set the finite state machine used by this script.
  * @param fsm
  */
 	public void setFsm (String[][] fsm) {

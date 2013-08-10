@@ -25,10 +25,10 @@ import java.net.Socket;
 
 
 /**
- * The file server implements a simple protocol to handle requiests for
+ * The file server implements a simple protocol to handle requests for
  * files. Agents may require entire files to be transferred from the
  * control of one agent to another. The FileServer is initialized with
- * the name of such a file. After that a request to transforer the
+ * the name of such a file. After that a request to transfer the
  * file is handled in the run () function. 
  */
 

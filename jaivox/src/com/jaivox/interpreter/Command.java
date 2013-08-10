@@ -19,7 +19,7 @@ package com.jaivox.interpreter;
 import java.util.Vector;
 /**
  * The default command class is a placeholder. In applications that connect
- * to external datbaases and programs, the Command class can be replaced with
+ * to external databases and programs, the Command class can be replaced with
  * a derived class that handles the specific situation. See the files and db
  * demos to see a different set of Command classes.
 */
@@ -27,8 +27,8 @@ import java.util.Vector;
 public class Command {
 
 /**
- * Create a Command instance. The default Command is created by the Interpeter.
- * This step can be changed to create a different Command classe.
+ * Create a Command instance. The default Command is created by the Interpreter.
+ * This step can be changed to create a different Command class.
  */
 	public Command () {
 		

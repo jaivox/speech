@@ -29,7 +29,7 @@ import java.util.Vector;
 /**
  * SynthServer is an synthesizer server. In a typical application, this
  * server communicates with an interpreter and gets requests to speak.
- * This version depends on the availabilty of Google's TTS, see the
+ * This version depends on the availability of Google's TTS, see the
  * Synthesizer class.
  */
 
@@ -42,13 +42,13 @@ public class SynthServer extends Server implements Runnable {
 
 
 /**
- * The Sythensizer may need information from some files.
+ * The Synthesizer may need information from some files.
  * Here the server sets some variables that can be accessed by
  * the SynthResponder when creating an Synthesizer class
 @param name
 @param port
 @param base
-@param kv	Properties for the Synthpreter
+@param kv	Properties for the synthesizer
  */
 
 	public SynthServer (String name, int port, String base, Properties pp) {

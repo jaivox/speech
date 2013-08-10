@@ -14,9 +14,9 @@ import javax.sound.sampled.TargetDataLine;
 /**
  * The Mike class implements a microphone. It captures audio spoken though
  * the microphone and converts it into a file that can be used either for
- * recoginition over the web.
+ * recognition over the web.
  * 
- * google's web recognizer expects .flac or .speex files. We have found that
+ * Google's web recognizer expects .flac or .speex files. We have found that
  * .flac works better. the Mike class uses MikeCapture to get the audio, then
  * uses a command calling sox to convert the captured (wav file) into the
  * right format.

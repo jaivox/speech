@@ -65,8 +65,8 @@ public class Interact {
 /**
  * Interact initialize all other classes used in the conversation.
  * This version permits the user to set the basedir and specfile
- * in a location differnet from the default location.
-@param base	Directory containing all data required by the applcation
+ * in a location different from the default location.
+@param base	Directory containing all data required by the application
 @param spec	specifications file, in the base directory
  */
 	public Interact (String base, Properties pp) {

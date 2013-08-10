@@ -24,7 +24,7 @@ import java.util.TreeMap;
 
 /**
  * This class is used to store some grammar tags such as those defined
- * in the penntags_en.txt file.
+ * in the penn.txt file.
  * @author jaivox
  */
 

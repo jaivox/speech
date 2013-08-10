@@ -17,8 +17,10 @@
 
 package com.jaivox.tools;
 
+import com.jaivox.interpreter.Utils;
 import com.jaivox.util.Log;
 
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -103,8 +105,8 @@ public class Generator {
 	};
 
 	static String LiveOneWeb [] = {
-		"liveOneWeb.java",
-	};
+		"liveOneWeb.java"
+ 	};
 
 	static String LiveMultiSphinx [] = {
 		"recognizerTest.java",
@@ -1401,6 +1403,17 @@ public class Generator {
 	boolean generateFile (String dest, String name) {
 		try {
 			keys = kv.stringPropertyNames ();
+            int n = keys.size ();
+            String okeys [] = new String [n];
+            Point op [] = new Point [n];
+            int pi = 0;
+			for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
+				String key = it.next ();
+                okeys [pi] = key;
+                op [pi] = new Point (pi, -key.length ());
+                pi++;
+            }
+            Utils.quicksortpointy(op, 0, n-1);
 			String filename = common + name;
 			String destname = dest + name;
 			if (!okOverwrite (destname)) {
@@ -1409,8 +1422,11 @@ public class Generator {
 			}
 			String text = loadFile (filename);
 			String changed = text;
-			for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
-				String key = it.next ();
+            
+            // replace longest keys first
+            for (int i=0; i<n; i++) {
+                Point p = op [i];
+				String key = okeys [p.x];
 				String val = kv.getProperty (key);
 				if (name.startsWith (key)) {
 					String newname = name.replaceFirst (key, val);
@@ -1469,6 +1485,7 @@ public class Generator {
 			while (st.hasMoreTokens ()) {
 				String token = st.nextToken ();
 				if (token.indexOf (patIndicator) != -1 && token.indexOf ("CLASSPATH") == -1) {
+                    Log.warning ("Missing value in "+token+" in file "+filename);
 					token = "// "+token;
 				}
 				sb.append (token);

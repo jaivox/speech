@@ -26,7 +26,7 @@ import java.util.Vector;
 
 /**
  * QaList hold the information in the grammar (i.e. dialog) file
- * in a list, with each node being one of the things insde { }.
+ * in a list, with each node being one of the things inside { }.
  * It is used in this package as well as the interpreter.
  * @author jaivox
  */

@@ -25,7 +25,7 @@ import com.jaivox.agent.Session;
  * This class is a simple responder, since the Sphinx agent mostly just
  * sends recognized strings to something else. It is not much different
  * from the agent.TestResponder. It is kept here since the SpeechSession
- * requires some resonder.
+ * requires some responder.
  */
 
 public class SphinxResponder extends Responder {

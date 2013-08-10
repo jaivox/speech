@@ -29,7 +29,7 @@ public class SpeechSession extends Session implements Runnable {
 @param s	id of the session, useful for debugging
 @param serve	server that owns this session
 @param sock	socket for communications
-@param r	responder that handles messages from othe ragnets
+@param r	responder that handles messages from other agents
  */
 	public SpeechSession (String s, Server serve, Socket sock, Responder r) {
 		super (s, serve, sock, r);

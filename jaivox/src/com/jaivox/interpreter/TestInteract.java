@@ -210,7 +210,7 @@ public class TestInteract extends Thread {
 	
 	
 /**
- * Do a random test, but messup the questions using the messup function
+ * Do a random test, but mess up the questions using the messup function
  * above. This causes edit errors and sends the system into a state where
  * it may not understand the question. 
  * @param inter

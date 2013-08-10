@@ -109,7 +109,7 @@ public class QaNode {
 	}
 	
 /**
- * P:ick a random element from the tail. This is useful
+ * Pick a random element from the tail. This is useful
  * when generating responses introducing some variation in
  * the system responses.
  * @return
