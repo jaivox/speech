@@ -28,8 +28,8 @@ public class PATinterpreterTest extends Thread {
 	static String
 	connect1 = "connect localhost PATport_recognizer",
 	connect2 = "connect localhost PATport_synthesizer",
-	who1 = "{action: JviaWho, from: PATinterpreter, to: PATrecognizer, message: Jviawho}",
-	who2 = "{action: JviaWho, from: PATinterpreter, to: PATsynthesizer, message: Jviawho}";
+	who1 = "{action: JviaWho, from: PATnameinterpreter, to: PATnamerecognizer, message: Jviawho}",
+	who2 = "{action: JviaWho, from: PATnameinterpreter, to: PATnamesynthesizer, message: Jviawho}";
 
 	public static void main (String args []) {
 		InterServer intertest;
@@ -40,9 +40,9 @@ public class PATinterpreterTest extends Thread {
 		kv.setProperty ("answer_forms", "PATanswer_forms");
 		kv.setProperty ("specs_file", "PATspecs_file");
 		kv.setProperty ("questions_file", "PATquestions_file");
-		kv.setProperty ("recognizer", "PATrecognizer");
-		kv.setProperty ("interpreter", "PATinterpreter");
-		kv.setProperty ("synthesizer", "PATsynthesizer");
+		kv.setProperty ("recognizer", "PATnamerecognizer");
+		kv.setProperty ("interpreter", "PATnameinterpreter");
+		kv.setProperty ("synthesizer", "PATnamesynthesizer");
 		kv.setProperty ("grammar_file", "PATgrammar_file");
 		
 		Log log = new Log ();
@@ -53,7 +53,7 @@ public class PATinterpreterTest extends Thread {
 			String path = currentDir.getCanonicalPath ();
 			String dir = path + "/";
 			Command cmd = new Command ();
-			intertest = new InterServer ("inter", port, dir, kv, cmd);
+			intertest = new InterServer ("PATnameinterpreter", port, dir, kv, cmd);
 			BufferedReader in = new BufferedReader (
 				new InputStreamReader (System.in));
 			while (true) {

@@ -1,4 +1,2 @@
 #!/bin/sh
-
-javac -classpath PATfreettsjar:$CLASSPATH PATbatchTest.java
-
+javac -classpath /usr/local/freetts/lib/freetts.jar:$CLASSPATH PATliveOneWeb.java

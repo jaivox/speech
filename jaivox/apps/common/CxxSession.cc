@@ -30,7 +30,7 @@ char responseMessage [] = "JviaResponse";
 char finishedMessage [] = "JviaFinished";
 char requestFestival [] = "JviaFestival";
 
-char who [] = "{action: JviaWho, from: PATsynthesizer, to: PATinterpreter, message: \"JviaWho\"}";
+char who [] = "{action: JviaWho, from: PATnamesynthesizer, to: PATnameinterpreter, message: \"JviaWho\"}";
 
 static int Count;
 

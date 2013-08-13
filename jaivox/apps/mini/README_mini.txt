@@ -23,9 +23,6 @@ java com.jaivox.tools.Jvgen mini/cold.conf
 This creates a subdirectory withe the name "cold". Change to that
 directory.
 
-You can create a version of this application using Google's web-based
-recognizer by using coldweb.conf instead of cold.conf.
-
 The logic of the conversation in this case is captured in a file
 spec/cold.dlg. This logic can also be explained by the following
 if - then structure:

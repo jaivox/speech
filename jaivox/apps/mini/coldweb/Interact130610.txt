@@ -1,0 +1,6 @@
+16:01:57 Q: I'm feeling sick
+16:01:57 A: is your query i am feeling sick
+16:02:13 Q: yes
+16:02:13 A: do you feel hot
+16:02:27 Q: yes
+16:02:27 A: we can not continue due to an error

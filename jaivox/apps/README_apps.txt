@@ -1,18 +1,40 @@
 
 This directory contains several sample applications along with some
-data for these applications.
+data for these applications. This file is based on Jaivox version 0.5
+(August, 2013).
 
 The directories are as follows:
 
-1st: First try to see if your installed files and classpaths are as they
+1stsphinx: consists of a Sphinx-based recognizer application.
+	First try to see if your installed files and classpaths are as they
 	should be. This directory contains a batch test that recognizes recoreded
 	questions from the audio directory. To answer the questions, batchTest
 	uses a customized class that answers qualitative questions about data.
 	It uses freetts to convert the answers to spoken sounds.
 
+1stweb: uses Gogole's web-based speech recognizer and audio files in the
+	"flac" format. There are two main programs here. roadWeb.java uses
+	Google's web-based text to speech system while roadWebFreetts.java uses the
+	Freetts text to speech package.
+	
+	Note: Google's speech recognizer and speech synthesis are not part of
+	any official API, nor is it open source. It probably will not be available
+	after a short period.
+	
+1stwebde: uses Google's speech recognizer and synthesizer in German, otherwise
+	the program is like 1stweb's roadWeb.java program.
+	
+1stwebes: uses Google's speech recognizer and synthesier in Spanish, otherwise
+	this is just like 1stwebde.
+
 audio: consists of several recorded questions. You can use these in the 1st
 	demo to evaluate sphinx recognition and jaivox interpretation
 	without using a microphone.
+	
+audio_de: audio files used for 1stwebde. The "flac" format files are used for
+	recognition, but the "wav" files are used for playing the recording.
+	
+audio_es: audio files similar to audio_de, but for Spanish.
 
 common: there are several template files that are used in generating applications. This
 	directory contains all these files.
@@ -22,10 +44,7 @@ db: is an application that queries the cookie sqlite database (this is created b
 
 find: is another application that searches files using the "find" command.
 
-gentest: contains various configuration files for generating with different
-	recognizer and synthesizer combinations.
-
-google: compares google's speech recognition and Sphinx4 recognition
+compareasr: compares google's speech recognition and Sphinx4 recognition
 	on the same data.
 
 mini: this shows how the jaivox interpreter can handle a wide variety of
@@ -41,71 +60,65 @@ mini: this shows how the jaivox interpreter can handle a wide variety of
 	Each of the conversations have few options, but illustrates how the
 	dialog descriptions can be used for all these different conversations.
 
-onefile: shows how the test example, which generates three agents, can instead
-	be used to create batch tests and live tests.
-
-recorded: this example shows an agent-based version of the program in the
-	apps/1st directory. The directory recorded/gen_saved contains four
-	subdirectories: sphinx is a recognizer agent, inter is a Jaivox
-	interpreter agent, and both festival and freetts directories contain
-	synthesizer agents, only one of them should be used. For details
-	please see recorded/README_recorded.txt.
-
-spanish: this shows how Jaivox dialogs can be adapted to any language. This
-	example adpats the files in the test example to Spanish. Corresponding to
-	files road.spec, errors.dlg and road.dlg, here we have road_es.spec,
-	errors_es.dlg and road_es.dlg. The program live.java in the es subdirectory
-	is generated with Jvgen with input spanish.conf. The program is then modified
-	to use a configuration script live_es.xml which points to the Voxforge
-	Spanish audio model and dictionary. See README_spanish.txt for more
-	details.
-
 student: is an application that demonstrates the use of some grammar enhancements for
 	better questions. The application involves asking questions about students (from
 	a teacher or administrator's viewpoint.)
 
 test: is the application discussed in the detailed tutorial. It involves asking questions
-	about roads.
+	about roads. This vesion uses the Google recognizer and synthesizer in multiple
+	agents.
+	
+testgen: this contains several different configuration files to illustrate options
+	in generating applications.
+	
+testsphinx: this is the same as the test application, but using Sphinx.
 
-The 1st, db and find applications have some customized files. The rest of the
+voxforge_de: this uses the Voxforge German audio model and is structured
+	similar to voxforge_es. Unlike voxforge_es though, this program does not recognize
+	anything in our experiements. It is included here just to note how the different
+	configuration files should be strucutred.
+
+voxforge_es: this shows how Jaivox dialogs can be adapted to another language. This
+	example adpats the files in the test example to Spanish. Corresponding to
+	files road.spec, errors.dlg and road.dlg, here we have road_es.spec,
+	errors_es.dlg and road_es.dlg. The program live.java in the es subdirectory
+	is generated with Jvgen with input spanish.conf. The program is then modified
+	to use a configuration script live_es.xml which points to the Voxforge
+	Spanish audio model and dictionary. See README_voxforge_es.txt for more
+	details.
+
+The 1st*, db and find applications have some customized files. The rest of the
 applications are generated using a generator in the tools package. There are
 several configuration (.conf) files in the directories, as well as related information
 in various spec directories, that are used to generate the applications.
 
-IMPORTANT: The *.conf files in the applications are created so that they are
-referenced in context with their parent directories. For example, if generating
-db application, you should refer to db.conf as being in db/db.conf.
+Incidentally, The *.conf files in the applications can be referenced from various
+locations.
 
-For example, assuming your classpath settings are done correctly, you can generate
-the test application with
+You can generate a test program by going to the test directory and running
 
-java com.jaivox.tools.Jvgen test/test.conf
+java com.jaivox.tools.Jvgen test.conf
 
-For the student application similarly, change the student directory and enter
+This will generate three directories
 
-java com.jaivox.tools.Jvgen student/student.conf
+gen/asr		containing the speech recognizer
+gen/inter	containing the interpreter for dialogs
+gen/tts		containing the text to speech system.
 
-In both cases, Jvgen will generate three directories in a gen directory. The three
-directories are
+You can compile the programs in each directory with a "javac *.java".
 
-gen/festival
-gen/inter
-gen/sphinx
+There are several other options for the recognizer and the text to speech. The
+testgen directory contains five configuration files that cover all the different
+options. These show some specific combinations, for example a single program that uses
+the web (i.e. for now Google) recognizer with an espeak synthesizer. But you can change
+parameters here so that for example you can have a multiagent program using both the
+Google recognizer and the Google text to speech.
 
-gen/festival consists of C++ programs compiled by running "make". The other two contain
-a java program each. Assuming you have the classpath set up right, you can compile them
-with "javac *.java" in each directory.
+IMPORTANT: If you are using freetts, note the informaton in the README_tts.txt
+about the specification of freetts.jar in the classpath. If you are using Google's
+web-based text to speech, please download and install the jLayer library from
+Javazoom http://www.javazoom.net
 
-An option in the .conf file can be used to generate
-
-gen/ftts
-
-to create a Javab-based synthesizer that uses the freetts package. To use
-freetts, you must download. Please see README_freetts.txt for more information
-on freetts.
-
-IMPORTANT: If you are using freetts, note the informaton in the README_freetts.txt
-about the specification of freetts.jar in the classpath.
 
 
 

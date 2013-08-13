@@ -19,14 +19,11 @@ java com.jaivox.tools.Jvgen path_to_apps_test/test.conf
 sure that the paths in test.conf are used correctly.)
 
 The example shows how you can generate the programs for the recognizer
-(using sphinx, in a directory gen/sphinx), for the interpreter (in
-gen/inter) and for the speech synthesizer using festival (gen/festival).
-The festival program is in C++, the others are in Java. The exmaple
-connects between the programs using sockets, so that the language
-differences between Java and C++ do not matter.
+(using google, in a directory gen/asr), for the interpreter (in
+gen/inter) and for the speech synthesizer using google tts (gen/tts).
 
 Even though this example is simple, you can expand the architecture
 of this application to support many recognizers, each of which handle
 some specific range of questions.
 
-For all the details, please see tutorial.html.
+For more details, please see http://www.jaivox.com/tutorial.html.

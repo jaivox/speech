@@ -15,19 +15,14 @@
    limitations under the License.
 */
 
-import com.jaivox.synthesizer.freetts.*;
-import com.jaivox.util.*;
+import com.jaivox.synthesizer.PATsynthesizer.SynthServer;
+import com.jaivox.util.Log;
+import java.util.Properties;
 
 /**
- * This test replaces the Fttsynth package (in C) with a java-based text
- * to speech package Free Tts. To run this program, please note that you
- * need to include the path to freetts.jar explicitly in the classpath
- * since this location is used to find other required files. See comments
- * in com.jaivox.synthesizer.freetts.Synthesizer for details.
- *
- * In this application we call the SynthServer agent "Fttsynth" for compatibliy
- * with other agents in this apps/recorded demo. Note that you should use
- * this synthesizer and NOT invoke Fttsynth.
+ * This test replaces the Festival package (in C) with a java-based text
+ * to speech package. Depending on the synthesizer used, some additional
+ * libraries may be needed.
  */
 
 public class PATsynthesizerTest extends Thread {
@@ -36,21 +31,24 @@ public class PATsynthesizerTest extends Thread {
 	static int waitTime = 1; // one second
 
 	static String connect1 = "connect localhost PATport_interpreter";
-	static String who1 = "send Fttsynth_0 {action: JviaWho, from: PATsynthesizer, to: PATinterpreter, message: Jviawho}";
+	static String who1 = "send PATnamesynthesizer_0 {action: JviaWho, from: PATnamesynthesizer, to: PATnameinterpreter, message: Jviawho}";
 
 	public static void main (String args []) {
-		SynthServer Fttsynth;
+		SynthServer Synth;
 		Log log = new Log ();
-		log.setLevelByName ("warning");
+		log.setLevelByName ("PATlog_level");
+		Properties kv = new Properties ();
+		kv.setProperty ("ttslang", "PATttslang");
+
 		try {
-			Fttsynth = new SynthServer ("Fttsynth", port);
+			Synth = new SynthServer ("PATnamesynthesizer", port, "./", kv);
 
 			Log.info ("Waiting to connect to inter");
 			boolean connected = false;
 			int waiting = 0;
 			while (!connected && waiting < 1000) {
 				sleep (waitTime);
-				String result = Fttsynth.executeReply (connect1);
+				String result = Synth.executeReply (connect1);
 				if (result.startsWith ("OK:")) {
 					connected = true;
 					break;
@@ -74,7 +72,7 @@ public class PATsynthesizerTest extends Thread {
 			waiting = 0;
 			while (!established && waiting < 100) {
 				sleep (waitTime);
-				String result = Fttsynth.executeReply (who1);
+				String result = Synth.executeReply (who1);
 				if (result.startsWith ("OK:")) {
 					established = true;
 					break;
@@ -90,12 +88,12 @@ public class PATsynthesizerTest extends Thread {
 				return;
 			}
 			else {
-				Log.info ("Established credentials with PATinterpreter");
+				Log.info ("Established credentials with PATnameinterpreter");
 				Log.info ("Processing synthesis requests");
 			}
 
 			sleep (waitTime * 4);
-			while (Fttsynth.isAlive ()) {
+			while (Synth.isAlive ()) {
 				Thread.sleep (waitTime);
 			}
 			System.out.println ("Terminating ...");

@@ -54,7 +54,7 @@ public class Synthesizer {
  */
 	public Synthesizer (String base, Properties kv) {
 		Log.info ("Synthesizer created");
-		String language = kv.getProperty ("language");
+		String language = kv.getProperty ("ttslang");
 		if (language != null) defaultLanguage = language;
 	}
 

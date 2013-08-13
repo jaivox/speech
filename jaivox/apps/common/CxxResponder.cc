@@ -37,11 +37,11 @@ extern char
     finishedMessage [],
     requestFestival [];
 
-char spokenFestival [] = "{action: spoken, from: PATsynthesizer, to: PATinterpreter, message: \"spoke it\"}";
-char terminateReply [] = "{action: JviaTerminate, from: PATsynthesizer, to:PATinterpreter, message: \"terminated\"}";
-char standardReply  [] = "{action: JviaResponse, from: PATsynthesizer, to:PATinterpreter, message: \"standard reply\"}";
-char whoReply       [] = "{action: JviaResponse, from: PATsynthesizer, to:PATinterpreter, message: \"I am festival\"}";
-char invalidReply   [] = "{action: JviaInvalid, from: PATsynthesizer, to:PATinterpreter, message: \"Invalid request\"}";
+char spokenFestival [] = "{action: spoken, from: PATnamesynthesizer, to: PATnameinterpreter, message: \"spoke it\"}";
+char terminateReply [] = "{action: JviaTerminate, from: PATnamesynthesizer, to:PATnameinterpreter, message: \"terminated\"}";
+char standardReply  [] = "{action: JviaResponse, from: PATnamesynthesizer, to:PATnameinterpreter, message: \"standard reply\"}";
+char whoReply       [] = "{action: JviaResponse, from: PATnamesynthesizer, to:PATnameinterpreter, message: \"I am festival\"}";
+char invalidReply   [] = "{action: JviaInvalid, from: PATnamesynthesizer, to:PATnameinterpreter, message: \"Invalid request\"}";
 
 
 static int wavCount = 1;

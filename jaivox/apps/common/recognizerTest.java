@@ -34,9 +34,9 @@ public class PATrecognizerTest extends Thread {
 	static int waitTime = 1000; // one second
 
 	static String work1 =
-	"send PATrecognizer_0 {action: interpret, from: PATrecognizer, to: PATinterpreter, message: ";
+	"send PATnamerecognizer_0 {action: interpret, from: PATnamerecognizer, to: PATnameinterpreter, message: ";
 	static String connect1 = "connect localhost PATport_interpreter";
-	static String who1 = "send PATrecognizer_0 {action: JviaWho, from: PATrecognizer, to: PATinterpreter, message: Jviawho}";
+	static String who1 = "send PATnamerecognizer_0 {action: JviaWho, from: PATnamerecognizer, to: PATnameinterpreter, message: Jviawho}";
 	static String config = "PATrecognizer_config_file";
 
 	static void processSpeech (SphinxServer server) {
@@ -86,11 +86,11 @@ public class PATrecognizerTest extends Thread {
 		Log log = new Log ();
 		log.setLevelByName ("PATlog_level");
 		try {
-			Recognizer = new SphinxServer ("PATrecognizer", PATport_recognizer);
+			Recognizer = new SphinxServer ("PATnamerecognizer", PATport_recognizer);
 			BufferedReader in = new BufferedReader (
 				new InputStreamReader (System.in));
 
-			Log.info ("Waiting to connect to PATinterpreter");
+			Log.info ("Waiting to connect to PATnameinterpreter");
 			boolean connected = false;
 			int waiting = 0;
 			while (!connected && waiting < 1000) {
@@ -111,7 +111,7 @@ public class PATrecognizerTest extends Thread {
 				return;
 			}
 			else {
-				Log.info ("Connected to PATinterpreter");
+				Log.info ("Connected to PATnameinterpreter");
 				Log.info ("Waiting to establish who credentials");
 			}
 			sleep (waitTime * 4);
@@ -135,7 +135,7 @@ public class PATrecognizerTest extends Thread {
 				return;
 			}
 			else {
-				Log.info ("Established credentials with PATinterpreter");
+				Log.info ("Established credentials with PATnameinterpreter");
 				Log.info ("Processing recognition results");
 			}
 

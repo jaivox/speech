@@ -34,7 +34,7 @@ public class PATconsoleTest {
 
 	public PATconsoleTest () {
 		Log log = new Log ();
-		log.setLevelByName ("warning");
+		log.setLevelByName ("PATlog_level");
 		initializeInterpreter ();
 		processQuestions ();
 	}
