@@ -29,7 +29,7 @@ public class MikeCapture extends TimerTask {
 	byte buffer [];
 	int bufferSize;
 	ByteArrayOutputStream byteOut;
-	static int silences = 5;
+	static int silences = 2;
 	double last [];
 	static double huge = Double.MAX_VALUE;
 	public boolean validType;
