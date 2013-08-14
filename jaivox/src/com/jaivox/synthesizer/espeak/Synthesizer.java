@@ -21,7 +21,6 @@ import java.util.Properties;
 
 /**
  * The espeak synthesizer simply uses an espeak command
- * @author thomas
  */
 public class Synthesizer {
 
