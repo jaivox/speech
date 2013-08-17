@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Properties;
+import java.util.Vector;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 
@@ -41,11 +42,11 @@ import javazoom.jl.player.Player;
 
 public class Synthesizer {
 
-	public static String location = "http://translate.google.com/translate_tts?";
-	public static String target = "tl=";
-	public static String tail = "&ie=UTF-8&q=";
-	public static String agent = "Mozilla/5.0";
-	public static String defaultLanguage = "en";
+	public String location = "http://translate.google.com/translate_tts?";
+	public String target = "tl=";
+	public String tail = "&ie=UTF-8&q=";
+	public String agent = "Mozilla/5.0";
+	public String defaultLanguage = "en";
 
 /**
  * Create a synthesizer with the specified properties.
@@ -75,16 +76,20 @@ public class Synthesizer {
  */
 	public boolean speak (String lang, String message) {
 		try {
-			String encoded = URLEncoder.encode (message, "UTF-8");
-			String request = location + target + lang + tail + encoded;
-			Log.info ("Request: "+request);
-			URL url = new URL (request);
-			
-			HttpURLConnection link = (HttpURLConnection)url.openConnection ();
-			link.setRequestProperty ("User-Agent", agent);
-			
-			BufferedInputStream stream = new BufferedInputStream (link.getInputStream ());
-			play (stream);
+			int maxchar = 80;
+			String messages [] = breakup (message, maxchar);
+			for (int i=0; i<messages.length; i++) {
+				String encoded = URLEncoder.encode (message, "UTF-8");
+				String request = location + target + lang + tail + encoded;
+				Log.info ("Request: "+request);
+				URL url = new URL (request);
+
+				HttpURLConnection link = (HttpURLConnection)url.openConnection ();
+				link.setRequestProperty ("User-Agent", agent);
+
+				BufferedInputStream stream = new BufferedInputStream (link.getInputStream ());
+				play (stream);
+			}
 			
 			return true;
 		}
@@ -92,6 +97,30 @@ public class Synthesizer {
 			e.printStackTrace ();
 			return false;
 		}
+	}
+	
+	String [] breakup (String message, int maxchar) {
+		int start = 0;
+		int n = message.length ();
+		if (n < maxchar) {
+			String result [] = new String [1];
+			result [0] = message;
+			return result;
+		}
+		Vector <String> hold = new Vector <String> ();
+		// will just break up at ". "
+		do {
+			int pos = message.indexOf (". ", start);
+			if (pos != -1) {
+				hold.add (message.substring (start, pos+1));
+				start = pos+2;
+			}
+			else break;
+		} while (start < n);
+		if (start < n) hold.add (message.substring (start));
+		int m = hold.size ();
+		String results [] = hold.toArray (new String [m]);
+		return results;
 	}
 
 /**
