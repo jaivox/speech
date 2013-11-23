@@ -75,7 +75,7 @@ public class PATbatchOneSphinx extends Thread {
 				return;
 			}
 			ConfigurationManager cm = new ConfigurationManager (
-					PATbatchTest.class.getResource (config));
+					PATbatchOneSphinx.class.getResource (config));
 
 			Recognizer recognizer = (Recognizer) cm.lookup ("recognizer");
 			recognizer.allocate ();

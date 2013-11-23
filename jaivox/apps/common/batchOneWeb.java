@@ -56,7 +56,7 @@ public class PATbatchOneWeb {
 		kv.setProperty ("ttslang", "PATttslang");
 		Command cmd = new Command ();
 		inter = new Interact (basedir, kv, cmd);
-		speaker = new Synthesizer (basedir, kv);
+		speaker = new Synthesizer (kv);
 	}
 
 	void processSpeech () {

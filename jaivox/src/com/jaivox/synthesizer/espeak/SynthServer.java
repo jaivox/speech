@@ -53,7 +53,7 @@ public class SynthServer extends Server implements Runnable {
 		super (name, port);
 		basedir = base;
 		kv = pp;
-		Synth = new Synthesizer (base, kv);
+		Synth = new Synthesizer (kv);
 	}
 
 

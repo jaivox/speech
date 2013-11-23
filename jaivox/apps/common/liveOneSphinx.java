@@ -55,7 +55,7 @@ public class PATliveOneSphinx extends Thread {
 
 	void processSpeech () {
 		ConfigurationManager cm = new ConfigurationManager (
-				PATliveTest.class.getResource (config));
+				PATliveOneSphinx.class.getResource (config));
 		// allocate the recognizer
 		Log.info ("Loading...");
 		Recognizer recognizer = (Recognizer) cm.lookup ("recognizer");

@@ -155,10 +155,10 @@ public class Check {
 		try {
 			String name = node.name;
 			// assume this is file in the source directory
-			String base = quest.kv.getProperty ("Base");
-			String specdir = quest.kv.getProperty ("source");
+			String base = quest.conf.getProperty ("Base");
+			String specdir = quest.conf.getProperty ("source");
 			Log.fine ("Assumes "+name+" is a file in "+specdir);
-			datafile = base + specdir + name;
+			datafile = specdir + name;
 			dataname = name;
 			File F = new File (datafile);
 			if (!F.exists ()) {

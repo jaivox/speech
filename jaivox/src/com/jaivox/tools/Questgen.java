@@ -40,14 +40,18 @@ import java.util.Vector;
 
 public class Questgen {
 
-	Properties kv;
+	Config conf;
 
+	String basedir;
+	String destination;
+	String common;
+	String specdir;
+	String dir_interpreter;
+	
 	String grammarfile;
 	String tagsfile;
 	String infosfile;
 	String resultfile;
-	String srcdir;
-	String datadir;
 
 	Grammar Gram;
 
@@ -66,29 +70,24 @@ public class Questgen {
  * Generated questions are saved in a specified "questions_file".
 @param keyval
  */
-	public Questgen (Properties keyval) {
-		kv = keyval;
-		String base = kv.getProperty ("Base");
-		String specdir = base + kv.getProperty ("source");
-		srcdir = base + kv.getProperty ("common");
-		String useonedir = kv.getProperty ("onedirectory");
-		String dest = base + kv.getProperty ("destination");
-		if (useonedir.equals ("yes")) {
-			datadir = dest;
-		}
-		else {
-			datadir = dest + kv.getProperty ("dir_interpreter") + "/";
-		}
-		String gram = kv.getProperty ("grammar_file");
+	public Questgen (Config configured) {
+		conf = configured;
+		basedir = conf.getProperty ("Base");
+		destination = conf.getProperty ("destination");
+		specdir = conf.getProperty ("source");
+		common = conf.getProperty ("common");
+		
+		String useonedir = conf.getProperty ("onedirectory");
+		String gram = conf.getProperty ("grammar_file");
 		grammarfile = specdir + gram;
 		Gram = new Grammar (grammarfile);
 		patterns = Gram.patterns;
 		patorig = Gram.allpaths;
-		tagsfile = srcdir + kv.getProperty ("penn_tags");
+		tagsfile = common + conf.getProperty ("penn_tags");
 		Tags t = new Tags (tagsfile);
 		gtags = t.gtags;
 		infos = new TreeMap <String, Infonode> ();
-		String specs = kv.getProperty ("specs_file");
+		String specs = conf.getProperty ("specs_file");
 		if (specs != null) {
 			infosfile = specdir + specs;
 			loadinfos (specdir, infosfile);
@@ -96,8 +95,15 @@ public class Questgen {
 			c.checkAll ();
 		}
 		questions = new Vector <String> ();
-		String qq = kv.getProperty ("questions_file");
-		resultfile = datadir + qq;
+		String qq = conf.getProperty ("questions_file");
+		if (useonedir.equals ("yes")) {
+			resultfile = destination + qq;
+		}
+		else {
+			dir_interpreter = destination + conf.getProperty ("dir_interpreter") +
+					conf.Sep;
+			resultfile = dir_interpreter + qq;
+		}
 	}
 
 	void loadinfos (String specdir, String filename) {
@@ -160,7 +166,7 @@ public class Questgen {
 	
 	public void generate () {
 		questions = new Vector <String> ();
-		if (kv.getProperty ("specs_file") == null) {
+		if (conf.getProperty ("specs_file") == null) {
 			generateSimple ();
 			return;
 		}

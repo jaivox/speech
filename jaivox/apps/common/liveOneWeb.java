@@ -48,12 +48,12 @@ public class PATliveOneWeb {
 		kv.setProperty ("ttslang", "PATttslang");
 		Command cmd = new Command ();
 		inter = new Interact (basedir, kv, cmd);
-		speaker = new Synthesizer (basedir, kv);
+		speaker = new Synthesizer (kv);
 	}
 
 	void processSpeech () {
 		SpeechInput R = new SpeechInput ();
-		Mike mike = new Mike ("PATlive", type);
+		Mike mike = new Mike ("PATliveOneWeb", type);
 		int empty = 0;
 		int maxempty = 5;
 		while (true) {

@@ -38,7 +38,7 @@ public class Jvgen {
 			return;
 		}
 		Generator gen = new Generator (args [0]);
-		if (!gen.Valid) {
+		if (!gen.isValid ()) {
 			System.out.println ("Invalid specifications, generation is incomplete.");
 			return;
 		}

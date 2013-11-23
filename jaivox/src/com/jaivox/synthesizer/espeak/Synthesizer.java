@@ -28,13 +28,11 @@ public class Synthesizer {
 	public static String defaultLanguage = "en";
 
 /**
- * Create a Synthesizer using information in a Properties class and
- * information about a base directory. This form is included only for
- * compatibility with other similar constructors in other packages.
-@param base
-@param kv
+ * Create a synthesizer. The language of the synthesizer is given in
+ * the property "ttslang"
+ * @param kv 
  */
-	public Synthesizer (String base, Properties kv) {
+	public Synthesizer (Properties kv) {
 		Log.info ("Synthesizer created");
 		String language = kv.getProperty ("ttslang");
 		if (language != null) defaultLanguage = language;

@@ -46,7 +46,7 @@ import java.util.TreeMap;
 
 public class Generator {
 
-	static Properties kv;
+	Config conf;
 
 /**
  * Patterns to be replaced in templates start with patIndicator,
@@ -54,7 +54,6 @@ public class Generator {
  */
 	public static String patIndicator = "PAT";
 
-	Set <String> keys;
 	String source = "./";
 	String common = "./";
 	String destination = "./";
@@ -183,32 +182,69 @@ public class Generator {
 	TreeMap <String, Integer> patternFiles;
 	static Integer One = new Integer (1);
 
-	public boolean Valid = false;
+	boolean Valid = false;
 
+/**
+ * Geneate using information in a configuration file, usually with
+ * file extension ".conf"
+ * @param confname 
+ */
 	public Generator (String confname) {
-		new Config (confname);
-		kv = Config.kv;
-
+		conf = new Config (confname);
+		if (!conf.isValid ()) {
+			Log.severe ("Invalid/incomplete configuration info in "+confname);
+			Valid = false;
+			return;
+		}
+		generate ();
+	}
+	
+/**
+ * Generate using information in a properties map. This form is usually used
+ * to call the generator internally from another program.
+ * @param pp 
+ */
+	
+	public Generator (Properties pp) {
+		conf = new Config (pp);
+		if (!conf.isValid ()) {
+			Log.severe ("Invalid/incomplete configuration properties");
+			Valid = false;
+			return;
+		}
+		generate ();
+	}
+	
+/**
+ * Check whether the generator has a valid status.
+ * @return 
+ */
+	
+	public boolean isValid () {
+		return Valid;
+	}
+	
+	void generate () {
 		patternFiles = new TreeMap <String, Integer> ();
 		for (int i=0; i<patFiles.length; i++) {
 			patternFiles.put (patFiles [i], One);
 		}
 
-		String project = kv.getProperty ("project");
+		String project = conf.getProperty ("project");
 		if (project == null) {
 			Log.severe ("project name not specified");
 			return;
 		}
 
 		// get the basic variables
-		input = kv.getProperty ("input");
+		input = conf.getProperty ("input");
 		if (input != null && !find_required ("input", " live batch console ")) {
 			Log.severe ("input specification incorrect");
 			// return;
 		}
 		// for backward compatibility
 		if (input == null) {
-			input = kv.getProperty ("onefile");
+			input = conf.getProperty ("onefile");
 			if (input != null && !find_required ("onefile", " live batch console ")) {
 				Log.severe ("onefile specification incorrect");
 				return;
@@ -216,25 +252,21 @@ public class Generator {
 		}
 		// get some basic values
 
-		String base = (String) (kv.get ("Base"));
+		String base = conf.getProperty ("Base");
 
 		if (!find_required ("overwrite_files", " yes no ")) {
 			Log.severe ("overwrite_files not specified correctly");
 			return;
 		}
-		String overwritefiles = kv.getProperty ("overwrite_files");
+		String overwritefiles = conf.getProperty ("overwrite_files");
 		overwrite = (overwritefiles.equals ("yes") ? true : false);
 
 
-		String src = kv.getProperty ("source");
-		if (src != null && !src.equals ("null")) source = base + src;
-		String cmn = kv.getProperty ("common");
-		if (cmn != null) common = base + cmn;
-		String dest = kv.getProperty ("destination");
-		if (dest != null) destination = base + dest;
+		source = conf.getProperty ("source");
+		common = conf.getProperty ("common");
+		destination = conf.getProperty ("destination");
 		commandName = project + "Command";
 		commandFile = destination + commandName + ".java";
-		if (!dest.endsWith (File.separator)) destination = destination + File.separator;
 		Log.info ("Source:"+source+" Common:"+common+" Dest:"+destination);
 
 		// console is the simplified testing framework
@@ -248,7 +280,7 @@ public class Generator {
 			Log.severe ("onedirectory not specified correctly");
 			return;
 		}
-		String temp = kv.getProperty ("onedirectory");
+		String temp = conf.getProperty ("onedirectory");
 		if (temp.equalsIgnoreCase ("yes")) onedir = true;
 		else onedir = false;
 
@@ -256,13 +288,13 @@ public class Generator {
 			Log.severe ("recognizer not specified correctory");
 			return;
 		}
-		recognizer = kv.getProperty ("recognizer");
+		recognizer = conf.getProperty ("recognizer");
 
 		if (!find_required ("synthesizer", " festival espeak freetts web ")) {
 			Log.severe ("synthesizer not specified correctory");
 			return;
 		}
-		synthesizer = kv.getProperty ("synthesizer");
+		synthesizer = conf.getProperty ("synthesizer");
 
 
 		// from here we branch according to combination values. there
@@ -306,24 +338,24 @@ public class Generator {
 			}
 			else {
 				// get the directories for recognizer, synthesizer and interpreter
-				String dirinter = kv.getProperty ("dir_interpreter");
+				String dirinter = conf.getProperty ("dir_interpreter");
 				if (dirinter == null) {
 					Log.severe ("dir_interpreter not specified");
 					return;
 				}
-				String dirrecog = kv.getProperty ("dir_recognizer");
+				String dirrecog = conf.getProperty ("dir_recognizer");
 				if (dirrecog == null) {
 					Log.severe ("dir_recognizer not specified");
 					return;
 				}
-				String dirsynth = kv.getProperty ("dir_synthesizer");
+				String dirsynth = conf.getProperty ("dir_synthesizer");
 				if (dirsynth == null) {
 					Log.severe ("dir_synthesizer not specified");
 					return;
 				}
-				dir_interpreter = destination + dirinter + "/";
-				dir_recognizer = destination + dirrecog + "/";
-				dir_synthesizer = destination + dirsynth + "/";
+				dir_interpreter = destination + dirinter + conf.Sep;
+				dir_recognizer = destination + dirrecog + conf.Sep;
+				dir_synthesizer = destination + dirsynth + conf.Sep;
 				// create custom command file name
 				// Use the directory name to create Command name
 				commandName = project + "Command";
@@ -385,24 +417,24 @@ public class Generator {
 			}
 			else {
 				// get the directories for recognizer, synthesizer and interpreter
-				String dirinter = kv.getProperty ("dir_interpreter");
+				String dirinter = conf.getProperty ("dir_interpreter");
 				if (dirinter == null) {
 					Log.severe ("dir_interpreter not specified");
 					return;
 				}
-				String dirrecog = kv.getProperty ("dir_recognizer");
+				String dirrecog = conf.getProperty ("dir_recognizer");
 				if (dirrecog == null) {
 					Log.severe ("dir_recognizer not specified");
 					return;
 				}
-				String dirsynth = kv.getProperty ("dir_synthesizer");
+				String dirsynth = conf.getProperty ("dir_synthesizer");
 				if (dirsynth == null) {
 					Log.severe ("dir_synthesizer not specified");
 					return;
 				}
-				dir_interpreter = destination + dirinter + "/";
-				dir_recognizer = destination + dirrecog + "/";
-				dir_synthesizer = destination + dirsynth + "/";
+				dir_interpreter = destination + dirinter + conf.Sep;
+				dir_recognizer = destination + dirrecog + conf.Sep;
+				dir_synthesizer = destination + dirsynth + conf.Sep;
 				// create custom command file name
 				// Use the directory name to create Command name
 				commandName = project + "Command";
@@ -439,7 +471,7 @@ public class Generator {
 	}
 
 	boolean find_required (String name, String matches) {
-		String val = kv.getProperty (name);
+		String val = conf.getProperty (name);
 		if (val == null) {
 			Log.severe (""+name+" not specified, should be one of:" + matches);
 			return false;
@@ -469,10 +501,7 @@ public class Generator {
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
 
-			String livename = kv.getProperty ("live");
-			if (livename == null) {
-				kv.setProperty ("live", "live");
-			}
+			String livename = conf.getProperty ("live");
 			for (int i=0; i<LiveOneSphinx.length; i++) {
 				String name = LiveOneSphinx [i];
 				tpls.put (name, yes);
@@ -483,22 +512,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, destination, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, destination, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, destination, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, destination, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -527,10 +555,7 @@ public class Generator {
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
 
-			String livename = kv.getProperty ("live");
-			if (livename == null) {
-				kv.setProperty ("live", "live");
-			}
+			String livename = conf.getProperty ("live");
 			for (int i=0; i<LiveOneWeb.length; i++) {
 				String name = LiveOneWeb [i];
 				tpls.put (name, yes);
@@ -541,22 +566,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, destination, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, destination, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, destination, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, destination, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -609,22 +633,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -679,22 +702,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -756,22 +778,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -833,22 +854,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -879,10 +899,7 @@ public class Generator {
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
 
-			String batchname = kv.getProperty ("batch");
-			if (batchname == null) {
-				kv.setProperty ("batch", "batch");
-			}
+			String batchname = conf.getProperty ("batch");
 			for (int i=0; i<BatchOneSphinx.length; i++) {
 				String name = BatchOneSphinx [i];
 				tpls.put (name, yes);
@@ -893,22 +910,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, destination, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, destination, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, destination, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, destination, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -936,10 +952,7 @@ public class Generator {
 			if (!fd.exists ()) fd.mkdirs ();
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
-			String batchname = kv.getProperty ("batch");
-			if (batchname == null) {
-				kv.setProperty ("batch", "batch");
-			}
+			String batchname = conf.getProperty ("batch");
 
 			for (int i=0; i<BatchOneWeb.length; i++) {
 				String name = BatchOneWeb [i];
@@ -951,22 +964,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -1026,22 +1038,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -1102,22 +1113,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -1180,22 +1190,21 @@ public class Generator {
 			}
 
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -1257,22 +1266,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, dir_interpreter, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, dir_interpreter, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, dir_interpreter, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, dir_interpreter, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -1297,10 +1305,7 @@ public class Generator {
 			Hashtable <String, String> tpls = new Hashtable <String, String> ();
 			String yes = "yes";
 
-			String livename = kv.getProperty ("console");
-			if (livename == null) {
-				kv.setProperty ("console", "console");
-			}
+			String livename = conf.getProperty ("console");
 			for (int i=0; i<Console.length; i++) {
 				String name = Console [i];
 				tpls.put (name, yes);
@@ -1311,22 +1316,21 @@ public class Generator {
 				}
 			}
 			// copy specific files to interpreter
-			String datafile = kv.getProperty ("data_file");
+			String datafile = conf.getProperty ("data_file");
 			if (datafile != null && !copyFile (source, destination, datafile)) {
 				Log.info ("Could not find data file "+datafile);
 				// return;
 			}
-			String commonwords = kv.getProperty ("common_words");
+			String commonwords = conf.getProperty ("common_words");
 			if (!copyFile (common, destination, commonwords)) {
 				Log.severe ("Could not copy common words file");
 				return;
 			}
-			String specs = kv.getProperty ("specs_file");
+			String specs = conf.getProperty ("specs_file");
 			if (specs != null && !copyFile (source, destination, specs)) {
-				Log.severe ("Could not copy specifications file");
-				return;
+				Log.info ("Could not copy specifications file");
 			}
-			String grammar = kv.getProperty ("grammar_file");
+			String grammar = conf.getProperty ("grammar_file");
 			if (grammar != null && !copyFile (source, destination, grammar)) {
 				Log.severe ("Could not copy grammar file ");
 				return;
@@ -1402,18 +1406,8 @@ public class Generator {
 
 	boolean generateFile (String dest, String name) {
 		try {
-			keys = kv.stringPropertyNames ();
-            int n = keys.size ();
-            String okeys [] = new String [n];
-            Point op [] = new Point [n];
-            int pi = 0;
-			for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
-				String key = it.next ();
-                okeys [pi] = key;
-                op [pi] = new Point (pi, -key.length ());
-                pi++;
-            }
-            Utils.quicksortpointy(op, 0, n-1);
+			String sortedKeys [] = conf.getSortedKeys ();
+			int n = sortedKeys.length;
 			String filename = common + name;
 			String destname = dest + name;
 			if (!okOverwrite (destname)) {
@@ -1425,9 +1419,8 @@ public class Generator {
             
             // replace longest keys first
             for (int i=0; i<n; i++) {
-                Point p = op [i];
-				String key = okeys [p.x];
-				String val = kv.getProperty (key);
+				String key = sortedKeys [i];
+				String val = conf.getProperty (key);
 				if (name.startsWith (key)) {
 					String newname = name.replaceFirst (key, val);
 					// Log.fine ("Destination name: "+newname);
@@ -1607,15 +1600,16 @@ public class Generator {
  */
 
 	public void createQuestions () {
-		qg = new Questgen (kv);
+		qg = new Questgen (conf);
 		qg.generate ();
-		String textfile = kv.getProperty ("questions_file");
-		String resultfile = qg.datadir + textfile;
+		String textfile = conf.getProperty ("questions_file");
+		String resultfile = dir_interpreter + textfile;
 		if (okOverwrite (resultfile)) qg.saveQuestions ();
-		String sentfile = kv.getProperty ("lm_training_file");
-		if (sentfile == null) return;
-		createLmQuestions (dir_interpreter, dir_recognizer,
-				textfile, sentfile);
+		if (conf.checkProperty ("lm_training_file")) {
+			String sentfile = conf.getProperty ("lm_training_file");
+			createLmQuestions (dir_interpreter, dir_recognizer,
+					textfile, sentfile);
+		}
 	}
 
 /**
@@ -1625,10 +1619,12 @@ public class Generator {
  */
 
 	public void updateLmQuestions () {
-		String textfile = kv.getProperty ("questions_file");
-		String sentfile = kv.getProperty ("lm_training_file");
-		createLmQuestions (dir_interpreter, dir_recognizer,
-				textfile, sentfile);
+		String textfile = conf.getProperty ("questions_file");
+		if (conf.checkProperty ("lm_training_file")) {
+			String sentfile = conf.getProperty ("lm_training_file");
+			createLmQuestions (dir_interpreter, dir_recognizer,
+					textfile, sentfile);
+		}
 	}
 
 	void createLmQuestions (String dirinter, String dirrec,

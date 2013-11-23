@@ -17,11 +17,16 @@
 
 package com.jaivox.tools;
 
+import com.jaivox.interpreter.Utils;
 import com.jaivox.util.Log;
+import java.awt.Point;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Reads a configuration file and sets relevant values in a key value
@@ -46,50 +51,258 @@ public class Config {
  * all locations are relative to location of the input file
  */
 	public String basedir;
+	
+/**
+ * file separator
+ * see System.Properties ()
+ * file.separator	File separator ("/" on UNIX)
+ */
+ 
+ 	String Sep;
+	
+/**
+ * Property names sorted by length. This is to make sure that longer
+ * keys are replaced first when generating from a template
+ */
+	String sortedKeys [];
+	
+/**
+ * are the specs valid?
+ */
+	static boolean Valid = true;
 
 /**
- * create the key value properties from the given configuration
+ * Create the key value properties from the given configuration
  * file name.
 @param filename
  */
 	public Config (String filename) {
 		kv = new Properties ();
-        loadDefaultValues (kv);
+		Sep = System.getProperty ("file.separator");
+        loadDefaultValues ();
+		boolean ok = loadProperties (filename);
+		if (!ok) {
+			Valid = false;
+			return;
+		}
+		getBaseDir (filename);
+        Log.info ("Base directory is "+basedir);
+		fixRequiredDirectories ();
+		createSortedKeys ();
+		setAgentNames ();
+ 		kv.list (System.out);
+	}
+	
+/**
+ * Create the Config starting with a properties file. Note that Base should
+ * be specified in the properties.
+ */
+	
+	public Config (Properties pp) {
+		kv = pp;
+		Sep = System.getProperty ("file.separator");
+        loadDefaultValues ();
+		String path = kv.getProperty ("Base");
+		if (path == null) {
+			Log.severe ("No Base path specified.");
+			Valid = false;
+			return;
+		}
+		File G = new File (path);
+		if (G.exists ()) basedir = G.getAbsolutePath ();
+		if (!basedir.endsWith (Sep)) basedir = basedir + Sep;
+		kv.setProperty ("Base", basedir);
+        Log.info ("Base directory is "+basedir);
+		fixRequiredDirectories ();
+		createSortedKeys ();
+		setAgentNames ();
+ 		kv.list (System.out);
+	}
+	
+/**
+ * Load properties from file
+ */	
+	boolean loadProperties (String filename) {
 		try {
 			BufferedReader in = new BufferedReader (new FileReader (filename));
 			kv.load (in);
-			String sep = System.getProperty ("file.separator");
-            int pos = filename.indexOf (sep);
-            if (pos == -1) {
-                // assume filename is given without a path, add "." + sep to filename
-                filename = "."+sep+filename;
-                pos = filename.indexOf (sep);
-            }
-            basedir = filename.substring (0, pos+1);
-			kv.setProperty ("Base", basedir);
-            Log.info ("Base directory is "+basedir);
- 			setAgentNames ();
-			kv.list (System.out);
+			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace ();
+			Log.severe (e.toString ());
+			return false;
 		}
 	}
-    
-    void loadDefaultValues (Properties p) {
-        p.setProperty ("batch", "batch");
-        p.setProperty ("console", "console");
-        p.setProperty ("live", "live");
-        p.setProperty ("lang", "en-US");
-        p.setProperty ("ttslang", "en");
-        p.setProperty ("log_level", "info");
-        p.setProperty ("common_words", "common_en.txt");
-        p.setProperty ("freettsjar", "/usr/local/freetts/lib/freetts.jar");
-        p.setProperty ("onedirectory", "yes");
-        p.setProperty ("overwrite_files", "no");
-        p.setProperty ("penn_tags", "penn.txt");
-    }
 
+/**
+ * Check if configuration looks ok
+ * @return 
+ */
+	public boolean isValid () {
+		return Valid;
+	}
+
+    void loadDefaultValues () {
+        kv.setProperty ("batch", "batch");
+        kv.setProperty ("console", "console");
+        kv.setProperty ("live", "live");
+        kv.setProperty ("lang", "en-US");
+        kv.setProperty ("ttslang", "en");
+        kv.setProperty ("log_level", "info");
+        kv.setProperty ("common_words", "common_en.txt");
+        kv.setProperty ("freettsjar", "/usr/local/freetts/lib/freetts.jar");
+        kv.setProperty ("onedirectory", "yes");
+        kv.setProperty ("overwrite_files", "yes");
+        kv.setProperty ("penn_tags", "penn.txt");
+    }
+	
+	void getBaseDir (String configfile) {
+		File F = new File (configfile);
+		String path = F.getAbsolutePath ();
+		int pos = path.lastIndexOf (Sep);
+		if (pos !=1) path = path.substring (0, pos+1);
+		System.out.println ("basedir path candidate: "+path);
+		String temp = kv.getProperty ("Base");
+		if (temp != null) {
+			if (temp.startsWith (Sep)) {
+				path = temp;
+			}
+			else {
+				path = path + temp;
+			}
+		}
+		File G = new File (path);
+		System.out.println ("getBaseDir:" + path);
+		if (G.exists ()) basedir = G.getAbsolutePath ();
+		System.out.println ("getBaseDir: basedir = "+basedir);
+		if (!basedir.endsWith (Sep)) basedir = basedir + Sep;
+		kv.setProperty ("Base", basedir);
+	}
+	
+	// need common, source and destination
+    
+	void fixRequiredDirectories () {
+		fixDirectory ("common");
+		fixDirectory ("source");
+		fixDirectory ("destination");
+		if (!checkExists ("common")) {
+			Valid = false;
+			return;
+		}
+		if (!checkExists ("source")) {
+			Valid = false;
+			return;
+		}
+		if (!createDirectory ("destination")) {
+			Valid = false;
+			return;
+		}
+	}
+	
+	void fixDirectory (String key) {
+		String val = kv.getProperty (key);
+		if (val == null) {
+			Log.severe ("Required "+key+" not found.");
+			Valid = false;
+			return;
+		}
+		if (!val.startsWith (Sep)) {
+			val = basedir + val;
+		}
+		if (!val.endsWith (Sep)) {
+			val = val + Sep;
+		}
+		kv.setProperty (key, val);
+	}
+	
+	boolean checkExists (String key) {
+		String val = kv.getProperty (key);
+		File F = new File (val);
+		if (!F.exists ()) {
+			Log.severe ("Required file/directory "+val+" does not exist.");
+			return false;
+		}
+		return true;
+	}
+	
+	boolean createDirectory (String key) {
+		String val = kv.getProperty (key);
+		File F = new File (val);
+		if (!F.exists ()) {
+			boolean ok = F.mkdirs ();
+			if (!ok) {
+				Log.severe ("Could not create "+key+" directory "+val);
+				return ok;
+			}
+		}
+		return true;
+	}
+	
+/**
+ * Check whether a property is defined. If the property is not defined,
+ * an INFO message is logged, but Valid is not modified.
+ * @param key
+ * @return 
+ */
+	
+	public boolean checkProperty (String key) {
+		String val = kv.getProperty (key);
+		if (val == null) {
+			Log.info ("Value for "+key+" not found.");
+			return false;
+		}
+		return true;
+	}
+
+/**
+ * Get the property for a specific key. If the values is not found, then
+ * Valid is set to false so that subsequent calls to isValid returns false.
+ * @param key
+ * @return 
+ */
+
+	public String getProperty (String key) {
+		String val = kv.getProperty (key);
+		if (val == null) {
+			Log.warning ("Required value for "+key+" not in configuration.");
+			Valid = false;
+			return null;
+		}
+		return val;
+	}
+	
+	void createSortedKeys () {
+		Set<String> keys = kv.stringPropertyNames ();
+		int n = keys.size ();
+		String okeys [] = new String [n];
+		Point op [] = new Point [n];
+		int pi = 0;
+		for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
+			String key = it.next ();
+			okeys [pi] = key;
+			op [pi] = new Point (pi, -key.length ());
+			pi++;
+		}
+		Utils.quicksortpointy(op, 0, n-1);
+		sortedKeys = new String [n];
+		for (int i=0; i<n; i++) {
+			Point p = op [i];
+			String key = okeys [p.x];
+			sortedKeys [i] = key;
+		}
+	}
+	
+/**
+ * Get the sorted keys from sortedKeys
+ */
+	public String [] getSortedKeys () {
+		if (sortedKeys == null) createSortedKeys ();
+		return sortedKeys;
+	}
+	
+/**
+ * Agent names are needed for multiagent situations
+ */
 	void setAgentNames () {
         String onedir = kv.getProperty ("onedirectory");
         if (onedir.equals ("yes")) return;
@@ -106,6 +319,5 @@ public class Config {
         kv.setProperty ("nameinterpreter", iname);
         kv.setProperty ("namesynthesizer", sname);
 	}
-
 
 };

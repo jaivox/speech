@@ -16,6 +16,7 @@
 */
 package com.jaivox.synthesizer.freetts;
 
+import com.jaivox.util.Log;
 import com.sun.speech.freetts.Voice;
 import com.sun.speech.freetts.VoiceManager;
 import java.util.Properties;
@@ -36,14 +37,13 @@ public class Synthesizer {
 	Voice speaker;
 
 /**
- * Create a Synthesizer using information in a Properties class and
- * information about a base directory. This form is included only for
- * compatibility with other similar constructors in other packages.
-@param base
-@param kv
+ * Create a synthesizer. The language of the synthesizer is given in
+ * the property "ttslang"
+ * @param kv 
  */
-	public Synthesizer (String base, Properties kv) {
-		System.out.println ("Synthesizer created");
+	public Synthesizer (Properties kv) {
+		Log.info ("Synthesizer created");
+		String language = kv.getProperty ("ttslang");
 		initializeTts ();
 	}
 

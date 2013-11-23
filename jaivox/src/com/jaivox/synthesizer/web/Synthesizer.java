@@ -49,11 +49,11 @@ public class Synthesizer {
 	public String defaultLanguage = "en";
 
 /**
- * Create a synthesizer with the specified properties.
- * @param base
- * @param kv
+ * Create a synthesizer. The language of the synthesizer is given in
+ * the property "ttslang"
+ * @param kv 
  */
-	public Synthesizer (String base, Properties kv) {
+	public Synthesizer (Properties kv) {
 		Log.info ("Synthesizer created");
 		String language = kv.getProperty ("ttslang");
 		if (language != null) defaultLanguage = language;
