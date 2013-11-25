@@ -1522,7 +1522,7 @@ public class Generator {
 			if (src.equals ("null")) return false;
 			String sourcefile = src + filename;
 			String destfile = dest + filename;
-			if (!okOverwrite (destfile)) {
+			if (sourcefile.equals (destfile) || !okOverwrite (destfile)) { 
 				Log.severe (destfile+" exists. To overwrite, set overwrite_files to yes");
 				return true;
 			}
