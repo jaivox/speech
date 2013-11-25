@@ -186,8 +186,9 @@ forinstance
 
 {
 command
-	list ;
-	cat ;
+	request ;
+	question ;
+	query ;
 }
 
 {

@@ -215,7 +215,9 @@ public class Interact {
 		// get the match list
 		String in [] = Utils.splitTokens (lq);
 		double n = (double)(in.length);
-		Point pp [] = findBestMatches (in);
+		// old method that does not work very well
+		// Point pp [] = findBestMatches (in);
+		Point pp [] = findBestMatchingSentences (lq);
 		// standardize goodness
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
 		for (int i=0; i<pp.length && i<MaxMatch; i++) {
@@ -232,6 +234,30 @@ public class Interact {
 		return result;
 	}
 
+	Point [] findBestMatchingSentences (String query) {
+		int N = questions.length;
+		int bestdist = Integer.MAX_VALUE;
+		int bestq = -1;
+		Point pp [] = new Point [N];
+		for (int i=0; i<N; i++) {
+			int d = Utils.approxMatch (questions [i], query);
+			if (d < bestdist) {
+				bestdist = d;
+				bestq = i;
+			}
+			pp [i] = new Point (i, d-1);
+		}
+		if (bestq >= 0) {
+			Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
+		}
+		else {
+			Log.info ("No matches found for "+query);
+		}
+		Utils.quicksortpointy (pp, 0, N-1);
+		return pp;
+		
+	}
+	
 	Point [] findBestMatches (String in []) {
 		int n = in.length;
 		StringBuffer sb = new StringBuffer ();
@@ -266,7 +292,12 @@ public class Interact {
 			}
 			pp [i] = new Point (i, d-1);
 		}
-		Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
+		if (bestq >= 0) {
+			Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
+		}
+		else {
+			Log.info ("No matches found for "+result);
+		}
 		Utils.quicksortpointy (pp, 0, N-1);
 		return pp;
 	}

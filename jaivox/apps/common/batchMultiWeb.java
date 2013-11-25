@@ -37,7 +37,6 @@ public class PATbatchMultiWeb extends Thread {
 	static String audiodir = "PATaudiodir";
 	static String lang = "PATlang";
 	static String basedir = "./";
-	Interact inter;
 
 	static String recorded [] = {
 		// add your spoken recordings here. For example if there

@@ -27,6 +27,7 @@ public class PATbatchOneWeb {
 	String audiodir = "PATaudiodir";
 	String lang = "PATlang";
 	String basedir = "./";
+	Interact inter;
 	Synthesizer speaker;
 
 
