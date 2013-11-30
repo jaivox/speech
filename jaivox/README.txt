@@ -77,7 +77,8 @@ If you are not using sphinx4, you need only the following two things
 1. Java Development Kit for example from the Oracle Java SE download site
 2. Ant, from Apache
 
-In addition, of course, you need a web connection.
+In addition, of course, you need a web connection. To  use Google's tts,
+you need jLayer from http://www.javazoom.net in your classpath.
 
 Installation: using Sphinx4
 ===========================

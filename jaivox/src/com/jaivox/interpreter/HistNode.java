@@ -17,6 +17,9 @@
 
 package com.jaivox.interpreter;
 
+import com.jaivox.util.Recorder;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class HistNode {
@@ -61,6 +64,28 @@ public class HistNode {
 		userInput = input;
 		systemResponse = answer;
 	}
+	
+	public boolean equals (HistNode other) {
+		String otherNode [] = other.getFsmNode ();
+		boolean b0 = fsmNode [0].equals (otherNode [0]);
+		boolean b1 = fsmNode [1].equals (otherNode [1]);
+		boolean b2 = fsmNode [2].equals (otherNode [2]);
+		boolean b3 = fsmNode [3].equals (otherNode [3]);
+		if (!b0 || !b1 || !b2 || !b3) return false;
+		Set <Integer> keys = matches.keySet ();
+		TreeMap <Integer, String> motches = other.getMatches ();
+		Set <Integer> koys = motches.keySet ();
+		boolean kb = keys.equals (koys);
+		if (!kb) return false;
+		for (Iterator<Integer> it = keys.iterator (); it.hasNext ();) {
+			Integer key = it.next ();
+			String m1 = matches.get (key);
+			String m2 = motches.get (key);
+			if (m2 == null) return false;
+			if (!m1.equals (m2)) return false;
+		}
+		return true;
+	}
 
 /**
  * A readable form of the history node.
@@ -69,16 +94,47 @@ public class HistNode {
 	
 	public String toString () {
 		StringBuffer sb = new StringBuffer ();
-		sb.append (fsmNode[0]+" "+fsmNode[1]+" "+fsmNode[2]+" "+fsmNode[3]+"\n");
-		sb.append (userInput+" / "+systemResponse+"\n");
+		sb.append (fsmNode[0]+" / "+fsmNode[1]+" / "+fsmNode[2]+" / "+fsmNode[3]+"\n");
+		// sb.append (userInput+" / "+systemResponse+"\n");
 		if (matches != null) sb.append (matches.toString ()+"\n");
 		else sb.append ("no matches \n");
 		sb.append ("--------------------------------------");
 		String result = new String (sb);
 		return result;
 	}
-
+	
 /**
+ * Store information about this history node in a Log.Recorder file
+ */
+
+	public void store () {
+		String s = "=============\n"+toString ();
+		Recorder.record (s);
+	}
+	
+/**
+ * Make a deep copy of this HistNode
+ * @return 
+ */
+
+	public HistNode clone () {
+		// build a new copy of the matches
+		TreeMap <Integer, String> motches = new TreeMap <Integer, String> ();
+		if (matches == null) motches = null;
+		else {
+			Set <Integer> keys = matches.keySet ();
+			for (Iterator<Integer> it = keys.iterator (); it.hasNext ();) {
+				Integer key = it.next ();
+				String m1 = matches.get (key);
+				String m2 = new String (m1);
+				motches.put (key, m2);
+			}
+		}
+		HistNode copy = new HistNode (fsmNode, userInput, systemResponse, motches);
+		return copy;
+	}
+
+	/**
  * Get the finite state machine transition associated with this node.
  * @return
  */

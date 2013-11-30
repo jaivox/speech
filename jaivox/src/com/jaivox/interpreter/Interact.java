@@ -120,16 +120,39 @@ public class Interact {
 	}
 
 /**
+ * If the basedir is defined in a properties record, then we can create the
+ * interpreter using just the properties as argument. This form also creates
+ * a Recorder to keep track of a session's questions and answers.
+ * @param pp 
+ */
+	
+	public Interact (Properties pp) {
+		kv = pp;
+		basedir = kv.getProperty ("Base");
+		command = new Command ();
+		if (basedir == null) {
+			basedir = "./";
+		}
+		initialize ();
+		Record = new Recorder ("interact");
+		gen = new Script (this);
+	}
+	
+/**
  * Interact initializes all the other classes used in the conversation
  * (Info, Script and Sement.) It also loads all the data located in the
  * basedir location. This version assumes that the basedir
  * and specfile are declared above in the right locations since
  * Info is loaded from there.
+ * This form does not work because kv does not contain anything. It can
+ * be used if initialization is done after Interact is created and kv is updated.
  */
 	
 	public Interact () {
 		Record = new Recorder ("interact");
-		gen = new Script (this);
+		kv = new Properties ();
+		Log.severe ("No properties specified for Interact.");
+		return;
 	}
 
 /**
@@ -215,6 +238,10 @@ public class Interact {
 		// get the match list
 		String in [] = Utils.splitTokens (lq);
 		double n = (double)(in.length);
+		if (n == 0) {
+			Log.info ("No input");
+			return gen.errorResult (lq, null);
+		}
 		// old method that does not work very well
 		// Point pp [] = findBestMatches (in);
 		Point pp [] = findBestMatchingSentences (lq);
@@ -245,7 +272,7 @@ public class Interact {
 				bestdist = d;
 				bestq = i;
 			}
-			pp [i] = new Point (i, d-1);
+			pp [i] = new Point (i, d);
 		}
 		if (bestq >= 0) {
 			Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);

@@ -20,6 +20,7 @@ package com.jaivox.interpreter;
 import com.jaivox.tools.QaList;
 import com.jaivox.tools.QaNode;
 import com.jaivox.util.Log;
+import com.jaivox.util.Recorder;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -43,7 +44,9 @@ public class Script {
 	Interact I;
 	Properties kv;
 	Command F;
+	Control control;
 	Vector <HistNode> history;
+	boolean Store = false;
 	static int quad = 4;
 	int nfsm;
 	String fsm [][];
@@ -90,6 +93,15 @@ public class Script {
 	public static String defaultState = "def";
 	
 /**
+ * When a handleExec is called, we record that in history with an ending state
+ * that shows something was executed. To prevent runaway recursions of the exec
+ * we make a rule that if the last state is an exec, we cannot execute something
+ * else immediately afterwards.
+ */
+	
+	public static String execState = "jaivoxexec";
+	
+/**
  * anystate is to be matched only if nothing else matches. This is used to
  * handle bad matches and desperation statements, where the recognizer is not
  * producing anything useful.
@@ -112,6 +124,13 @@ public class Script {
 		I = dataholder;
 		F = I.command;
 		kv = I.kv;
+		control = new Control (this);
+		if (kv.getProperty ("store_history") != null) {
+			String yes = kv.getProperty ("store_history");
+			if (yes.equalsIgnoreCase ("yes")) Store = true;
+			else Store = false;
+		}
+		else Store = false;
 		history = new Vector <HistNode> ();
 		List = new QaList (I.grammarfile);
 		lookup = List.getLookup ();
@@ -188,6 +207,7 @@ public class Script {
 			}
 			HistNode node = new HistNode (tail, initialState, tail [2]);
 			history.add (node);
+			if (Store) node.store ();
 		}
 	}
 	
@@ -197,6 +217,7 @@ public class Script {
 		f [1] = f [2] = initialState;
 		HistNode node = new HistNode (f, initialState, initialState);
 		history.add (node);
+		if (Store) node.store ();
 	}
 
 /**
@@ -249,7 +270,10 @@ public class Script {
 				if (pos == -1) continue;
 				StringTokenizer st = new StringTokenizer (line, "\t");
 				if (st.countTokens () < 2) continue;
-				String q = st.nextToken ().trim ().toLowerCase ();
+				String q0 = st.nextToken ().trim ().toLowerCase ();
+				// remove punctuation from text form of question
+				String q1 [] = Utils.splitTokens (q0);
+				String q = Utils.makeString (q1);
 				String s = st.nextToken ().trim ();
 				// there may be additional semantic information in another token
 				// specs will have upper case things in them
@@ -301,6 +325,10 @@ public class Script {
 	
 	public String handleInputValue (TreeMap <Integer, String> map) {
 		Log.fine (showLastStates ("handleInputValue"));
+		
+		if (!control.approves (history)) {
+			return errorResult (control.getReason (), map);
+		}
 		Integer firstKey = map.firstKey ();
 		if (firstKey == null) {
 			Log.severe ("No input in call to handleInput");
@@ -338,6 +366,7 @@ public class Script {
 						node = new HistNode (fnew, input, answer [0]);
 					}
 					history.add (node);
+					if (Store) node.store ();
 					return answer [0];
 				}
 			}
@@ -369,6 +398,7 @@ public class Script {
 					node = new HistNode (fnew, input, answer [0], map);
 				}
 				history.add (node);
+				if (Store) node.store ();
 				return answer [0];
 			}
 		}
@@ -392,6 +422,11 @@ public class Script {
 			result [0] = errorResult (input, null);
 			return result;
 		}
+		/*
+		if (!control.approves (history)) {
+			result [0] = errorResult (input, null);
+			return result;
+		}*/
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
 		matches.put (new Integer (-99), input);
 		for (int i=0; i<nfsm; i++) {
@@ -412,6 +447,7 @@ public class Script {
 						node = new HistNode (fnew, input, answer [0], map);
 					}
 					history.add (node);
+					if (Store) node.store ();
 					return answer;
 				}
 			}
@@ -434,6 +470,7 @@ public class Script {
 						node = new HistNode (fnew, input, answer [0], map);
 					}
 					history.add (node);
+					if (Store) node.store ();
 					return answer;
 				}
 			}
@@ -461,6 +498,10 @@ public class Script {
 			result [0] = errorResult (input, null);
 			return result;
 		}
+		if (!control.approves (history)) {
+			result [0] = errorResult (input, null);
+			return result;
+		}
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
 		matches.put (new Integer (-99), input);
 		for (int i=0; i<nfsm; i++) {
@@ -477,6 +518,7 @@ public class Script {
 					String answer [] = makeAnswer (input, fsm [i], matches);
 					// HistNode node = new HistNode (fsm [i], input, answer);
 					// history.add (node);
+					// if (Store) node.store ();
 					return answer;
 				}
 			}
@@ -507,6 +549,7 @@ public class Script {
 		nm [3] = defaultState;
 		HistNode hist = new HistNode (nm, "", errorAnswer, map);
 		history.add (hist);
+		if (Store) hist.store ();
 		return errorAnswer;
 	}
 
@@ -793,6 +836,18 @@ public class Script {
 	
 	String [] handleExec (String input, String which, TreeMap<Integer, String> map) {
 		Log.fine ("handleExec "+input+" / "+which);
+		/*
+		// check the last state, if it is an execState then return error result
+		if (history.size () > 0) {
+			HistNode hnode = history.lastElement ();
+			String lastState = hnode.fsmNode [3];
+			if (lastState.equals (execState)) {
+				Log.severe ("Recursive exec call "+which);
+				String result [] = new String [1];
+				result [0] = errorResult (input, null);
+				return result;
+			}
+		}*/
 		if (which.equals ("this")) {
 			if (map != null) {
 				Integer firstkey = map.firstKey ();
@@ -808,6 +863,14 @@ public class Script {
 						Log.fine ("executing handleInputDirect/"+state+"/"+query);
 						String result [] = handleInputDirect (query, state);
 						Log.fine ("result handleInputDirect "+display (result));
+						String fnode [] = new String [4];
+						fnode [0] = state;
+						fnode [1] = "exec";
+						fnode [2] = "this";
+						fnode [3] = execState;
+						HistNode node = new HistNode (fnode, input, result [0], map);
+						history.add (node);
+						if (Store) node.store ();
 						return result;
 					}
 				}
@@ -831,8 +894,17 @@ public class Script {
 				if (query.length () == 0) continue;
 				// set state from the history node
 				String state = hist.fsmNode [0];
+				// remove the particular item from history
 				Log.fine ("handleExec calling handleInputDirect "+query);
 				String result [] = handleInputDirect (query, state);
+				String fnode [] = new String [4];
+				fnode [0] = state;
+				fnode [1] = "exec";
+				fnode [2] = "last";
+				fnode [3] = execState;
+				HistNode node = new HistNode (fnode, input, result [0], map);
+				history.add (node);
+				if (Store) node.store ();
 				return result;
 			}
 		}
