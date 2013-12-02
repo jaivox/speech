@@ -498,10 +498,11 @@ public class Script {
 			result [0] = errorResult (input, null);
 			return result;
 		}
+		/*
 		if (!control.approves (history)) {
 			result [0] = errorResult (input, null);
 			return result;
-		}
+		}*/
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
 		matches.put (new Integer (-99), input);
 		for (int i=0; i<nfsm; i++) {
@@ -863,6 +864,7 @@ public class Script {
 						Log.fine ("executing handleInputDirect/"+state+"/"+query);
 						String result [] = handleInputDirect (query, state);
 						Log.fine ("result handleInputDirect "+display (result));
+						/*
 						String fnode [] = new String [4];
 						fnode [0] = state;
 						fnode [1] = "exec";
@@ -871,6 +873,7 @@ public class Script {
 						HistNode node = new HistNode (fnode, input, result [0], map);
 						history.add (node);
 						if (Store) node.store ();
+						*/
 						return result;
 					}
 				}
@@ -897,6 +900,7 @@ public class Script {
 				// remove the particular item from history
 				Log.fine ("handleExec calling handleInputDirect "+query);
 				String result [] = handleInputDirect (query, state);
+				/*
 				String fnode [] = new String [4];
 				fnode [0] = state;
 				fnode [1] = "exec";
@@ -905,6 +909,7 @@ public class Script {
 				HistNode node = new HistNode (fnode, input, result [0], map);
 				history.add (node);
 				if (Store) node.store ();
+				*/
 				return result;
 			}
 		}
