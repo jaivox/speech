@@ -12,8 +12,10 @@ public class Control {
 	Interact I;
 	Script S;
 	Vector <HistNode> Past;
+	Vector <String> track;
 	Properties kv;
 	String lastReason;
+	String trackReason;
 	static String okay = "Okay";
 	
 	public Control (Script s) {
@@ -21,7 +23,9 @@ public class Control {
 		I = S.I;
 		kv = S.getKv ();
 		lastReason = okay;
+		trackReason = okay;
 		Past = new Vector <HistNode> ();
+		track = new Vector <String> ();
 	}
 	
 	public boolean approves (Vector <HistNode> history) {
@@ -57,6 +61,57 @@ public class Control {
 	
 	public String getReason () {
 		return lastReason;
+	}
+	
+	public boolean addTrack (String s) {
+		Log.finest ("addTrack: "+s);
+		track.add (s);
+		boolean ok = checkTrack (s);
+		return ok;
+	}
+	
+	boolean checkTrack (String s) {
+		// see if there are multiple handleInputDirect after last
+		// handleInputValue
+		int n = track.size ();
+		int last = -1;
+		for (int i=n-1; i>=0; i--) {
+			String item = track.elementAt (i);
+			if (item.startsWith ("handleInputValue/")) {
+				last = i;
+				break;
+			}
+		}
+		if (last == -1) {
+			trackReason = "No handleInputValue in track";
+			showTrack ();
+			Log.finest ("addTrack: "+trackReason);
+			return false;
+		}
+		int count = 0;
+		for (int i=last+1; i<n; i++) {
+			String item = track.elementAt (i);
+			if (item.startsWith ("handleInputDirect/")) count++;
+		}
+		if (count > 1) {
+			trackReason = "Muliple handleInputDirect after last handleInputValue";
+			Log.finest ("addTrack: "+trackReason);
+			return false;
+		}
+		return true;
+	}
+	
+	public String getTrackReason () {
+		return trackReason;
+	}
+	
+	public void showTrack () {
+		int n = track.size ();
+		System.out.println ("Track contents:");
+		for (int i=0; i<n; i++) {
+			System.out.println (track.elementAt (i));
+		}
+		System.out.println ();
 	}
 	
 }

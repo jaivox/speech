@@ -329,6 +329,9 @@ public class Script {
 		if (!control.approves (history)) {
 			return errorResult (control.getReason (), map);
 		}
+		if (!control.addTrack ("handleInputValue/"+map.toString ())) {
+			return errorResult (control.getTrackReason (), map);
+		}
 		Integer firstKey = map.firstKey ();
 		if (firstKey == null) {
 			Log.severe ("No input in call to handleInput");
@@ -427,8 +430,11 @@ public class Script {
 			result [0] = errorResult (input, null);
 			return result;
 		}*/
+		if (!control.addTrack ("handleInput/"+input+"/"+map.toString ())) {
+			return errorResultArray (control.getTrackReason (), map);
+		}
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
-		matches.put (new Integer (-99), input);
+		matches.put (new Integer (-100), input);
 		for (int i=0; i<nfsm; i++) {
 			String statenow = fsm [i][0];
 			String tomatch = fsm [i][1];
@@ -503,6 +509,9 @@ public class Script {
 			result [0] = errorResult (input, null);
 			return result;
 		}*/
+		if (!control.addTrack ("handleInputDirect/"+input+"/"+state)) {
+			return errorResultArray (control.getTrackReason (), null);
+		}
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
 		matches.put (new Integer (-99), input);
 		for (int i=0; i<nfsm; i++) {
@@ -552,6 +561,24 @@ public class Script {
 		history.add (hist);
 		if (Store) hist.store ();
 		return errorAnswer;
+	}
+	
+	public String [] errorResultArray (String input, TreeMap <Integer, String> map) {
+		QaNode errorNode = lookup.get (errorTag);
+		String errorAnswer = Error;
+		if (errorNode != null) errorAnswer = errorNode.pickRandomTail ();
+		else Log.fine ("No "+errorTag+" value defined in dialog.");
+		String nm [] = new String [quad];
+		nm [0] = lastState ();
+		nm [1] = input;
+		nm [2] = errorAnswer;
+		nm [3] = defaultState;
+		HistNode hist = new HistNode (nm, "", errorAnswer, map);
+		history.add (hist);
+		if (Store) hist.store ();
+		String result [] = new String [1];
+		result [0] = errorResult (input, null);
+		return result;
 	}
 
 /**
@@ -741,6 +768,9 @@ public class Script {
 		Log.fine ("makeAnswer: "+fsm[0]+" "+fsm[1]+" "+fsm[2]+" "+fsm[3]);
 		String rspec = fsm [2];
 		Log.fine ("makeAnswer "+question+" / "+rspec);
+		if (!control.addTrack ("makeAnswer/"+question+"/"+rspec+"/"+map.toString ())) {
+			return errorResultArray (control.getTrackReason (), map);
+		}
 		String answer [] = generateText (question, rspec, fsm [3], map);
 		return answer;
 	}
@@ -803,6 +833,9 @@ public class Script {
 	String [] handleFunction (String input, String spec, String instate,
 		TreeMap<Integer, String> map) {
 		Log.fine ("handleFunction "+input+" / "+spec);
+		if (!control.addTrack ("handleFunction/"+input+"/"+spec+"/"+instate+"/"+map.toString ())) {
+			return errorResultArray (control.getTrackReason (), map);
+		}
 		String inside = spec.substring (1, spec.length () -1).trim ();
 		// built in functions
 		StringTokenizer st = new StringTokenizer (inside);
@@ -837,6 +870,10 @@ public class Script {
 	
 	String [] handleExec (String input, String which, TreeMap<Integer, String> map) {
 		Log.fine ("handleExec "+input+" / "+which);
+		if (!control.addTrack ("handleExec/"+input+"/"+which+"/"+map.toString ())) {
+			return errorResultArray (control.getTrackReason (), map);
+			
+		}
 		/*
 		// check the last state, if it is an execState then return error result
 		if (history.size () > 0) {
@@ -928,6 +965,9 @@ public class Script {
 
 	String [] handleLastquery (String input, TreeMap<Integer, String> map) {
 		Log.fine ("handleLastQuery "+input);
+		if (!control.addTrack ("handleLastQuery/"+input+"/"+map.toString ())) {
+			return errorResultArray (control.getTrackReason (), map);
+		}
 		int n = history.size ();
 		// pull the first item in the map
 		if (map != null) {

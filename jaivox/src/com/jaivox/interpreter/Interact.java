@@ -258,6 +258,7 @@ public class Interact {
 		Log.info (matches.toString ());
 		String result = gen.handleInputValue (matches);
 		Recorder.record ("A: "+result);
+		// gen.control.showTrack ();
 		return result;
 	}
 
