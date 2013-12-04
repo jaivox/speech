@@ -103,10 +103,10 @@ public class Interact {
  * recognizer is not doing too well.
  */
 	void initialize () {
-		String stub = null;
+		String stub = "Interact";
 		String temp = kv.getProperty ("recorder_name");
 		if (temp != null) stub = temp;
-		Record = new Recorder (stub);
+		Record = new Recorder (basedir + stub);
 		specfile = kv.getProperty ("specs_file");
 		grammarfile = basedir + kv.getProperty ("grammar_file");
 		lookup = new TreeMap <String, String> ();

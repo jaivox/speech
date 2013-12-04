@@ -61,7 +61,7 @@ public class Recorder {
 			SimpleDateFormat dateformat = new SimpleDateFormat ("yyMMdd");
 			Date d = new Date ();
 			String s = dateformat.format (d);
-			String name = logdir + stub + s +".txt";
+			String name = stub + s +".txt";
  			R = new RandomAccessFile (name, "rw");
 			System.out.println ("Log file: "+name);
 			long N = R.length ();
