@@ -237,6 +237,7 @@ public class Interact {
 		String lq = query.toLowerCase ();
 		// get the match list
 		String in [] = Utils.splitTokens (lq);
+		String cleaned = Utils.joinTokens (in, " ");
 		double n = (double)(in.length);
 		if (n == 0) {
 			Log.info ("No input");
@@ -244,7 +245,7 @@ public class Interact {
 		}
 		// old method that does not work very well
 		// Point pp [] = findBestMatches (in);
-		Point pp [] = findBestMatchingSentences (lq);
+		Point pp [] = findBestMatchingSentences (cleaned);
 		// standardize goodness
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
 		for (int i=0; i<pp.length && i<MaxMatch; i++) {

@@ -45,7 +45,26 @@ public class Utils {
 		}
 		return qq;
 	}
-
+	
+/**
+ * Join the words in the array into a String. This could be done with some
+ * assumptions using java.util.Arrays, but the procedure below is simple enough
+ * @param tokens
+ * @param pad
+ * @return 
+ */
+	public static String joinTokens (String tokens [], String pad) {
+		StringBuffer sb = new StringBuffer ();
+		int n = tokens.length;
+		for (int i=0; i<n-1; i++) {
+			sb.append (tokens [i]);
+			sb.append (pad);
+		}
+		sb.append (tokens [n-1]);
+		String s = new String (sb);
+		return s;
+	}
+	
 /**
  * Assemble a string from an array of strings, mostly for printing out
  * @param tokens
