@@ -1653,7 +1653,12 @@ public class Generator {
 		}
 	}
 
-	void createCustomCommands () {
+/**
+ * This creates a way to handle some commands based on the application's
+ * needs. This can be overridden to do non-standard things.
+ */
+	
+	public void createCustomCommands () {
 		QaList List = qg.Gram.List;
 		TreeMap <String, QaNode> lookup = List.lookup;
 		Set <String> lkeys = lookup.keySet ();
