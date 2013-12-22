@@ -1,5 +1,5 @@
 /*
-   Jaivox version 0.5 August 2013
+   Jaivox version 0.6 December 2013
    Copyright 2010-2013 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
