@@ -40,7 +40,7 @@ import javazoom.jl.player.Player;
  * http://www.javazoom.net/ 
  */
 
-public class Synthesizer {
+public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
 
 	public String location = "http://translate.google.com/translate_tts?";
 	public String target = "tl=";
@@ -74,6 +74,7 @@ public class Synthesizer {
  * @param message
  * @return
  */
+	@Override
 	public boolean speak (String lang, String message) {
 		try {
 			int maxchar = 80;
@@ -127,6 +128,7 @@ public class Synthesizer {
  * speak the given message in the default language
 @param message
  */
+	@Override
 	public boolean speak (String message) {
 		try {
 			String lang = defaultLanguage;

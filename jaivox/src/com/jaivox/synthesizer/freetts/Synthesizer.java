@@ -31,7 +31,7 @@ import java.util.Properties;
  * the location of the freetts files in your system.
  */
 
-public class Synthesizer {
+public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
 
 	VoiceManager tts;
 	Voice speaker;
@@ -80,11 +80,19 @@ public class Synthesizer {
 		speaker.allocate ();
 	}
 
+/**
+ * Ignore language and speak the message in English
+ */
+	@Override
+	public boolean speak (String language, String message) {
+		return speak (message);
+	}
 
 /**
- * speak the given message
+ * speak the given message in English
 @param message
  */
+	@Override
 	public boolean speak (String message) {
 		try {
 			System.out.println ("Speaking: "+message);

@@ -22,7 +22,7 @@ import java.util.Properties;
 /**
  * The espeak synthesizer simply uses an espeak command
  */
-public class Synthesizer {
+public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
 
 	public static String cmd = "espeak -m -v ";
 	public static String defaultLanguage = "en";
@@ -54,6 +54,7 @@ public class Synthesizer {
  * (for example it could be in /usr/share/espeak-data/voices/)
 @param message
  */
+	@Override
 	public boolean speak (String language, String message) {
 		try {
 			if (message.indexOf (" ") != -1)
@@ -80,6 +81,7 @@ public class Synthesizer {
  * @return
  */
 
+	@Override
 	public boolean speak (String message) {
 		try {
 			String language = defaultLanguage;
