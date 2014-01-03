@@ -18,8 +18,8 @@
 package com.jaivox.agent;
 
 import com.jaivox.util.Log;
+import com.jaivox.util.Pair;
 
-import java.awt.Point;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
@@ -80,7 +80,7 @@ public class MessageData {
 				return;
 			}
 			StringTokenizer st = new StringTokenizer (msg, markers);
-			Vector <Point> tokens = new Vector <Point> ();
+			Vector <Pair> tokens = new Vector <Pair> ();
 			int last = 0;
 			while (st.hasMoreTokens ()) {
 				String token = st.nextToken ();
@@ -88,7 +88,7 @@ public class MessageData {
 					// find where it starts and ends
 					int tstart = msg.indexOf (token, last);
 					int tend = tstart + token.length ();
-					Point p = new Point (tstart, tend);
+					Pair p = new Pair (tstart, tend);
 					tokens.add (p);
 					// Log.fine ("token "+token+" from "+tstart+" to "+tend);
 					last = tend+1;
@@ -97,12 +97,12 @@ public class MessageData {
 			int n = tokens.size ();
 			int m = msg.length ();
 			for (int i=0; i<n; i++) {
-				Point p = tokens.elementAt (i);
+				Pair p = tokens.elementAt (i);
 				int tstart = p.x;
 				int tend = p.y;
 				int next = m;
 				if (i < n-1) {
-					Point q = tokens.elementAt (i+1);
+					Pair q = tokens.elementAt (i+1);
 					next = q.x;
 				}
 				String key = msg.substring (tstart, tend-1);

@@ -19,7 +19,7 @@ package com.jaivox.tools;
 
 import com.jaivox.interpreter.Utils;
 import com.jaivox.util.Log;
-import java.awt.Point;
+import com.jaivox.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -275,18 +275,18 @@ public class Config {
 		Set<String> keys = kv.stringPropertyNames ();
 		int n = keys.size ();
 		String okeys [] = new String [n];
-		Point op [] = new Point [n];
+		Pair op [] = new Pair [n];
 		int pi = 0;
 		for (Iterator<String> it = keys.iterator (); it.hasNext (); ) {
 			String key = it.next ();
 			okeys [pi] = key;
-			op [pi] = new Point (pi, -key.length ());
+			op [pi] = new Pair (pi, -key.length ());
 			pi++;
 		}
 		Utils.quicksortpointy(op, 0, n-1);
 		sortedKeys = new String [n];
 		for (int i=0; i<n; i++) {
-			Point p = op [i];
+			Pair p = op [i];
 			String key = okeys [p.x];
 			sortedKeys [i] = key;
 		}

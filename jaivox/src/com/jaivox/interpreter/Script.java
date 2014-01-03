@@ -233,6 +233,7 @@ public class Script {
 	
 	String expandText (String spec) {
 		String tokens [] = getTokens (spec);
+		if (tokens == null) return "";
 		StringBuffer sb = new StringBuffer ();
 		for (int i=0; i<tokens.length; i++) {
 			String token = tokens [i];
@@ -656,7 +657,7 @@ public class Script {
 			String tail [] = node.getTail ();
 			int n = spec.length;
 			int m = n - (kspec + 1);
-			for (int i=0; i<tail.length; i++) {
+			outer: for (int i=0; i<tail.length; i++) {
 				String tokens [] = getTokens (tail [i]);
 				if (tokens == null) continue;
 				// String tokens [] = tail [i].split (" ");
@@ -664,7 +665,10 @@ public class Script {
 				int l = tokens.length;
 				String newtok [] = new String [l+m];
 				for (int a=0; a<l; a++) newtok [a] = tokens [a];
-				for (int b=0; b<m; b++) newtok [l+b] = spec [kmatch+1+b];
+				for (int b=0; b<m; b++) {
+					if (kmatch+1+b >= n) continue outer;
+					newtok [l+b] = spec [kmatch+1+b];
+				}
 				if (matchNode (newtok, tomatch, 0, kmatch)) return true;
 			}
 			// nothing worked

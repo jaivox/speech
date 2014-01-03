@@ -20,7 +20,8 @@
 
 package com.jaivox.interpreter;
 
-import java.awt.Point;
+import com.jaivox.util.Pair;
+
 import java.util.StringTokenizer;
 
 public class Utils {
@@ -165,7 +166,7 @@ public class Utils {
  * @param high
  */
 	
-    public static void quicksortpointy (Point p[], int low, int high) {
+    public static void quicksortpointy (Pair p[], int low, int high) {
         int lo = low;
         int hi = high;
         if (lo >= hi) {
@@ -180,7 +181,7 @@ public class Utils {
                 hi--;
             }
             if (lo <= hi) {
-                Point t;
+                Pair t;
                 t = p[lo];
                 p[lo] = p[hi];
                 p[hi] = t;
