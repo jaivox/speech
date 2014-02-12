@@ -34,7 +34,7 @@ public class WavReader {
 		}
 	}
 	
-	boolean initialzeFile (String wavfile) {
+	public boolean initialzeFile (String wavfile) {
 		try {
 			File F = new File (wavfile);
 			if (!F.exists ()) {
@@ -50,7 +50,7 @@ public class WavReader {
 		}
 	}
 	
-	boolean closeAudioStream () {
+	public boolean closeAudioStream () {
 		try {
 			if (in == null) return false;
 			in.close ();
@@ -62,7 +62,7 @@ public class WavReader {
 		}
 	}
 	
-	int loadBuffers (int nBuffers) {
+	public int loadBuffers (int nBuffers) {
 		try {
 			if (data == null) {
 				data = new ArrayList <byte []> ();
@@ -104,7 +104,7 @@ public class WavReader {
 		}
 	}
 	
-	boolean writeBuffers (String filename) {
+	public boolean writeBuffers (String filename) {
 		try {
 			int n = data.size ();
 			if (n == 0) return false;
