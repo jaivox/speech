@@ -59,6 +59,8 @@ public class Interact {
 	TreeMap <String, Vector<String>> multiword;
 	String questions [];
 
+	PhoneMatcher phonematch;
+	
 	String lexicon [];
 	int nl;
 	
@@ -120,6 +122,15 @@ public class Interact {
 		addcommon ();
 		loadquestions ();
 		updateLexicon ();
+		
+		// in work/apps/common/t2prules_en.tree
+		String phonedb = kv.getProperty ("phone_database");
+		if (phonedb != null) {
+			phonematch = new PhoneMatcher (phonedb, questions);
+		}
+		else {
+			phonematch = null;
+		}
 	}
 
 /**
@@ -248,7 +259,13 @@ public class Interact {
 		}
 		// old method that does not work very well
 		// Pair pp [] = findBestMatches (in);
-		Pair pp [] = findBestMatchingSentences (cleaned);
+		Pair pp [];
+		if (phonematch != null) {
+			pp = phonematch.findBestMatchingSentences (cleaned);
+		}
+		else {
+			pp = findBestMatchingSentences (cleaned);
+		}
 		// standardize goodness
 		int best = 0;
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
