@@ -13,10 +13,10 @@ public class WavWriter {
 	AudioFormat audioformat;
 	AudioFileFormat.Type type;
 	
-	/**
-	 * This version writes WAVE files sample rate 44100, 16 bits, 1 channel,
-	 * 2 bytes per sample.
-	 */
+/**
+ * This version writes WAVE files sample rate 44100, 16 bits, 1 channel,
+ * 2 bytes per sample.
+ */
 	
 	public WavWriter () {
 		try {
@@ -31,7 +31,12 @@ public class WavWriter {
 		}
 	}
 
-	void writeBytes (String filename, byte data []) {
+/**
+ * Write a stream of raw bytes of data to a file
+ * @param filename
+ * @param data 
+ */
+	public void writeBytes (String filename, byte data []) {
 		try {
 			File F = new File (filename);
 			int div = audioformat.getFrameSize ();

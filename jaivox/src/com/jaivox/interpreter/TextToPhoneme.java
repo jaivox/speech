@@ -5,11 +5,23 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+/**
+ * convert text to phonemes. This utilizes a trained set of rules. For English
+ * these are learned from the CMU Pronouncing dictionary created by the
+ * CMU t2p perl program.
+ * @author dev
+ */
+
 public class TextToPhoneme {
 	
 	TreeNode Root;
 	int maxlevels = 100;
 
+/**
+ * Create a TextToPhoneme converter using the designated rules. For English
+ * you can use the rules given in apps/commmon/t2prules_en.tree
+ * @param rules 
+ */
 	public TextToPhoneme (String rules) {
 		Root = new TreeNode ("0");
 		boolean ok = initializeRules (rules);
@@ -49,6 +61,11 @@ public class TextToPhoneme {
 		}
 	}
 	
+/**
+ * convert a given string into an array of phonemes
+ * @param word
+ * @return 
+ */
 	public String [] lexicalToPhoneme (String word) {
 		ArrayList <String> result = new ArrayList <String> ();
 		String w = word.toUpperCase ();
@@ -75,6 +92,11 @@ public class TextToPhoneme {
 		return all;
 	}
 		
+/**
+ * Convert a string to a space delimited string of phonemes
+ * @param word
+ * @return 
+ */
 	// old stuff from t2p
 	String l2p (String word) {
 		String w = word.toUpperCase ();

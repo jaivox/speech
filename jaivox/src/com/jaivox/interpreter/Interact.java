@@ -106,6 +106,12 @@ public class Interact {
  * The interpreter maintains a Semnet, i.e. a semantic net, of topics
  * that have been discussed. This is used to suggest topics in case the
  * recognizer is not doing too well.
+ * 
+ * Starting with version 0.7, you can optionally specify a file "phone_database".
+ * For English this is a set of text to phoneme rules learned using a program
+ * called t2p created at Carnegie Mellon University which uses the CMU Pronouncing
+ * Dictionary. If such a set of rules are provided, then recognized strings are
+ * matched to stored questions using a phoneme-level edit distance matching.
  */
 	void initialize () {
 		String stub = "Interact";
@@ -242,6 +248,8 @@ public class Interact {
  * query to manage the conversation state and to produce a response.
  * the response in this case may be a question clarifying the original
  * query.
+ * If phone_database was specified, then PhoneMatcher is used to find the
+ * best match for the recognized query.
 @param query
 @return result of executing the query
  */

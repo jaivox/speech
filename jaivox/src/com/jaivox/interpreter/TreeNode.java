@@ -1,6 +1,15 @@
+
 package com.jaivox.interpreter;
 
 import java.util.ArrayList;
+
+/**
+ * TreeNode creates a node for storing rules for text to phoneme conversion.
+ * This is a rather generic class for storing trees with String tags, hence can
+ * be used in various situations where a tree is given by an indented list of
+ * lines.
+ * @author dev
+ */
 
 public class TreeNode {
 	int level;
@@ -9,6 +18,11 @@ public class TreeNode {
 	
 	static char indent = '.';
 	
+/* Create a TreeNode. The node is specified using a text string preceded by
+ * a set of indent characters (here '.'
+ * @param raw 
+ */
+
 	public TreeNode (String raw) {
 		char a = raw.charAt (0);
 		if (a == indent) {

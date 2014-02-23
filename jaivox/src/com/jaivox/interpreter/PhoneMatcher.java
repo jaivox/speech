@@ -4,6 +4,12 @@ import com.jaivox.util.Log;
 import com.jaivox.util.Pair;
 import java.util.StringTokenizer;
 
+/**
+ * Use the standard edit distance to match a sequence of phonemes to a stored
+ * set of sequences of phonemes.
+ * @author dev
+ */
+
 public class PhoneMatcher {
 	TextToPhoneme t2p;
 	static String terms = " .,;:/?-()[]{}$#@!%&*\'\"<>\t\r\n";
@@ -11,6 +17,17 @@ public class PhoneMatcher {
 	String questions [];
 	int N;
 	String qphones [];
+	
+/**
+ * Create a phoneme matcher using rules for text to phoneme conversion (for
+ * English see apps/common/t2prules_en.tree) and a set of questions. In a typical
+ * speech recognition application, a user's question is recognized as some words.
+ * These are converted to phonemes and matched against phonemes corresponding
+ * to stored questions. This is used to guess the actual question asked by the
+ * user, assuming it is one of the questions used when creating this class.
+ * @param rules
+ * @param q 
+ */
 	
 	public PhoneMatcher (String rules, String q []) {
 		t2p = new TextToPhoneme (rules);
@@ -49,8 +66,18 @@ public class PhoneMatcher {
 		return result;
 	}
 	
-	public Pair [] findBestMatchingSentences (String question) {
-		String cleaned = clean (question);
+/**
+ * Create a sorted list of stored questions that may match a recognized string
+ * produced by a speech recognizer. The results are returned in the form of
+ * Pairs, i.e. x and y values. Here x is the index of a question in the original
+ * list of questions used when creating this class, and the y is the edit distance
+ * of the sequence of recognized phonemes from the phonemes belonging to the
+ * selected x-th question.
+ * @param question
+ * @return 
+ */
+	public Pair [] findBestMatchingSentences (String recognized) {
+		String cleaned = clean (recognized);
 		String raw = t2p.l2p (cleaned);
 		String test = cleanPhones (raw);
 		int bestdist = Integer.MAX_VALUE;
@@ -68,7 +95,7 @@ public class PhoneMatcher {
 			Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
 		}
 		else {
-			Log.info ("No matches found for "+question);
+			Log.info ("No matches found for "+recognized);
 		}
 		Utils.quicksortpointy (pp, 0, N-1);
 		return pp;

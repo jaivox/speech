@@ -8,6 +8,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+/**
+ * Reads a wave format file into arrays of bytes
+ * @author dev
+ */
 public class WavReader {
 
 	AudioFormat audioformat;
@@ -17,10 +21,10 @@ public class WavReader {
 	
 	ArrayList <byte []> data;
 	
-	/**
-	 * This version of the WavReader assumes that the file being read is a WAVE
-	 * file, sample rate 44100, 16 bits, mono (1 channel), 2 bytes per sample.
-	 */
+/**
+ * This version of the WavReader assumes that the file being read is a WAVE
+ * file, sample rate 44100, 16 bits, mono (1 channel), 2 bytes per sample.
+ */
 	
 	public WavReader () {
 		try {
@@ -34,6 +38,11 @@ public class WavReader {
 		}
 	}
 	
+/**
+ * Initialize reading a wave format file
+ * @param wavfile
+ * @return 
+ */
 	public boolean initialzeFile (String wavfile) {
 		try {
 			File F = new File (wavfile);
@@ -50,6 +59,10 @@ public class WavReader {
 		}
 	}
 	
+/**
+ * Close an open audio stream
+ * @return 
+ */
 	public boolean closeAudioStream () {
 		try {
 			if (in == null) return false;
@@ -62,6 +75,12 @@ public class WavReader {
 		}
 	}
 	
+/**
+ * Read in a certain number of buffers, each buffer is of a size bufferSize
+ * determined when the class was created.
+ * @param nBuffers
+ * @return 
+ */
 	public int loadBuffers (int nBuffers) {
 		try {
 			if (data == null) {
@@ -104,6 +123,11 @@ public class WavReader {
 		}
 	}
 	
+/**
+ * Write data in buffers to a file
+ * @param filename
+ * @return 
+ */
 	public boolean writeBuffers (String filename) {
 		try {
 			int n = data.size ();
