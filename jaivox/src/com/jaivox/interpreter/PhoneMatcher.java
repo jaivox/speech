@@ -37,7 +37,7 @@ public class PhoneMatcher {
 		for (int i=0; i<N; i++) {
 			String question = questions [i];
 			String cleaned = clean (question);
-			String raw = t2p.l2p (cleaned);
+			String raw = t2p.convertToPhonemes (cleaned);
 			qphones [i] = cleanPhones (raw);
 		}
 	}
@@ -55,7 +55,7 @@ public class PhoneMatcher {
 
 	String cleanPhones (String phones) {
 		StringTokenizer st = new StringTokenizer (phones);
-		StringBuilder sb = new StringBuilder ();
+		StringBuffer sb = new StringBuffer ();
 		while (st.hasMoreTokens ()) {
 			String token = st.nextToken ();
 			if (token.equals ("_")) continue;
@@ -78,7 +78,7 @@ public class PhoneMatcher {
  */
 	public Pair [] findBestMatchingSentences (String recognized) {
 		String cleaned = clean (recognized);
-		String raw = t2p.l2p (cleaned);
+		String raw = t2p.convertToPhonemes (cleaned);
 		String test = cleanPhones (raw);
 		int bestdist = Integer.MAX_VALUE;
 		int bestq = -1;

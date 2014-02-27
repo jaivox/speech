@@ -4,6 +4,7 @@ import com.jaivox.util.Log;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * convert text to phonemes. This utilizes a trained set of rules. For English
@@ -70,7 +71,7 @@ public class TextToPhoneme {
 		ArrayList <String> result = new ArrayList <String> ();
 		String w = word.toUpperCase ();
 		int n = w.length ();
-		StringBuilder sb = new StringBuilder ();
+		StringBuffer sb = new StringBuffer ();
 		for (int i=0; i<3; i++) {
 			sb.append ("-");
 		}
@@ -91,6 +92,26 @@ public class TextToPhoneme {
 		String all [] = result.toArray (new String [m]);
 		return all;
 	}
+	
+/**
+ * The standard way to convert a sentence to phonemes is to convert first
+ * to words, and then to convert the words into phonemes, joining everything
+ * together afterwards.
+ * @param text
+ * @return 
+ */
+	public String convertToPhonemes (String text) {
+		StringBuffer sb = new StringBuffer ();
+		StringTokenizer st = new StringTokenizer (text);
+		while (st.hasMoreTokens ()) {
+			String word = st.nextToken ();
+			String phones = l2p (word);
+			sb.append (phones);
+			sb.append (' ');
+		}
+		String result = new String (sb).trim ();
+		return result;
+	}
 		
 /**
  * Convert a string to a space delimited string of phonemes
@@ -101,7 +122,7 @@ public class TextToPhoneme {
 	String l2p (String word) {
 		String w = word.toUpperCase ();
 		int n = w.length ();
-		StringBuilder sb = new StringBuilder ();
+		StringBuffer sb = new StringBuffer ();
 		for (int i=0; i<3; i++) {
 			sb.append ("-");
 		}
@@ -113,7 +134,7 @@ public class TextToPhoneme {
 		}
 		String text = new String (sb);
 		
-		StringBuilder result = new StringBuilder ();
+		StringBuffer result = new StringBuffer ();
 		for (int i=0; i<n; i++) {
 			String letters = text.substring (i, i+7);
 			String phone = context2phone (letters);
