@@ -39,13 +39,18 @@ audio_es: audio files similar to audio_de, but for Spanish.
 common: there are several template files that are used in generating applications. This
 	directory contains all these files.
 
+compareasr: compares google's speech recognition and Sphinx4 recognition
+	on the same data.
+
 db: is an application that queries the cookie sqlite database (this is created by the
 	mozilla browser.)
 
 find: is another application that searches files using the "find" command.
 
-compareasr: compares google's speech recognition and Sphinx4 recognition
-	on the same data.
+fixerrors: this is an application that uses the version 0.7 features to
+	match recognized strings by comparing phonemes in the string. This
+	uses a table of results obtained by Julius Adorf, please see the page
+	http://www.jaivox.com/phoneticdistance.html for details.
 
 mini: this shows how the jaivox interpreter can handle a wide variety of
 	conversations. There are five examples here. These examples do not contain

@@ -84,7 +84,7 @@ public class PhoneMatcher {
 		int bestq = -1;
 		Pair pp [] = new Pair [N];
 		for (int i=0; i<N; i++) {
-			int d = Utils.editDistance (qphones [i], test);
+			int d = Utils.approxMatch (qphones [i], test);
 			if (d < bestdist) {
 				bestdist = d;
 				bestq = i;
@@ -100,36 +100,5 @@ public class PhoneMatcher {
 		Utils.quicksortpointy (pp, 0, N-1);
 		return pp;
 	}			
-			
-		
 
-// check edit distance for comparison
-// http://en.wikibooks.org/wiki/Algorithm_implementation/Strings/Levenshtein_distance#Java
-	int minimum(int a, int b, int c) {
-		return Math.min (Math.min(a, b), c);
-	}
-
-	int editDistance (String a, String b) {
-		String one [] = a.split (" ");
-		String two [] = b.split (" ");
-		int n = one.length;
-		int m = two.length;
-        int [][] distance = new int [n + 1][m + 1];
-
-        for (int i = 0; i <= n; i++) {
-            distance [i][0] = i;
-        }
-        for (int j = 0; j <= m; j++) {
-            distance [0][j] = j;
-        }
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= m; j++) {
-                distance[i][j] = minimum (
-                    distance[i-1][j] + 1,
-                    distance[i][j-1] + 1,
-                    distance[i-1][j-1] + (one[i-1].equals (two[j-1]) ? 0 : 1));
-            }
-        }
-        return distance [n][m];
-    }
 }
