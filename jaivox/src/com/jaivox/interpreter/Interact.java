@@ -119,6 +119,8 @@ public class Interact {
 		if (temp != null) stub = temp;
 		Record = new Recorder (basedir + stub);
 		specfile = kv.getProperty ("specs_file");
+		String base = kv.getProperty("Base");
+		if(base != null) basedir = base;
 		grammarfile = basedir + kv.getProperty ("grammar_file");
 		lookup = new TreeMap <String, String> ();
 		multiword = new TreeMap <String, Vector<String>> ();
