@@ -1,6 +1,6 @@
 /*
-   Jaivox version 0.6 December 2013
-   Copyright 2010-2013 by Bits and Pixels, Inc.
+   Jaivox version 0.7 March 2014
+   Copyright 2010-2014 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Properties;
 /**
  * The espeak synthesizer simply uses an espeak command
  */
-public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
+public class Synthesizer {
 
 	public static String cmd = "espeak -m -v ";
 	public static String defaultLanguage = "en";
@@ -54,7 +54,6 @@ public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
  * (for example it could be in /usr/share/espeak-data/voices/)
 @param message
  */
-	@Override
 	public boolean speak (String language, String message) {
 		try {
 			if (message.indexOf (" ") != -1)
@@ -81,7 +80,6 @@ public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
  * @return
  */
 
-	@Override
 	public boolean speak (String message) {
 		try {
 			String language = defaultLanguage;

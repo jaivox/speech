@@ -1,6 +1,6 @@
 /*
-   Jaivox version 0.6 December 2013
-   Copyright 2010-2013 by Bits and Pixels, Inc.
+   Jaivox version 0.7 March 2014
+   Copyright 2010-2014 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ package com.jaivox.interpreter;
 
 import com.jaivox.util.Log;
 import com.jaivox.util.Recorder;
-import com.jaivox.util.Pair;
 
+import com.jaivox.util.Pair;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -58,14 +57,10 @@ public class Interact {
 	TreeMap <String, String> lookup;
 	TreeMap <String, Vector<String>> multiword;
 	String questions [];
-
-	PhoneMatcher phonematch;
-	
 	String lexicon [];
 	int nl;
 	
 	public static int MaxMatch = 5;
-	public static int triggerSearch = 60;
 
 /**
  * Interact initialize all other classes used in the conversation.
@@ -106,12 +101,6 @@ public class Interact {
  * The interpreter maintains a Semnet, i.e. a semantic net, of topics
  * that have been discussed. This is used to suggest topics in case the
  * recognizer is not doing too well.
- * 
- * Starting with version 0.7, you can optionally specify a file "phone_database".
- * For English this is a set of text to phoneme rules learned using a program
- * called t2p created at Carnegie Mellon University which uses the CMU Pronouncing
- * Dictionary. If such a set of rules are provided, then recognized strings are
- * matched to stored questions using a phoneme-level edit distance matching.
  */
 	void initialize () {
 		String stub = "Interact";
@@ -119,8 +108,6 @@ public class Interact {
 		if (temp != null) stub = temp;
 		Record = new Recorder (basedir + stub);
 		specfile = kv.getProperty ("specs_file");
-		String base = kv.getProperty("Base");
-		if(base != null) basedir = base;
 		grammarfile = basedir + kv.getProperty ("grammar_file");
 		lookup = new TreeMap <String, String> ();
 		multiword = new TreeMap <String, Vector<String>> ();
@@ -130,15 +117,6 @@ public class Interact {
 		addcommon ();
 		loadquestions ();
 		updateLexicon ();
-		
-		// in work/apps/common/t2prules_en.tree
-		String phonedb = kv.getProperty ("phone_database");
-		if (phonedb != null) {
-			phonematch = new PhoneMatcher (phonedb, questions);
-		}
-		else {
-			phonematch = null;
-		}
 	}
 
 /**
@@ -250,8 +228,6 @@ public class Interact {
  * query to manage the conversation state and to produce a response.
  * the response in this case may be a question clarifying the original
  * query.
- * If phone_database was specified, then PhoneMatcher is used to find the
- * best match for the recognized query.
 @param query
 @return result of executing the query
  */
@@ -269,52 +245,18 @@ public class Interact {
 		}
 		// old method that does not work very well
 		// Pair pp [] = findBestMatches (in);
-		Pair pp [];
-		if (phonematch != null) {
-			pp = phonematch.findBestMatchingSentences (cleaned);
-		}
-		else {
-			pp = findBestMatchingSentences (cleaned);
-		}
+		Pair pp [] = findBestMatchingSentences (cleaned);
 		// standardize goodness
-		int best = 0;
 		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
 		for (int i=0; i<pp.length && i<MaxMatch; i++) {
 			Pair p = pp [i];
 			double d = (double)(p.y);
 			int percentage = (int)((n-d)*100.0/n);
-			if (percentage > best) best = percentage;
 			Integer I = new Integer (-percentage);
 			String s = questions [p.x];
 			matches.put (I, s);
 		}
-		Log.info ("Matches without searches: "+matches.toString ());
-		// now try the search approach if percentage is not high enough
-		if (best < triggerSearch) {
-			LinkedHashMap <String, String> searches = new LinkedHashMap <String, String> ();
-			StringTokenizer st = new StringTokenizer (lq);
-			int ntok = 0;
-			while (st.hasMoreTokens ()) {
-				String token = st.nextToken ();
-				if (searches.get (token) == null) {
-					searches.put (token, "yes");
-					ntok++;
-				}
-			}
-			Pair qq [] = findBestSearchResults (searches);
-			double xntok = (double)ntok;
-			// judge the seach results
-			for (int i=0; i<qq.length && i<MaxMatch; i++) {
-				Pair p =  qq [i];
-				double d = (double)(-p.y);
-				int percentage = (int)((d/xntok)*100.0);
-				if (percentage > best) best = percentage;
-				Integer I = new Integer (-percentage);
-				String s = questions [p.x];
-				matches.put (I, s);
-			}
-		}
-		Log.info ("Matches with searches: "+matches.toString ());
+		Log.info (matches.toString ());
 		String result = gen.handleInputValue (matches);
 		Recorder.record ("A: "+result);
 		// gen.control.showTrack ();
@@ -397,42 +339,6 @@ public class Interact {
 		return true;
 	}
 	
-	// should do this with incremental separating search
-	
-	Pair [] findBestSearchResults (LinkedHashMap <String, String> searches) {
-		int N = questions.length;
-		int bestmatch = 0;
-		int bests = -1;
-		Pair pp [] = new Pair [N];
-		for (int i=0; i<N; i++) {
-			pp [i] = new Pair (i, 0);
-		}
-		for (int i=0; i<N; i++) {
-			StringTokenizer st = new StringTokenizer (questions [i]);
-			String first = st.nextToken ();	// discard it
-			if (!first.equals ("jaivoxsearch")) continue;
-			int count = 0;
-			while (st.hasMoreTokens ()) {
-				String token = st.nextToken ();
-				if (searches.get (token) != null) count++;
-			}
-			if (count > bestmatch) {
-				bestmatch = count;
-				bests = i;
-			}
-			pp [i] = new Pair (i, -count);
-		}
-		if (bests >= 0) {
-			System.out.println ("Best search question "+questions [bests]+" distance "+bestmatch);
-		}
-		else {
-			System.out.println ("No matches found for search "+searches.toString ());
-		}
-		Utils.quicksortpointy (pp, 0, N-1);
-		return pp;
-	}
-
-	
 /**
  * Get the Script associated wit this interpreter
  * @return
@@ -440,12 +346,5 @@ public class Interact {
 	public Script getScript () {
 		return gen;
 	}
-/**
- * Get the questions that are recognized by this interpreter. This includes
- * search queries.
- * @return 
- */
-	public String[] getQuestions () {
-		return questions;
-	}
+
 };

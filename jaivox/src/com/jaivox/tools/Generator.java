@@ -1,6 +1,6 @@
 /*
-   Jaivox version 0.6 December 2013
-   Copyright 2010-2013 by Bits and Pixels, Inc.
+   Jaivox version 0.7 March 2014
+   Copyright 2010-2014 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package com.jaivox.tools;
 import com.jaivox.interpreter.Utils;
 import com.jaivox.util.Log;
 
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;

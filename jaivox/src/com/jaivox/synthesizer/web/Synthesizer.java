@@ -1,6 +1,6 @@
 /*
-   Jaivox version 0.6 December 2013
-   Copyright 2010-2013 by Bits and Pixels, Inc.
+   Jaivox version 0.7 March 2014
+   Copyright 2010-2014 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import javazoom.jl.player.Player;
  * http://www.javazoom.net/ 
  */
 
-public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
+public class Synthesizer {
 
 	public String location = "http://translate.google.com/translate_tts?";
 	public String target = "tl=";
@@ -74,7 +74,6 @@ public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
  * @param message
  * @return
  */
-	@Override
 	public boolean speak (String lang, String message) {
 		try {
 			int maxchar = 80;
@@ -128,7 +127,6 @@ public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
  * speak the given message in the default language
 @param message
  */
-	@Override
 	public boolean speak (String message) {
 		try {
 			String lang = defaultLanguage;
