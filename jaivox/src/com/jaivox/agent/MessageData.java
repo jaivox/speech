@@ -1,6 +1,6 @@
 /*
-   Jaivox version 0.7 March 2014
-   Copyright 2010-2014 by Bits and Pixels, Inc.
+   Jaivox version 0.6 December 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 package com.jaivox.agent;
 
 import com.jaivox.util.Log;
-
 import com.jaivox.util.Pair;
+
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;

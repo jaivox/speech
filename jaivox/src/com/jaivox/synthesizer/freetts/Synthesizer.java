@@ -1,6 +1,6 @@
 /*
-   Jaivox version 0.7 March 2014
-   Copyright 2010-2014 by Bits and Pixels, Inc.
+   Jaivox version 0.6 December 2013
+   Copyright 2010-2013 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import java.util.Properties;
  * the location of the freetts files in your system.
  */
 
-public class Synthesizer {
+public class Synthesizer extends com.jaivox.synthesizer.Synthesizer {
 
 	VoiceManager tts;
 	Voice speaker;
@@ -80,11 +80,19 @@ public class Synthesizer {
 		speaker.allocate ();
 	}
 
+/**
+ * Ignore language and speak the message in English
+ */
+	@Override
+	public boolean speak (String language, String message) {
+		return speak (message);
+	}
 
 /**
- * speak the given message
+ * speak the given message in English
 @param message
  */
+	@Override
 	public boolean speak (String message) {
 		try {
 			System.out.println ("Speaking: "+message);
