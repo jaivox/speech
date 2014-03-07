@@ -1,9 +1,6 @@
 
-Jaivox library and applications (Version 0.5, August 2013)
-
-See http://www.jaivox.com for detailed documentation and requirements.
-
-   Copyright 2010-2013 by Bits and Pixels, Inc.
+   Jaivox version 0.7 March 2014
+   Copyright 2010-2014 by Bits and Pixels, Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,8 +16,9 @@ See http://www.jaivox.com for detailed documentation and requirements.
 
 What is different?
 =================
-Jaivox libraries can now be used with Web-based recognizers and text to speech.
-For now, this means using Google's recognizer and TTS.
+This version includes a phoneme-based error correction method (for English, but
+it can be extended to other languages.) There are some wave format audio file
+classes that can be used in word-level alignment of text and audio.
 
 Installation - short version
 ============================
@@ -162,20 +160,3 @@ directory.) The runinter.sh includes classes that are required for Jaivox
 interpreter, typically found in the "inter" directory. You may need to change
 the name of the main class in each of these scripts depending on your
 programs.
-
-Testing
-=======
-See http://www.jaivox.com/tutorial.html for detailed instructions on
-generating and testing an application.
-
-Please note that you can modify runsphinx.sh and/or runinter.sh for running
-your application.
-
-The simplest test involves the files in apps/1st. This is a complete program
-that uses Sphinx and Free TTS. See apps/1st/README_1st.txt for details
-on running this program.
-
-See http://www.jaivox.com/recordeddemo.html for a demo where you can hear
-one of us asking questions and the Jaivox interpreter creating anwswers
-which are spoken through festival.
-
