@@ -24,8 +24,8 @@ public class JaivoxHelp {
  */
 	public static void main (String args []) {
 		System.out.println ();
-		System.out.println ("\tJaivox Version 0.3 (December, 2012)");
-		System.out.println ("\tPlease see http://www.jaivox.com");
+		System.out.println ("\tJaivox Version 0.7 (March, 2014)");
+		System.out.println ("\tPlease see http://www.jaivox.com/documentation.html");
 		System.out.println ();
 	}
 }
