@@ -115,6 +115,15 @@ public class PhoneMatcher {
 		}
 		Utils.quicksortpointy (pp, 0, N-1);
 		return pp;
-	}			
+	}		
+	
+	public double findPhoneCount (String recognized) {
+		String cleaned = clean (recognized);
+		String raw = t2p.convertToPhonemes (cleaned);
+		String test = cleanPhones (raw);
+		String phones [] = Utils.splitTokens (test);
+		double n = (double)(phones.length);
+		return n;
+	}
 
 }

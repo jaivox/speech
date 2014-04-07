@@ -271,6 +271,7 @@ public class Interact {
 		// Pair pp [] = findBestMatches (in);
 		Pair pp [];
 		if (phonematch != null) {
+			n = phonematch.findPhoneCount (cleaned);
 			pp = phonematch.findBestMatchingSentences (cleaned);
 		}
 		else {
