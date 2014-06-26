@@ -19,6 +19,7 @@ package com.jaivox.interpreter;
 import com.jaivox.util.Log;
 import com.jaivox.util.Pair;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  * Use the standard edit distance to match a sequence of phonemes to a stored
@@ -85,27 +86,29 @@ public class PhoneMatcher {
 /**
  * Create a sorted list of stored questions that may match a recognized string
  * produced by a speech recognizer. The results are returned in the form of
- * Pairs, i.e. x and y values. Here x is the index of a question in the original
- * list of questions used when creating this class, and the y is the edit distance
- * of the sequence of recognized phonemes from the phonemes belonging to the
- * selected x-th question.
+ * a map where the index is a Double and the value is an Integer indicating the
+ * position of the matching question in the list of questions.
  * @param question
  * @return 
  */
-	public Pair [] findBestMatchingSentences (String recognized) {
+	public TreeMap <Double, Integer> findBestMatchingSentences (String recognized,
+			int start) {
 		String cleaned = clean (recognized);
 		String raw = t2p.convertToPhonemes (cleaned);
 		String test = cleanPhones (raw);
 		int bestdist = Integer.MAX_VALUE;
 		int bestq = -1;
-		Pair pp [] = new Pair [N];
+		TreeMap <Double, Integer> map = new TreeMap <Double, Integer> ();
 		for (int i=0; i<N; i++) {
-			int d = Utils.approxMatch (qphones [i], test);
+			int j = (i + start)%N;
+			int d = Utils.approxMatch (qphones [j], test);
 			if (d < bestdist) {
 				bestdist = d;
-				bestq = i;
+				bestq = j;
 			}
-			pp [i] = new Pair (i, d);
+			double delta = (double)i/100.0;
+			Double D = new Double (d + delta);
+			map.put (D, new Integer (j));
 		}
 		if (bestq >= 0) {
 			Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
@@ -113,8 +116,7 @@ public class PhoneMatcher {
 		else {
 			Log.info ("No matches found for "+recognized);
 		}
-		Utils.quicksortpointy (pp, 0, N-1);
-		return pp;
+		return map;
 	}		
 	
 	public double findPhoneCount (String recognized) {

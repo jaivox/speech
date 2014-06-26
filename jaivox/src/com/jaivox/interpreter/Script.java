@@ -324,7 +324,7 @@ public class Script {
  * @return
  */
 	
-	public String handleInputValue (TreeMap <Integer, String> map) {
+	public String handleInputValue (TreeMap <Double, String> map) {
 		Log.fine (showLastStates ("handleInputValue"));
 		
 		if (!control.approves (history)) {
@@ -333,12 +333,12 @@ public class Script {
 		if (!control.addTrack ("handleInputValue/"+map.toString ())) {
 			return errorResult (control.getTrackReason (), map);
 		}
-		Integer firstKey = map.firstKey ();
+		Double firstKey = map.firstKey ();
 		if (firstKey == null) {
 			Log.severe ("No input in call to handleInput");
 			return errorResult (Error, map);
 		}
-		int firstval = -(firstKey.intValue ());
+		int firstval = (int)(-(firstKey.doubleValue ()));
 		String input = map.get (firstKey);
 		String spec = getSpec (input);
 		if (spec.equals (Error)) {
@@ -417,7 +417,7 @@ public class Script {
  * @return
  */
 
-	public String [] handleInput (String input, TreeMap <Integer, String> map) {
+	public String [] handleInput (String input, TreeMap <Double, String> map) {
 		Log.fine (showLastStates ("handleInput"));
 		String spec = getSpec (input);
 		String result [] = new String [1];
@@ -434,8 +434,8 @@ public class Script {
 		if (!control.addTrack ("handleInput/"+input+"/"+map.toString ())) {
 			return errorResultArray (control.getTrackReason (), map);
 		}
-		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
-		matches.put (new Integer (-100), input);
+		TreeMap <Double, String> matches = new TreeMap <Double, String> ();
+		matches.put (new Double (-100), input);
 		for (int i=0; i<nfsm; i++) {
 			String statenow = fsm [i][0];
 			String tomatch = fsm [i][1];
@@ -513,8 +513,8 @@ public class Script {
 		if (!control.addTrack ("handleInputDirect/"+input+"/"+state)) {
 			return errorResultArray (control.getTrackReason (), null);
 		}
-		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
-		matches.put (new Integer (-99), input);
+		TreeMap <Double, String> matches = new TreeMap <Double, String> ();
+		matches.put (new Double (-99), input);
 		for (int i=0; i<nfsm; i++) {
 			String statenow = fsm [i][0];
 			String tomatch = fsm [i][1];
@@ -548,7 +548,7 @@ public class Script {
  * @return
  */
 	
-	public String errorResult (String input, TreeMap <Integer, String> map) {
+	public String errorResult (String input, TreeMap <Double, String> map) {
 		QaNode errorNode = lookup.get (errorTag);
 		String errorAnswer = Error;
 		if (errorNode != null) errorAnswer = errorNode.pickRandomTail ();
@@ -564,7 +564,7 @@ public class Script {
 		return errorAnswer;
 	}
 	
-	public String [] errorResultArray (String input, TreeMap <Integer, String> map) {
+	public String [] errorResultArray (String input, TreeMap <Double, String> map) {
 		QaNode errorNode = lookup.get (errorTag);
 		String errorAnswer = Error;
 		if (errorNode != null) errorAnswer = errorNode.pickRandomTail ();
@@ -768,7 +768,7 @@ public class Script {
  * @return
  */
 
-	String [] makeAnswer (String question, String fsm [], TreeMap<Integer, String> map) {
+	String [] makeAnswer (String question, String fsm [], TreeMap<Double, String> map) {
 		Log.fine ("makeAnswer: "+fsm[0]+" "+fsm[1]+" "+fsm[2]+" "+fsm[3]);
 		String rspec = fsm [2];
 		Log.fine ("makeAnswer "+question+" / "+rspec);
@@ -788,7 +788,7 @@ public class Script {
  * @return
  */
 
-	String [] generateText (String input, String spec, String state, TreeMap<Integer, String> map) {
+	String [] generateText (String input, String spec, String state, TreeMap<Double, String> map) {
 		String tokens [] = getTokens (spec);
 		StringBuffer sb = new StringBuffer ();
 		String outstate = state;
@@ -835,7 +835,7 @@ public class Script {
  */
 	
 	String [] handleFunction (String input, String spec, String instate,
-		TreeMap<Integer, String> map) {
+		TreeMap<Double, String> map) {
 		Log.fine ("handleFunction "+input+" / "+spec);
 		if (!control.addTrack ("handleFunction/"+input+"/"+spec+"/"+instate+"/"+map.toString ())) {
 			return errorResultArray (control.getTrackReason (), map);
@@ -872,7 +872,7 @@ public class Script {
  * @return
  */
 	
-	String [] handleExec (String input, String which, TreeMap<Integer, String> map) {
+	String [] handleExec (String input, String which, TreeMap<Double, String> map) {
 		Log.fine ("handleExec "+input+" / "+which);
 		if (!control.addTrack ("handleExec/"+input+"/"+which+"/"+map.toString ())) {
 			return errorResultArray (control.getTrackReason (), map);
@@ -892,7 +892,7 @@ public class Script {
 		}*/
 		if (which.equals ("this")) {
 			if (map != null) {
-				Integer firstkey = map.firstKey ();
+				Double firstkey = map.firstKey ();
 				if (firstkey != null) {
 					String query = map.get (firstkey);
 					if (query != null) {
@@ -928,10 +928,10 @@ public class Script {
 			for (int i=n-1; i>=0; i--) {
 				HistNode hist = history.elementAt (i);
 				// check the map entry in hist
-				TreeMap <Integer, String> matches = hist.matches;
+				TreeMap <Double, String> matches = hist.matches;
 				if (matches == null) continue;
 				if (matches.size () == 0) continue;
-				Integer firstkey = matches.firstKey ();
+				Double firstkey = matches.firstKey ();
 				if (firstkey == null) continue;
 				String query = matches.get (firstkey);
 				if (query == null) continue;
@@ -967,7 +967,7 @@ public class Script {
  * @return
  */
 
-	String [] handleLastquery (String input, TreeMap<Integer, String> map) {
+	String [] handleLastquery (String input, TreeMap<Double, String> map) {
 		Log.fine ("handleLastQuery "+input);
 		if (!control.addTrack ("handleLastQuery/"+input+"/"+map.toString ())) {
 			return errorResultArray (control.getTrackReason (), map);
@@ -975,7 +975,7 @@ public class Script {
 		int n = history.size ();
 		// pull the first item in the map
 		if (map != null) {
-			Integer firstkey = map.firstKey ();
+			Double firstkey = map.firstKey ();
 			if (firstkey != null) {
 				String query = map.get (firstkey);
 				if (query != null) {
@@ -990,10 +990,10 @@ public class Script {
 		for (int i=n-1; i>=0; i--) {
 			HistNode hist = history.elementAt (i);
 			// check the map entry in hist
-			TreeMap <Integer, String> matches = hist.matches;
+			TreeMap <Double, String> matches = hist.matches;
 			if (matches == null) continue;
 			if (matches.size () == 0) continue;
-			Integer firstkey = matches.firstKey ();
+			Double firstkey = matches.firstKey ();
 			if (firstkey == null) continue;
 			String query = matches.get (firstkey);
 			if (query == null) continue;

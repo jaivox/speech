@@ -19,7 +19,6 @@ package com.jaivox.interpreter;
 
 import com.jaivox.util.Log;
 import com.jaivox.util.Recorder;
-import com.jaivox.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,6 +65,7 @@ public class Interact {
 	
 	public static int MaxMatch = 5;
 	public static int triggerSearch = 60;
+	int startSearch = 0;
 
 /**
  * Interact initialize all other classes used in the conversation.
@@ -267,27 +267,32 @@ public class Interact {
 			Log.info ("No input");
 			return gen.errorResult (lq, null);
 		}
-		// old method that does not work very well
-		// Pair pp [] = findBestMatches (in);
-		Pair pp [];
+
+		TreeMap <Double, Integer> candidates;
 		if (phonematch != null) {
 			n = phonematch.findPhoneCount (cleaned);
-			pp = phonematch.findBestMatchingSentences (cleaned);
+			candidates = phonematch.findBestMatchingSentences (cleaned, startSearch);
 		}
 		else {
-			pp = findBestMatchingSentences (cleaned);
+			candidates = findBestMatchingSentences (cleaned, startSearch);
 		}
 		// standardize goodness
-		int best = 0;
-		TreeMap <Integer, String> matches = new TreeMap <Integer, String> ();
-		for (int i=0; i<pp.length && i<MaxMatch; i++) {
-			Pair p = pp [i];
-			double d = (double)(p.y);
-			int percentage = (int)((n-d)*100.0/n);
+		double best = 0.0;
+		double denominator = (double)questions.length;
+		TreeMap <Double, String> matches = new TreeMap <Double, String> ();
+		Set <Double> keys = candidates.keySet ();
+		int m = keys.size ();
+		Double dd [] = keys.toArray (new Double [m]);
+		for (int i=0; i<m && i<MaxMatch; i++) {
+			Double D = dd [i];
+			double d = D.doubleValue ();
+			int qi = candidates.get (D);
+// 			double delta = (double)i/denominator;
+			double percentage = (n-d)*100.0/n;
 			if (percentage > best) best = percentage;
-			Integer I = new Integer (-percentage);
-			String s = questions [p.x];
-			matches.put (I, s);
+			Double E = new Double (-percentage);
+			String s = questions [qi];
+			matches.put (E, s);
 		}
 		Log.info ("Matches without searches: "+matches.toString ());
 		// now try the search approach if percentage is not high enough
@@ -302,38 +307,51 @@ public class Interact {
 					ntok++;
 				}
 			}
-			Pair qq [] = findBestSearchResults (searches);
+			TreeMap <Double, Integer> results;
+			results = findBestSearchResults (searches, startSearch);
 			double xntok = (double)ntok;
 			// judge the seach results
-			for (int i=0; i<qq.length && i<MaxMatch; i++) {
-				Pair p =  qq [i];
-				double d = (double)(-p.y);
-				int percentage = (int)((d/xntok)*100.0);
+			keys = results.keySet ();
+			m = keys.size ();
+			dd = keys.toArray (new Double [m]);
+			for (int i=0; i<m && i<MaxMatch; i++) {
+				Double D = dd [i];
+				double d = -D.doubleValue ();
+				int qi = results.get (D);
+	// 			double delta = (double)i/denominator;
+				double percentage = (d/xntok)*100.0;
 				if (percentage > best) best = percentage;
-				Integer I = new Integer (-percentage);
-				String s = questions [p.x];
-				matches.put (I, s);
+				Double E = new Double (-percentage);
+				String s = questions [qi];
+				matches.put (E, s);
 			}
 		}
 		Log.info ("Matches with searches: "+matches.toString ());
 		String result = gen.handleInputValue (matches);
 		Recorder.record ("A: "+result);
 		// gen.control.showTrack ();
+		int found = findMatchingQuestion (matches);
+		int N = questions.length;
+		startSearch = (found + 1)%N;
+		Log.info ("found = "+found+" startSearch = "+startSearch);
 		return result;
 	}
 
-	Pair [] findBestMatchingSentences (String query) {
+	TreeMap <Double, Integer>  findBestMatchingSentences (String query, int start) {
 		int N = questions.length;
 		int bestdist = Integer.MAX_VALUE;
 		int bestq = -1;
-		Pair pp [] = new Pair [N];
+		TreeMap <Double, Integer> map = new TreeMap <Double, Integer> ();
 		for (int i=0; i<N; i++) {
+			int j = (i + start)%N;
 			int d = Utils.approxMatch (questions [i], query);
 			if (d < bestdist) {
 				bestdist = d;
-				bestq = i;
+				bestq = j;
 			}
-			pp [i] = new Pair (i, d);
+			double delta = (double)i/100.0;
+			Double D = new Double (d + delta);
+			map.put (D, new Integer (j));
 		}
 		if (bestq >= 0) {
 			Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
@@ -341,55 +359,9 @@ public class Interact {
 		else {
 			Log.info ("No matches found for "+query);
 		}
-		Utils.quicksortpointy (pp, 0, N-1);
-		return pp;
-		
+		return map;
 	}
 	
-	Pair [] findBestMatches (String in []) {
-		int n = in.length;
-		StringBuffer sb = new StringBuffer ();
-		for (int i=0; i<n; i++) {
-			String word = in [i];
-			int best = -1;
-			int bestval = Integer.MAX_VALUE;
-			for (int j=0; j<nl; j++) {
-				String lex = lexicon [j];
-				int d = Utils.editDistance (word, lex);
-				if (d < bestval && checkfit (word, lex, d)) {
-					best = j;
-					bestval = d;
-				}
-			}
-			if (best != -1) {
-				sb.append (" "+lexicon [best]);
-				Log.finest (word + " " +lexicon [best] + " " + bestval);
-			}
-		}
-		String result = new String (sb);
-		Log.info ("Bestmatch words: "+result);
-		int N = questions.length;
-		int bestdist = Integer.MAX_VALUE;
-		int bestq = -1;
-		Pair pp [] = new Pair [N];
-		for (int i=0; i<N; i++) {
-			int d = Utils.approxMatch (questions [i], result);
-			if (d < bestdist) {
-				bestdist = d;
-				bestq = i;
-			}
-			pp [i] = new Pair (i, d-1);
-		}
-		if (bestq >= 0) {
-			Log.info ("Best match question "+questions [bestq]+" distance "+bestdist);
-		}
-		else {
-			Log.info ("No matches found for "+result);
-		}
-		Utils.quicksortpointy (pp, 0, N-1);
-		return pp;
-	}
-
 	boolean checkfit (String a, String b, int d) {
 		int n = a.length ();
 		int m = b.length ();
@@ -400,16 +372,15 @@ public class Interact {
 	
 	// should do this with incremental separating search
 	
-	Pair [] findBestSearchResults (LinkedHashMap <String, String> searches) {
+	TreeMap <Double, Integer>  findBestSearchResults (
+			LinkedHashMap <String, String> searches, int start) {
 		int N = questions.length;
 		int bestmatch = 0;
 		int bests = -1;
-		Pair pp [] = new Pair [N];
+		TreeMap <Double, Integer> map = new TreeMap <Double, Integer> ();
 		for (int i=0; i<N; i++) {
-			pp [i] = new Pair (i, 0);
-		}
-		for (int i=0; i<N; i++) {
-			StringTokenizer st = new StringTokenizer (questions [i]);
+			int j = (i + start)%N;
+			StringTokenizer st = new StringTokenizer (questions [j]);
 			String first = st.nextToken ();	// discard it
 			if (!first.equals ("jaivoxsearch")) continue;
 			int count = 0;
@@ -421,7 +392,9 @@ public class Interact {
 				bestmatch = count;
 				bests = i;
 			}
-			pp [i] = new Pair (i, -count);
+			double delta = (double)j/100.0;
+			Double D = new Double (-count-delta);
+			map.put (D, new Integer (j));
 		}
 		if (bests >= 0) {
 			System.out.println ("Best search question "+questions [bests]+" distance "+bestmatch);
@@ -429,10 +402,25 @@ public class Interact {
 		else {
 			System.out.println ("No matches found for search "+searches.toString ());
 		}
-		Utils.quicksortpointy (pp, 0, N-1);
-		return pp;
+		return map;
 	}
 
+	int findMatchingQuestion (TreeMap <Double, String> matches) {
+		if (matches.size () == 0) return 0;
+		Double D = matches.firstKey ();
+		String question = matches.get (D);
+		// find question in the list of questions
+		int n = questions.length;
+		int found = -1;
+		for (int i=0; i<n; i++) {
+			if (questions [i].equals (question)) {
+				found = i;
+				break;
+			}
+		}
+		if (found == -1) return 0;
+		else return found;
+	}
 	
 /**
  * Get the Script associated wit this interpreter

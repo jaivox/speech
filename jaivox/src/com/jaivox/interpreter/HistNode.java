@@ -28,7 +28,7 @@ public class HistNode {
 	String fsmNode [];
 	String userInput;
 	String systemResponse;
-	TreeMap <Integer, String> matches;
+	TreeMap <Double, String> matches;
 
 /**
  * Create a history node. This is generally called from Script
@@ -39,7 +39,7 @@ public class HistNode {
  */
 	
 	public HistNode (String fnode [], String input, String answer) {
-		matches = new TreeMap <Integer, String> ();
+		matches = new TreeMap <Double, String> ();
 		fsmNode = new String [quad];
 		fsmNode = (String [])fnode.clone ();
 		userInput = input;
@@ -57,7 +57,7 @@ public class HistNode {
  * @param map
  */
 	
-	public HistNode (String fnode [], String input, String answer, TreeMap <Integer, String> map) {
+	public HistNode (String fnode [], String input, String answer, TreeMap <Double, String> map) {
 		matches = map;
 		fsmNode = new String [quad];
 		fsmNode = (String [])fnode.clone ();
@@ -72,13 +72,13 @@ public class HistNode {
 		boolean b2 = fsmNode [2].equals (otherNode [2]);
 		boolean b3 = fsmNode [3].equals (otherNode [3]);
 		if (!b0 || !b1 || !b2 || !b3) return false;
-		Set <Integer> keys = matches.keySet ();
-		TreeMap <Integer, String> motches = other.getMatches ();
-		Set <Integer> koys = motches.keySet ();
+		Set <Double> keys = matches.keySet ();
+		TreeMap <Double, String> motches = other.getMatches ();
+		Set <Double> koys = motches.keySet ();
 		boolean kb = keys.equals (koys);
 		if (!kb) return false;
-		for (Iterator<Integer> it = keys.iterator (); it.hasNext ();) {
-			Integer key = it.next ();
+		for (Iterator<Double> it = keys.iterator (); it.hasNext ();) {
+			Double key = it.next ();
 			String m1 = matches.get (key);
 			String m2 = motches.get (key);
 			if (m2 == null) return false;
@@ -119,12 +119,12 @@ public class HistNode {
 
 	public HistNode clone () {
 		// build a new copy of the matches
-		TreeMap <Integer, String> motches = new TreeMap <Integer, String> ();
+		TreeMap <Double, String> motches = new TreeMap <Double, String> ();
 		if (matches == null) motches = null;
 		else {
-			Set <Integer> keys = matches.keySet ();
-			for (Iterator<Integer> it = keys.iterator (); it.hasNext ();) {
-				Integer key = it.next ();
+			Set <Double> keys = matches.keySet ();
+			for (Iterator<Double> it = keys.iterator (); it.hasNext ();) {
+				Double key = it.next ();
 				String m1 = matches.get (key);
 				String m2 = new String (m1);
 				motches.put (key, m2);
@@ -151,7 +151,7 @@ public class HistNode {
  * @return
  */
 
-	public TreeMap<Integer, String> getMatches () {
+	public TreeMap<Double, String> getMatches () {
 		return matches;
 	}
 
@@ -196,7 +196,7 @@ public class HistNode {
  * @param matches
  */
 	
-	public void setMatches (TreeMap<Integer, String> matches) {
+	public void setMatches (TreeMap<Double, String> matches) {
 		this.matches = matches;
 	}
 
