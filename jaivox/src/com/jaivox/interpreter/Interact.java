@@ -103,10 +103,6 @@ public class Interact {
  * the interpreter. (The recognizer's output is matched against questions
  * that can be recognized to find a close match - if any.)
  * 
- * The interpreter maintains a Semnet, i.e. a semantic net, of topics
- * that have been discussed. This is used to suggest topics in case the
- * recognizer is not doing too well.
- * 
  * Starting with version 0.7, you can optionally specify a file "phone_database".
  * For English this is a set of text to phoneme rules learned using a program
  * called t2p created at Carnegie Mellon University which uses the CMU Pronouncing
