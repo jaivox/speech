@@ -37,18 +37,33 @@ import com.jaivox.util.Log;
  */
 
 public class SpeechInput {
-
-	String address1 = "http://www.google.com/speech-api/v1/recognize?lang=";
+	String address1 = "https://www.google.com/speech-api/v2/recognize?output=json&lang=";
+	// String address1 = "https://www.google.com/speech-api/v2/recognize?lang=";
 	// put en-us in between these
+	String keystub = "&key=";
+	String key;
 	String address2 = "&client=chromium";
 	String agent = "Mozilla/5.0";
 	String type = "audio/x-flac; rate=16000";
 
-	String utt = "utterance";
+	String utt = "transcript";
 	String first = "\":\"";
-	String second = "\",\"";
+	String second = "\"";
 
-	public SpeechInput () {
+/**
+ * API key from Google is needed to use the Speech API
+ * @param keystring 
+ */
+	public SpeechInput (String keystring) {
+		if (keystring == null || keystring.trim ().length () == 0) {
+			Log.severe ("Google recognizer now requies an API key.");
+			System.out.println ("Please see http://www.chromium.org/developers/how-tos/api-keys");
+			System.out.println ("Please read instructions there, you need to join the ");
+			System.out.println ("Chromium developer's group.");
+			key = "";
+			return;
+		}
+		key = keystring;
 	}
 
 /**
@@ -59,9 +74,25 @@ public class SpeechInput {
  * @param lang
  * @return
  */
+/*
+  Possible format of result:
+  
+  {"result":[]}
+	{"result":[{"alternative":[
+	{"transcript":"is Avenue of the quickest highway"},
+	{"transcript":"is Avenue the quickest highway"},
+	{"transcript":"is Avenue of the quickest Highway"},
+	{"transcript":"is Avenue over the quickest highway"},
+	{"transcript":"is Avenue old the quickest highway"}],"final":true}],
+	"result_index":0}
+ */
 	public String recognize (String flacfile, String lang) {
 		try {
-			String address = address1 + lang + address2;
+			if (key.equals ("")) {
+				Log.severe ("Please use your valid API key to create SpeechInput");
+				return "Error";
+			}
+			String address = address1 + lang +keystub + key + address2;
 			URL url = new URL (address);
 			URLConnection urlConnection = url.openConnection ();
             urlConnection.setUseCaches(false);
@@ -98,9 +129,10 @@ public class SpeechInput {
 				}
 				in.close ();
 				String result = new String (sb);
+				Log.info (result);
 				int pos = result.indexOf (utt);
 				if (pos == -1) {
-					Log.severe (flacfile+"\tNo utt result");
+					Log.severe (flacfile+"\tNo transcript in result");
 					return "error";
 				}
 				int qos = result.indexOf (first, pos+1);
@@ -108,9 +140,9 @@ public class SpeechInput {
 					Log.severe (flacfile+"\tNo first result");
 					return "error";
 				}
-				int ros = result.indexOf (second, qos+1);
+				int ros = result.indexOf (second, qos+3);
 				if (ros == -1) {
-					Log.severe (flacfile+"\tNo second result");
+					Log.severe (flacfile+"\tNo termination for first result");
 					return "error";
 				}
 				recognized = result.substring (qos+3, ros);

@@ -39,7 +39,7 @@ public class PATliveMultiWeb extends Thread {
 	static String type = ".wav";
 
 	static void processSpeech (WebAsrServer server) {
-		SpeechInput R = new SpeechInput ();
+		SpeechInput R = new SpeechInput ("");
 		Mike mike = new Mike ("PATliveMultiWeb", type);
 		while (true) {
 			String flac = mike.nextsample (type, wait);

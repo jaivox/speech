@@ -56,7 +56,7 @@ public class PATbatchMultiWeb extends Thread {
 				System.out.println ("on recordings to be used by the recognizer.");
 				return;
 			}
-			SpeechInput recognizer = new SpeechInput ();
+			SpeechInput recognizer = new SpeechInput ("");
 
 			for (int i=0; i<recorded.length; i++) {
 				StringBuffer sb = new StringBuffer ();
