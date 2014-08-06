@@ -55,11 +55,12 @@ public class SpeechInput {
  * @param keystring 
  */
 	public SpeechInput (String keystring) {
-		if (keystring == null || keystring.trim ().length () == 0) {
+		if (keystring == null || keystring.trim ().length () == 0 || keystring.equals ("xxxx")) {
 			Log.severe ("Google recognizer now requies an API key.");
 			System.out.println ("Please see http://www.chromium.org/developers/how-tos/api-keys");
 			System.out.println ("Please read instructions there, you need to join the ");
 			System.out.println ("Chromium developer's group.");
+			System.out.println ("Add this key as the value of \"googleapikey\" in your conf file");
 			key = "";
 			return;
 		}

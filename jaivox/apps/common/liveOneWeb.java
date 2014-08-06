@@ -52,7 +52,7 @@ public class PATliveOneWeb {
 	}
 
 	void processSpeech () {
-		SpeechInput R = new SpeechInput ("");
+		SpeechInput R = new SpeechInput (PATgoogleapikey);
 		Mike mike = new Mike ("PATliveOneWeb", type);
 		int empty = 0;
 		int maxempty = 5;
