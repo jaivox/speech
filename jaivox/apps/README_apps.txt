@@ -1,7 +1,12 @@
 
 This directory contains several sample applications along with some
-data for these applications. This file is based on Jaivox version 0.5
-(August, 2013).
+data for these applications. This file is based on Jaivox version 0.7a
+(August, 2014). This version uses Google's API key for recognition (for those
+applications using the "web" recognizer. 
+
+Please see http://www.chromium.org/developers/how-tos/api-keys
+Please read instructions there, you need to join the Chromium developer's group.
+Add this key as the value of "googleapikey" in your conf file
 
 The directories are as follows:
 

@@ -1,4 +1,5 @@
-
+   Jaivox version 0.7a August 2014
+   based on 
    Jaivox version 0.7 March 2014
    Copyright 2010-2014 by Bits and Pixels, Inc.
 
@@ -16,6 +17,14 @@
 
 What is different?
 =================
+Version 0.7a is a maintenance release to allow for a change in Google's speech
+recognition API. Now Google requires an API key, which is free so far, but limits
+you to 50 recognition calls per day.
+
+Please see http://www.chromium.org/developers/how-tos/api-keys
+Please read instructions there, you need to join the Chromium developer's group.
+Add this key as the value of "googleapikey" in your conf file
+
 This version includes a phoneme-based error correction method (for English, but
 it can be extended to other languages.) There are some wave format audio file
 classes that can be used in word-level alignment of text and audio.
