@@ -340,7 +340,7 @@ public class Interact {
 		TreeMap <Double, Integer> map = new TreeMap <Double, Integer> ();
 		for (int i=0; i<N; i++) {
 			int j = (i + start)%N;
-			int d = Utils.approxMatch (questions [i], query);
+			int d = Utils.approxMatch (questions [j], query);
 			if (d < bestdist) {
 				bestdist = d;
 				bestq = j;
